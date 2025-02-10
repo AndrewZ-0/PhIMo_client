@@ -52,14 +52,17 @@
         </div>
 
         <div id = "simulationProgressBarContainer">
-            <button id = "playButton"><img src = "assets/playButton.svg"/></button>
-            <button id = "pauseButton" class = "hidden"><img src = "assets/pauseButton.svg"/></button>
             <div id = "simulationProgressBar">
                 <div id = "simulationProgressBar-progress">
                 </div>
             </div>
-            <button id = "speedButton"><img src = "assets/speedometer.svg"/></button>
-            <p id = "time-entry">0:00 / 0:00</p>
+
+            <div id = "playback-controls" style = "display: flex; align-items: center;">
+                <button id = "playButton"><img id = "playButton_img" src = "assets/playButton.svg"/></button>
+                <button id = "pauseButton" class = "hidden"><img id = "playButton_img" src = "assets/pauseButton.svg"/></button>
+                <p id = "time-entry">0:00 / 0:00</p>
+                <button id = "speedButton"><img id = "speedButton_img" src = "assets/speedometer.svg"/></button>
+            </div>
         </div>
 
         <div id = "speedMenu"  class = "hidden"> 
