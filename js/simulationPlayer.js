@@ -293,16 +293,31 @@ function formatTime(seconds) {
 
 
 function showSpeedMenu() {
-    document.getElementById("speedMenu").classList.remove("hidden");
-    document.getElementById("speedButton").removeEventListener("pointerdown", showSpeedMenu);
-    document.getElementById("speedButton").addEventListener("pointerdown", hideSpeedMenu);
+    const speedMenu = document.getElementById("speedMenu");
+    const speedButton = document.getElementById("speedButton");
+    speedMenu.classList.remove("hidden");
+    speedButton.removeEventListener("pointerover", showSpeedMenu);
+    speedButton.addEventListener("pointerout", hideSpeedMenu);
+    speedMenu.addEventListener("pointerout", hideSpeedMenu);
+    speedMenu.addEventListener("pointerover", showSpeedMenu);
 }
+
 function hideSpeedMenu() {
-    document.getElementById("speedMenu").classList.add("hidden");
-    document.getElementById("speedButton").removeEventListener("pointerdown", hideSpeedMenu);
-    document.getElementById("speedButton").addEventListener("pointerdown", showSpeedMenu);
+    //to avoid flickering of div when leaving and then re-entering div
+    setTimeout(() => {
+        const speedMenu = document.getElementById("speedMenu");
+        const speedButton = document.getElementById("speedButton");
+        if (!speedMenu && !speedButton.matches(":hover")) {
+            speedMenu.classList.add("hidden");
+            speedButton.removeEventListener("pointerout", hideSpeedMenu);
+            speedButton.addEventListener("pointerover", showSpeedMenu);
+            speedMenu.removeEventListener("pointerover", showSpeedMenu);
+            speedMenu.removeEventListener("pointerout", hideSpeedMenu);
+        }
+    }, 10);
 }
-document.getElementById("speedButton").addEventListener("pointerdown", showSpeedMenu);
+
+document.getElementById("speedButton").addEventListener("pointerover", showSpeedMenu);
 
 
 async function setupPlayer() {

@@ -167,8 +167,6 @@ async function loadData() {
         projectData = projectResponse.data.simConfig;
     }
 
-    console.log(projectData)
-
     settingsData = projectResponse.data.settings; //will use this later
     let objects = [];
     for (let objectName in projectData.objects) {
@@ -985,6 +983,7 @@ async function updateComputingProgress() {
 
         progressUpdateInterval = Math.round(progressUpdateInterval);
 
+
         const progressBarTiming = {
             duration: progressUpdateInterval,
             iterations: 1,
@@ -1075,7 +1074,7 @@ async function createAndComputeNewSimulation() {
     document.getElementById("computeNewSimulationButton").classList.add("hidden");
     document.getElementById("simulationConfigs").classList.add("hidden");
     
-    progressUpdateInterval = 100;
+    progressUpdateInterval = 150;
     lastProgress = 0;
     start_t = Date.now();
     currentProgressTimeout = setTimeout(updateComputingProgress, progressUpdateInterval);
