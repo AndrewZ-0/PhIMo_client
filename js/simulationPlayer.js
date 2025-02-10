@@ -307,7 +307,7 @@ function hideSpeedMenu() {
     setTimeout(() => {
         const speedMenu = document.getElementById("speedMenu");
         const speedButton = document.getElementById("speedButton");
-        if (!speedMenu && !speedButton.matches(":hover")) {
+        if (!speedMenu.matches(":hover") && !speedButton.matches(":hover")) {
             speedMenu.classList.add("hidden");
             speedButton.removeEventListener("pointerout", hideSpeedMenu);
             speedButton.addEventListener("pointerover", showSpeedMenu);
