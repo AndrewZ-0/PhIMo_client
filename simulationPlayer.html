@@ -61,13 +61,17 @@
                 <button id = "playButton"><img id = "playButton_img" src = "assets/playButton.svg"/></button>
                 <button id = "pauseButton" class = "hidden"><img id = "playButton_img" src = "assets/pauseButton.svg"/></button>
                 <p id = "time-entry">0:00 / 0:00</p>
+
                 <button id = "speedButton"><img id = "speedButton_img" src = "assets/speedometer.svg"/></button>
             </div>
         </div>
 
-        <div id = "speedMenu"  class = "hidden"> 
-            <label>Speed:</label>
-            <input type = "number">
+        <div id = "speedMenu-overlay" class = "hidden">
+            <button id = "hide-speedMenu-overlay-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
+                <h2>Speed:</h2>
+                <input type = "number">
+            </div>
         </div>
     </body>
 </html>

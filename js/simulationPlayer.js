@@ -293,32 +293,23 @@ function formatTime(seconds) {
 
 
 function showSpeedMenu() {
-    const speedMenu = document.getElementById("speedMenu");
+    const speedMenu = document.getElementById("speedMenu-overlay");
     const speedButton = document.getElementById("speedButton");
     speedMenu.classList.remove("hidden");
-    speedButton.removeEventListener("pointerover", showSpeedMenu);
-    speedButton.addEventListener("pointerout", hideSpeedMenu);
-    speedMenu.addEventListener("pointerout", hideSpeedMenu);
-    speedMenu.addEventListener("pointerover", showSpeedMenu);
+    speedButton.removeEventListener("pointerdown", showSpeedMenu);
+    speedButton.addEventListener("pointerdown", hideSpeedMenu);
 }
 
 function hideSpeedMenu() {
-    //to avoid flickering of div when leaving and then re-entering div
-    setTimeout(() => {
-        const speedMenu = document.getElementById("speedMenu");
-        const speedButton = document.getElementById("speedButton");
-        if (!speedMenu.matches(":hover") && !speedButton.matches(":hover")) {
-            speedMenu.classList.add("hidden");
-            speedButton.removeEventListener("pointerout", hideSpeedMenu);
-            speedButton.addEventListener("pointerover", showSpeedMenu);
-            speedMenu.removeEventListener("pointerover", showSpeedMenu);
-            speedMenu.removeEventListener("pointerout", hideSpeedMenu);
-        }
-    }, 10);
+    const speedMenu = document.getElementById("speedMenu-overlay");
+    const speedButton = document.getElementById("speedButton");
+    speedMenu.classList.add("hidden");
+    speedButton.addEventListener("pointerdown", showSpeedMenu);
+    speedButton.removeEventListener("pointerdown", hideSpeedMenu);
 }
 
-document.getElementById("speedButton").addEventListener("pointerover", showSpeedMenu);
-
+document.getElementById("speedButton").addEventListener("pointerdown", showSpeedMenu);
+document.getElementById("hide-speedMenu-overlay-button").addEventListener("pointerup", hideSpeedMenu);
 
 async function setupPlayer() {
     const response = await communicator.loginFromSessionStorage();
