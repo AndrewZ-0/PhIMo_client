@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html lang = "en">
+
+	<head>
+		<meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+
+        <link rel = "stylesheet" href = "./styles/master.css">
+        <link rel = "stylesheet" href = "./styles/forms.css">
+        <script src = "js/signup.js" type = "module"></script>
+
+		<title>PhIMo: Signup</title>
+	</head>
+
+	<body>
+        <div id = "titlebar">
+            <button id = "titleBarReturnButton" onclick = "location.href = 'mainMenu.html'"><img src = "assets/arrowButtonIcon.svg"/></button>
+            <label class = "miniTitleLabel">Signup</label>
+        </div>
+
+        <div id = "mainScreen">
+            <div class = "form-container">
+                <form onsubmit = "return false;">
+
+                    <div class = "input-group">
+                        <label for = "email">Email</label>
+                        <input type = "text" id = "email" name = "email" placeholder = "Enter your email">
+                    </div>
+
+                    <div class = "input-group">
+                        <label for = "username">Username</label>
+                        <input type = "text" id = "username" name = "username" placeholder = "Enter your username">
+                    </div>
+              
+                    <div class = "input-group">
+                        <label for = "password1">Password</label>
+                        <input type = "password" id = "password1" name = "password" placeholder = "Enter your password">
+                    </div>
+
+                    <div style = "margin-bottom: 35px;" class = "input-group">
+                        <label for = "password2">Retype Password</label>
+                        <input type = "password" id = "password2" name = "password" placeholder = "Enter your password again">
+                    </div>
+              
+                    <div class = "checkbox-group">
+                        <input type = "checkbox" id = "show-password" onclick = "togglePasswordVisibility()">
+                        <label for = "show-password">Show passwords</label>
+                    </div>
+              
+                    <button>Signup</button>
+                </form>
+
+                <div id = "error-message" style = "color: red;"></div> 
+
+                <div class = "form-footer">
+                <p>Already have an account? <a href = "login.html">Login</a></p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function togglePasswordVisibility() {
+                const passwordField1 = document.getElementById("password1");
+                const passwordField2 = document.getElementById("password2");
+                const showPasswordCheckbox = document.getElementById("show-password");
+                if (showPasswordCheckbox.checked) {
+                    passwordField1.type = "text";
+                    passwordField2.type = "text";
+                } 
+                else {
+                    passwordField1.type = "password";
+                    passwordField2.type = "password";
+                }
+            }
+        </script>
+
+	</body>
+
+</html>

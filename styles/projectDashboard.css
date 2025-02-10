@@ -1,0 +1,187 @@
+#projectCardsContainer {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    overflow-x: scroll;
+    padding: 15px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    align-items: center;
+}
+
+#projectCardsContainer::-webkit-scrollbar {
+    height: 10px;
+}
+
+#projectCardsContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#projectCardsContainer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+#projectCardsContainer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+.project-card,
+.new-project-card {
+    user-select: none;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    width: 300px;
+    height: 250px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    outline: none;
+    align-items: center;
+    justify-content: center;
+
+    transition: box-shadow 0.5s ease;
+}
+
+.project-card.focus, 
+.new-project-card.focus {
+    border-color: rgb(0, 123, 255);
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.9);
+}
+
+.project-card img {
+    border: 1px solid #ccc;
+    max-height: 180px;
+    max-width: 100%;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.project-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+}
+
+.project-details .project-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.new-project-card .new-project-icon {
+    display: flex;
+    font-size: 160px;
+    margin-bottom: -25px;
+    color: #888;
+}
+
+#new-project-overlay,
+#rename-project-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.overlay-content {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding: 20px;
+    height: auto;
+    text-align: center;
+    width: 400px;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease;
+}
+
+#new-project-overlay.hidden,
+#rename-project-overlay.hidden {
+    display: none;
+}
+
+#hide-new-project-overlay-button, 
+#hide-rename-project-overlay-button {
+    position: absolute; 
+    top: 0; 
+    right: 0; 
+    width: 20; 
+    height: 20; 
+    font-weight: bold; 
+    font-size: 20px; 
+    color: #fff; 
+    background-color: rgba(0,0,0,0);
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+#projects-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#projects-container::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 4px;
+}
+
+#projects-container::-webkit-scrollbar-track {
+    background-color: #f9f9f9;
+}
+
+#projectEdits button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+
+
+#projectEdits {
+    height: 50px; 
+    width: 100%; 
+    justify-content: right;
+}
+
+
+#renameProject {
+    width: 35px; 
+    height: 35px; 
+    background-color: #f9f9f9;
+}
+
+#deleteProject {
+    width: 35px; 
+    height: 35px; 
+    background-color: #f9f9f9;
+
+}
+
+
+
+
+

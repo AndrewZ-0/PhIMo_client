@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+        <title>PhIMo: Project Workbench</title>
+        
+        <link rel = "stylesheet" href = "./styles/master.css">
+        <link rel = "stylesheet" href = "./styles/forms.css">
+        <link rel = "stylesheet" href = "./styles/projectWorkbench.css">
+        <script src = "js/projectWorkbench.js" type = "module"></script>
+    </head>
+
+    <body>
+        <div id = "titlebar">
+            <div id = "projectLevelMenu-left">
+                <button id = "titleBarReturnButton"><img src = "assets/arrowButtonIcon.svg"/></button>
+                <label id = "titlebar-project-name"></label>
+                <button id = "saveProjectButton" style = "position: relative;"><img src = "assets/saveButtonIcon.svg"/><span class = "badge hidden"></span></button>
+            </div>
+
+            <div id = "projectLevelMenu-right">
+                <button id = "playButton"><img src = "assets/playButton.svg"/></button>
+                <button id = "settingsButton"><img src = "assets/settingsMenuIcon.svg"/></button>
+            </div>
+        </div>
+
+        <div id = "workspace">
+            <div id = "canvas-container">
+                <canvas id = "model-surface"></canvas>
+                <canvas id = "axisViewport-surface"></canvas>
+                <canvas id = "orientationViewport-surface"></canvas>
+            </div>
+
+            <div id = "overlays">
+                <p id = "shaderMode-overlay" class = "overlay-element"></p>
+                <p id = "cameraMode-overlay" class = "overlay-element"></p>
+                <p id = "fov-overlay" class = "overlay-element"></p>
+                <p id = "near-overlay" class = "overlay-element"></p>
+                <p id = "far-overlay" class = "overlay-element"></p>
+                <p id = "fps-overlay" class = "overlay-element"></p>
+
+                <p id = "x-overlay" class = "overlay-element"></p>
+                <p id = "y-overlay" class = "overlay-element"></p>
+                <p id = "z-overlay" class = "overlay-element"></p>
+                <p id = "pitch-overlay" class = "overlay-element"></p>
+                <p id = "yaw-overlay" class = "overlay-element"></p>
+                <p id = "roll-overlay" class = "overlay-element"></p>
+
+                <p id = "r-overlay" class = "overlay-element"></p>
+                <p id = "altitude-overlay" class = "overlay-element"></p>
+                <p id = "azimuth-overlay" class = "overlay-element"></p>
+
+                <p id = "selection-overlay" class = "overlay-element"></p>
+                <p id = "selectionMovement-overlay" class = "overlay-element"></p>
+                <p id = "mouseX-overlay" class = "overlay-element"></p>
+                <p id = "mouseY-overlay" class = "overlay-element"></p>
+            </div>
+        </div>
+
+        <div id = "projectDataMenu" class = "overlay-element hidden">
+            <h2 id = "projectDataMenu-projectName"></h2>
+            <div class = "project-details">
+                <p>Creation Date: <span id = "project-creation-date"></span></p>
+            </div>
+        </div>
+
+        <div id = "workbenchLevelMenu">
+            <div id = "tabIsle">
+                <button class = "tab" id = "toolsTab">Tools</button>
+                <button class = "tab" id = "modelsTab">Models</button>
+                <button class = "tab" id = "cameraTab">Camera</button>
+                <button class = "tab" id = "shadersTab">Shaders</button>
+            </div>
+
+            <div id = "workbenchControls">
+                <button id = "undo-button">⭠</button>
+                <button id = "redo-button">⭢</button>
+                <!--other sim controls-->
+            </div>
+        </div>
+
+        <div id = "toolsMenu" class = "tab-content hidden">
+            <button id = "openCreateObjectMenu-button">Create Object</button> <!--brings up create object menu to right-->
+            <button id = "deleteObject-button">Delete Object</button> <!--delete selection-->
+            <button id = "findObject-button">Find Object</button> <!--find object (useful for finding lost objects)-->
+        </div>
+        <div id = "modelsMenu" class = "tab-content hidden">
+            <div class = "input-group" style = "padding: 10px 5px 10px 5px;">
+                <label style = "font-size: 14px; width: 90px;">Gravity</label>
+                <input type = "checkbox" class = "model-toggle" id = "gravity-toggle">
+            </div>
+            <div class = "input-group" style = "padding: 10px 5px 10px 5px;">
+                <label style = "font-size: 14px; width: 90px;">Electric Froce</label> 
+                <input type = "checkbox" class = "model-toggle" id = "electricForce-toggle">
+            </div>
+            <div class = "input-group" style = "padding: 10px 5px 10px 5px;">
+                <label style = "font-size: 14px; width: 90px;">Magnetic Force</label> 
+                <input type = "checkbox" class = "model-toggle" id = "magneticForce-toggle">
+            </div>
+            <div class = "input-group" style = "padding: 10px 5px 10px 5px;">
+                <label style = "font-size: 14px; width: 90px;">Collisions</label> 
+                <input type = "checkbox" class = "model-toggle" id = "collisions-toggle">
+            </div>
+        </div>
+        <div id = "cameraMenu" class = "tab-content hidden">
+            <!--camera-->
+            <!--all the camera stuff currently controlled only by keybinds-->
+        </div>
+        <div id = "shadersMenu" class = "tab-content hidden">
+            <!--shaders-->
+            <!--all the shaders stuff currently controlled only by keybinds-->
+        </div>
+
+        <div id = "createObject-overlay" class = "hidden">
+            <button id = "hide-createObject-overlay-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 30%; min-width: 300px; max-width: 600px;">
+                <h2>Create Object</h2>
+
+                <div class = "form-container">
+                    <form id = "createNewObject-form" onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "create-objectName-group">
+                            <label for = "create-objectName" style = "height: 20px; width: 100px; text-align: left;">Object Name</label>
+                            <input type = "text" id = "create-objectName" name = "create-objectName" style = "width: 180px; height: 20px;" required>
+                        </div>
+
+                        <div class = "permanant-input-group" id = "create-objectType-group">
+                            <label for = "create-objectType" style = "height: 20px; width: 100px; text-align: left;">Object Type</label>
+                            <select name = "create-objectType" id = "create-objectType" style = "width: 134px;" required>
+                                <option value = "0">Particle</option>
+                                <option value = "1">Plane</option>
+                            </select>
+                        </div>
+
+                        <div class = "input-group" id = "create-position-group" style = "flex-direction: row;">
+                            <label style = "height: 20px; width: 100px; text-align: left;">Position</label>
+
+                            <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                <div class = "input-subgroup">
+                                    <label for = "create-position-x" class = "numInpLabel">X</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-position-x" name = "create-position-x" class = "numInpBox create-input" value = "0" required>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "create-position-y" class = "numInpLabel">Y</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-position-y" name = "create-position-y" class = "numInpBox create-input" value = "0" required>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "create-position-z" class = "numInpLabel">Z</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-position-z" name = "create-position-z" class = "numInpBox create-input" value = "0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class = "input-group" id = "create-velocity-group" style = "flex-direction: row;">
+                            <label style = "height: 20px; width: 100px; text-align: left;">Velocity</label>
+
+                            <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                <div class = "input-subgroup">
+                                    <label for = "create-velocity-x" class = "numInpLabel">VX</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-velocity-x" name = "create-velocity-x" class = "numInpBox create-input" value = "0" required>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "create-velocity-y" class = "numInpLabel">VY</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-velocity-y" name = "create-velocity-y" class = "numInpBox create-input" value = "0" required>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "create-velocity-z" class = "numInpLabel">VZ</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-velocity-z" name = "create-velocity-z" class = "numInpBox create-input" value = "0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class = "input-group" id = "create-dimentions-group" style = "flex-direction: row;">
+                            <label style = "height: 20px; width: 100px; text-align: left;">Dimentions</label>
+
+                            <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                <div class = "input-subgroup">
+                                    <label for = "create-length" class = "numInpLabel">Length</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-length" name = "create-length" class = "numInpBox create-input" value = "10" required>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "create-width" class = "numInpLabel">Width</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-width" name = "create-width" class = "numInpBox create-input" value = "10" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class = "input-group" id = "create-orientation-group" style = "flex-direction: row;">
+                            <label style = "height: 20px; width: 100px; text-align: left;">Orientation</label>
+
+                            <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                <div class = "input-subgroup">
+                                    <label for = "create-pitch" class = "numInpLabel">Pitch</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-pitch" name = "create-pitch" class = "numInpBox create-input" value = "0" required>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "create-yaw" class = "numInpLabel">Yaw</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-yaw" name = "create-yaw" class = "numInpBox create-input" value = "0" required>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "create-roll" class = "numInpLabel">Roll</label>
+                                    <input style = "width: 130px;" type = "number" id = "create-roll" name = "create-roll" class = "numInpBox create-input" value = "0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class = "input-group" id = "create-radius-group">
+                            <label style = "height: 20px; width: 100px; text-align: left;">Radius</label>
+                            <input style = "width: 130px;" type = "number" id = "create-radius" name = "create-radius" class = "numInpBox create-input" value = "1" min = "0.1" step = "0.1" required>
+                        </div>
+
+                        <div class = "input-group" id = "create-mass-group">
+                            <label style = "height: 20px; width: 100px; text-align: left;">Mass</label>
+                            <input style = "width: 130px;" type = "number" id = "create-mass" name = "create-mass" class = "numInpBox create-input" value = "1" min = "0.1" step = "0.1" required>
+                        </div>
+
+                        <div class = "input-group" id = "create-charge-group">
+                            <label style = "height: 20px; width: 100px; text-align: left;">Charge</label>
+                            <input style = "width: 130px;" type = "number" id = "create-charge" name = "create-charge" class = "numInpBox create-input" value = "0.1" min = "0.1" step = "0.1" required>
+                        </div>
+
+                        <div class = "input-group" id = "create-colour-group" style = "margin-bottom: 20px;">
+                            <label style = "height: 20px; width: 100px; text-align: left;">Colour</label>
+                            <input style = "width: 134px;" type = "color" id = "create-colour" name = "create-colour" class = "numInpBox create-input" value = "#0000ff" required>
+                        </div>
+
+                        <div id = "create-object-error-message" class = "error-message"></div>
+
+                        <button id = "createObject-button" type = "button">Create</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "playSimulationMenu-overlay" class = "hidden">
+            <button id = "hide-playSimulationMenu-overlay-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
+                <h2>Simulations</h2>
+                <select id = "simulationList" name = "Simulations" size = "5"></select>
+                <div id = "simulationListActions" style = "justify-content: center;">
+                    <button id = "openSimulation" style = "width: 80px; height: 20px; font-size: 15px;">Open</button>
+                    <button id = "deleteSimulation" style = "width: 80px; height: 20px; font-size: 15px;">Delete</button>
+                    <button id = "renameSimulation" style = "width: 80px; height: 20px; font-size: 15px;">Rename</button>
+                </div>
+                <div id = "simulationComputingActions" style = "justify-content: center;">
+                    <button id = "computeNewSimulationButton" style = "width: 150px; height: 20px; font-size: 15px;">Compute New</button>
+                    <button id = "stopComputingButton" style = "width: 150px; height: 20px; font-size: 15px;" class = "hidden">Stop Computing</button>
+                </div>
+                <div id = "computeProgress" style = "align-items: center; flex-direction: column;" class = "hidden">
+                    <div id = "computeProgressBar">
+                        <div id = "computeProgressBar-progress"></div>
+                    </div>
+
+                    <div id = "computeProgress-labels" style = "gap: 5px;">
+                        <label id = "computingInProgress-label" style = "align-self: left;">Computing...</label>
+                        <label id = "computeProgressText" style = "align-self: left;"></label>
+                        
+                        <label id = "compute-approximateWaitTime" style = "align-self: right;"></label>
+                    </div>
+                </div>
+
+                <div id = "simulationConfigs" style = "justify-content: center;">
+                    <div class = "form-container" style = "padding-top: 0; padding-bottom: 15px; flex-grow: 1; width: 100%;">
+                        <form onsubmit = "return false;">
+                            <div class = "input-group">
+                                <label style = "height: 20px; width: 100%; text-align: left;">Delta Time</label>
+                                <input type = "number" id = "deltaT" name = "deltaT" class = "numInpBox" value = "0.01" step = "0.01" required>
+                            </div>
+
+                            <div class = "input-group">
+                                <label style = "height: 20px; width: 100%; text-align: left;">Number of Frames</label>
+                                <input type = "number" id = "noOfFrames" name = "noOfFrames" class = "numInpBox" value = "1000" step = "1" required>
+                            </div>
+
+                            <div class = "input-group">
+                                <label style = "height: 20px; width: 100%; text-align: left;">Steps Per Frame</label>
+                                <input type = "number" id = "stepsPerFrame" name = "stepsPerFrame" class = "numInpBox" value = "1000" step = "1" required>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id = "simulationMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
+            </div>
+        </div>
+
+        <div id = "workbenchDataMenu" class = "hidden">
+            <h2 style = "text-align: center;">Object Data</h2>
+            <button id = "exitObjectDataMenu-button" style = "position: absolute; top: 0; right: 0;">ㄨ</button>
+            <div class = "form-container">
+                <form id = "workbenchDataMenu-form" onsubmit = "return false;">
+                    <div class = "permanant-input-group" id = "edit-objectName-group">
+                        <label for = "edit-objectName" style = "height: 20px; width: 100px; text-align: left;">Object Name</label>
+                        <input type = "text" id = "edit-objectName" name = "edit-objectName" style = "width: 180px; height: 20px;" required>
+                    </div>
+
+                    <div class = "permanant-input-group" id = "edit-objectType-group">
+                        <label for = "edit-objectType" style = "height: 20px; width: 100px; text-align: left;">Object Type</label>
+                        <input type = "text" id = "edit-objectType" name = "edit-objectType" class = "edit-input" style = "width: 134px; height: 20px;" disabled>
+                    </div>
+
+                    <div class = "input-group" id = "edit-position-group" style = "flex-direction: row;">
+                        <label style = "height: 20px; width: 100px; text-align: left;">Position</label>
+
+                        <div style = "position: flex; flex-direction: column; gap: 5px;">
+                            <div class = "input-subgroup">
+                                <label for = "edit-position-x" class = "numInpLabel">X</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-position-x" name = "edit-position-x" class = "numInpBox edit-input" required>
+                            </div>
+
+                            <div class = "input-subgroup">
+                                <label for = "edit-position-y" class = "numInpLabel">Y</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-position-y" name = "edit-position-y" class = "numInpBox edit-input" required>
+                            </div>
+
+                            <div class = "input-subgroup">
+                                <label for = "edit-position-z" class = "numInpLabel">Z</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-position-z" name = "edit-position-z" class = "numInpBox edit-input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class = "input-group" id = "edit-velocity-group" style = "flex-direction: row;">
+                        <label style = "height: 20px; width: 100px; text-align: left;">Velocity</label>
+
+                        <div style = "position: flex; flex-direction: column; gap: 5px;">
+                            <div class = "input-subgroup">
+                                <label for = "edit-velocity-x" class = "numInpLabel">VX</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-velocity-x" name = "edit-velocity-x" class = "numInpBox edit-input" required>
+                            </div>
+
+                            <div class = "input-subgroup">
+                                <label for = "edit-velocity-y" class = "numInpLabel">VY</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-velocity-y" name = "edit-velocity-y" class = "numInpBox edit-input" required>
+                            </div>
+
+                            <div class = "input-subgroup">
+                                <label for = "edit-velocity-z" class = "numInpLabel">VZ</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-velocity-z" name = "edit-velocity-z" class = "numInpBox edit-input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class = "input-group" id = "edit-dimentions-group" style = "flex-direction: row;">
+                        <label style = "height: 20px; width: 100px; text-align: left;">Dimentions</label>
+
+                        <div style = "position: flex; flex-direction: column; gap: 5px;">
+                            <div class = "input-subgroup">
+                                <label for = "edit-length" class = "numInpLabel">Length</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-length" name = "edit-length" class = "numInpBox edit-input" required>
+                            </div>
+
+                            <div class = "input-subgroup">
+                                <label for = "edit-width" class = "numInpLabel">Width</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-width" name = "edit-width" class = "numInpBox edit-input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class = "input-group" id = "edit-orientation-group" style = "flex-direction: row;">
+                        <label style = "height: 20px; width: 100px; text-align: left;">Orientation</label>
+
+                        <div style = "position: flex; flex-direction: column; gap: 5px;">
+                            <div class = "input-subgroup">
+                                <label for = "edit-pitch" class = "numInpLabel">Pitch</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-pitch" name = "edit-pitch" class = "numInpBox edit-input" required>
+                            </div>
+
+                            <div class = "input-subgroup">
+                                <label for = "edit-yaw" class = "numInpLabel">Yaw</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-yaw" name = "edit-yaw" class = "numInpBox edit-input" required>
+                            </div>
+
+                            <div class = "input-subgroup">
+                                <label for = "edit-roll" class = "numInpLabel">Roll</label>
+                                <input style = "width: 130px;" type = "number" id = "edit-roll" name = "edit-roll" class = "numInpBox edit-input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class = "input-group" id = "edit-radius-group">
+                        <label style = "height: 20px; width: 100px; text-align: left;">Radius</label>
+                        <input style = "width: 130px;" type = "number" id = "edit-radius" name = "edit-radius" class = "numInpBox edit-input" min = "0.1" step = "0.1" required>
+                    </div>
+
+                    <div class = "input-group" id = "edit-mass-group">
+                        <label style = "height: 20px; width: 100px; text-align: left;">Mass</label>
+                        <input style = "width: 130px;" type = "number" id = "edit-mass" name = "edit-mass" class = "numInpBox edit-input" min = "0.1" step = "0.1" required>
+                    </div>
+
+                    <div class = "input-group" id = "edit-charge-group">
+                        <label style = "height: 20px; width: 100px; text-align: left;">Charge</label>
+                        <input style = "width: 130px;" type = "number" id = "edit-charge" name = "edit-charge" class = "numInpBox edit-input" min = "0.1" step = "0.1" required>
+                    </div>
+
+                    <div class = "input-group" id = "edit-colour-group" style = "margin-bottom: 20px;">
+                        <label style = "height: 20px; width: 100px; text-align: left;">Colour</label>
+                        <input style = "width: 134px;" type = "color" id = "edit-colour" name = "edit-colour" class = "numInpBox edit-input" required>
+                    </div>
+
+                    <div id = "edit-object-error-message" class = "error-message"></div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

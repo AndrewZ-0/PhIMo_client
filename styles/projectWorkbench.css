@@ -1,0 +1,369 @@
+#workspace {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 50px);
+    top: 50px;
+}
+
+#canvas-container {
+    width: 100%;
+    height: 100%;
+}
+
+#model-surface {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#axisViewport-surface {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    pointer-events: none;
+}
+
+#orientationViewport-surface {
+    position: absolute;
+    right: 0; 
+    bottom: 0;
+    width: 130px;
+    height: 130px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+}
+
+#overlays {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0);
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.overlay-element {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: small;
+    font-family: arial, sans-serif;
+    margin: 0;
+    position: relative;
+}
+
+
+
+#projectLevelMenu-left {
+    display: flex;
+    align-items: center;
+}
+
+#titlebar-project-name {
+    font-weight: 600; 
+    background: #d6d6d6;
+    padding: 0 10px;
+    max-width: 220px;
+    height: 22px;
+    border-radius: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    user-select: none;
+    margin: 0 5px 0 5px;
+    line-height: 22px;
+}
+
+#saveProjectButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    width: 25px;
+    height: 25px;
+    background-color: #efefef;
+}
+
+
+#projectLevelMenu-right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+#playButton, #settingsButton {
+    right: 0;
+    display: flex;
+    align-self: right;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    width: 25px;
+    height: 25px;
+    background-color: #efefef;
+}
+
+
+
+
+#projectDataMenu {
+    position: absolute;
+    top: 50px;
+    left: 30px;
+    color: #000;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: #eee;
+    padding: 10px;
+    border-radius: 1px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 0;
+    pointer-events: auto;
+}
+
+#projectDataMenu.hidden {
+    display: none;
+}
+
+
+
+
+
+#workbenchLevelMenu {
+    position: absolute;
+    top: 25px;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    background-color: #d6d6d6;
+    border-right: 1px solid #ddd;
+    flex-direction: row;
+}
+
+#workbenchLevelMenu button {
+    background: #eee;
+    height: 20px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+#workbenchLevelMenu button:hover {
+    background: #eee;
+    border: 1px solid #bbb;
+}
+
+#tabIsle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 25px;
+}
+
+.tab {
+    margin: 0 0 0 10px;
+    width: 100px;
+}
+
+.tab.focus {
+    border: 2px solid;
+    border-color: rgb(0, 123, 255);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.9);
+}
+
+#workbenchLevelMenu #tabIsle button:hover {
+    border: 2px solid rgb(0, 123, 255);
+}
+
+
+.tab-content {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 120px;
+    height: calc(100% - 50px);
+    background: #eee;
+    z-index: 11;
+    flex-direction: column;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+.tab-content button {
+    height: 25px;
+    width: 100px;
+}
+
+
+#workbenchControls {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 25px;
+}
+
+#workbenchControls button {
+    width: 60px;
+    margin: 0 10px 0 0;
+}
+
+
+
+
+
+
+#createObject-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.overlay-content {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding: 20px;
+    height: auto;
+    text-align: center;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease;
+}
+
+#createObject-overlay.hidden {
+    display: none;
+}
+
+#hide-createObject-overlay-button {
+    position: absolute; 
+    top: 0; 
+    right: 0; 
+    width: 20; 
+    height: 20; 
+    font-weight: bold; 
+    font-size: 20px; 
+    color: #fff; 
+    background-color: rgba(0,0,0,0);
+}
+
+
+#workbenchDataMenu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 320px;
+    height: calc(100% - 50px);
+    background: #eee;
+    flex-direction: column;
+}
+
+
+
+
+
+
+
+#playSimulationMenu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#playSimulationMenu-overlay.hidden {
+    display: none;
+}
+
+#hide-playSimulationMenu-overlay-button {
+    position: absolute; 
+    top: 0; 
+    right: 0; 
+    width: 20; 
+    height: 20; 
+    font-weight: bold; 
+    font-size: 20px; 
+    color: #fff; 
+    background-color: rgba(0,0,0,0);
+}
+
+#simulationList {
+    width: 100%;
+}
+
+#simulationList option {
+    padding: 5px;
+    font-size: 14px;
+}
+
+
+
+#computeProgressBar {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    appearance: none;
+    background: #ddd;
+    overflow: hidden;
+    position: relative;
+}
+
+
+#computeProgressBar-progress {
+    background-color: #780606; /*blood red for obvious reasons*/
+    height: 100%;
+    display: block;
+    height: 10px;
+    transition: width 0.5s linear;
+}
+
+#computeProgressText {
+    font-size: 12px;
+}
+
+#compute-approximateWaitTime {
+    font-size: 12px;
+}
+
+/*also courtesy of stack overflow*/
+#computingInProgress-label {
+    display: inline-block;
+    font-size: 12px;
+    font-family: monospace;
+    clip-path: inset(0 3ch 0 0);
+    animation: loadingDots 2s steps(4, jump-none) infinite;
+}
+
+@keyframes loadingDots {
+    to {
+        clip-path: inset(0)
+    }
+}
+

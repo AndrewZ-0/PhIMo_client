@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+        <title>PhIMo: Simulation Player</title>
+        
+        <link rel = "stylesheet" href = "./styles/master.css">
+        <link rel = "stylesheet" href = "./styles/forms.css">
+        <link rel = "stylesheet" href = "./styles/simulationPlayer.css">
+        <script src = "js/simulationPlayer.js" type = "module"></script>
+    </head>
+
+    <body>
+        <div id = "titlebar">
+            <div id = "projectLevelMenu-left">
+                <button id = "titleBarReturnButton"><img src = "assets/arrowButtonIcon.svg"/></button>
+                <label id = "titlebar-simulation-name"></label>
+            </div>
+        </div>
+
+        <div id = "workspace">
+            <div id = "canvas-container">
+                <canvas id = "model-surface"></canvas>
+                <canvas id = "axisViewport-surface"></canvas>
+                <canvas id = "orientationViewport-surface"></canvas>
+            </div>
+    
+            <div id = "overlays">
+                <p id = "shaderMode-overlay" class = "overlay-element"></p>
+                <p id = "cameraMode-overlay" class = "overlay-element"></p>
+                <p id = "fov-overlay" class = "overlay-element"></p>
+                <p id = "near-overlay" class = "overlay-element"></p>
+                <p id = "far-overlay" class = "overlay-element"></p>
+                <p id = "fps-overlay" class = "overlay-element"></p>
+    
+                <p id = "x-overlay" class = "overlay-element"></p>
+                <p id = "y-overlay" class = "overlay-element"></p>
+                <p id = "z-overlay" class = "overlay-element"></p>
+                <p id = "pitch-overlay" class = "overlay-element"></p>
+                <p id = "yaw-overlay" class = "overlay-element"></p>
+                <p id = "roll-overlay" class = "overlay-element"></p>
+    
+                <p id = "r-overlay" class = "overlay-element"></p>
+                <p id = "altitude-overlay" class = "overlay-element"></p>
+                <p id = "azimuth-overlay" class = "overlay-element"></p>
+    
+                <p id = "selection-overlay" class = "overlay-element"></p>
+                <p id = "selectionMovement-overlay" class = "overlay-element"></p>
+                <p id = "mouseX-overlay" class = "overlay-element"></p>
+                <p id = "mouseY-overlay" class = "overlay-element"></p>
+            </div>
+        </div>
+
+        <div id = "simulationProgressBarContainer">
+            <button id = "playButton"><img src = "assets/playButton.svg"/></button>
+            <button id = "pauseButton" class = "hidden"><img src = "assets/pauseButton.svg"/></button>
+            <div id = "simulationProgressBar">
+                <div id = "simulationProgressBar-progress">
+                </div>
+            </div>
+            <button id = "speedButton"><img src = "assets/speedometer.svg"/></button>
+            <p id = "time-entry">0:00 / 0:00</p>
+        </div>
+
+        <div id = "speedMenu"  class = "hidden"> 
+            text1234
+        </div>
+    </body>
+</html>

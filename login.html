@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html lang = "en">
+
+	<head>
+		<meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+
+        <link rel = "stylesheet" href = "./styles/master.css">
+        <link rel = "stylesheet" href = "./styles/forms.css">
+        <script src = "js/login.js" type = "module"></script>
+
+		<title>PhIMo: Login</title>
+	</head>
+
+	<body>
+        <div id = "titlebar">
+            <button id = "titleBarReturnButton" onclick = "location.href = 'mainMenu.html'"><img src = "assets/arrowButtonIcon.svg"/></button>
+            <label class = "miniTitleLabel">Login</label>
+        </div>
+
+        <div id = "mainScreen">
+            <div class = "form-container">
+                <form onsubmit = "return false;">
+                    <div class = "input-group">
+                        <label for = "username">Username</label>
+                        <input type = "text" id = "username" name = "username" placeholder = "Enter your username">
+                    </div>
+              
+                    <div style = "margin-bottom: 35px;" class = "input-group">
+                        <label for = "password">Password</label>
+                        <input type = "password" id = "password" name = "password" placeholder = "Enter your password">
+                    </div>
+              
+                    <div class = "checkbox-group">
+                        <input type = "checkbox" id = "show-password">
+                        <label for = "show-password">Show password</label>
+                    </div>
+              
+                    <div class = "checkbox-group">
+                        <input type = "checkbox" id = "keep-signed-in">
+                        <label for = "keep-signed-in">Keep me signed in</label>
+                    </div>
+
+                    <div id = "error-message" class = "error-message" aria-live = "polite" style = "margin-bottom: 5px;"></div>
+              
+                    <button>Login</button>
+                </form>
+
+                <div class = "form-footer">
+                <p>Don't have an account? <a href = "signup.html">Signup</a></p>
+                </div>
+            </div>
+        </div>
+
+	</body>
+
+</html>

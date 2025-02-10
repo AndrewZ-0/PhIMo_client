@@ -1,0 +1,27 @@
+#phimoTitleDiv {
+    /*outline: 1px solid #001eff;*/
+    width: 100%; 
+    justify-content: center;
+}
+
+#subtitle {
+    /*outline: 1px solid #00ff15;*/
+    padding-bottom: 20px; 
+    width: 100%; 
+    justify-content: center;
+}
+
+#options {
+    /*outline: 1px solid #e600ff;*/
+    width: 100%; 
+    flex-direction: column; 
+    align-items: center;
+}
+
+.optionsButton {
+    font-weight: 500; 
+    font-size: 18px; 
+    width: 50%; 
+    height: 35px;
+}
+

@@ -1,0 +1,146 @@
+#workspace {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 25px);
+    top: 25px;
+    flex-direction: column;
+}
+
+#canvas-container {
+    width: 100%;
+    height: 100%;
+}
+
+#model-surface {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#axisViewport-surface {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    pointer-events: none;
+}
+
+#orientationViewport-surface {
+    position: absolute;
+    right: 0; 
+    bottom: 30px;
+    width: 130px;
+    height: 130px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+}
+
+#overlays {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0);
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.overlay-element {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: small;
+    font-family: arial, sans-serif;
+    margin: 0;
+    position: relative;
+}
+
+
+#projectLevelMenu-left {
+    display: flex;
+    align-items: center;
+}
+
+#titlebar-simulation-name {
+    font-weight: 600; 
+    background: #d6d6d6;
+    padding: 0 10px;
+    max-width: 220px;
+    height: 22px;
+    border-radius: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    user-select: none;
+    margin: 0 5px 0 5px;
+    line-height: 22px;
+}
+
+#playButton {
+    background-color: #fff;
+    user-select: none;
+}
+
+#pauseButton {
+    background-color: #fff;
+    user-select: none;
+}
+
+#simulationProgressBarContainer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 30px;
+    background-color: #fff;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+#simulationProgressBar {
+    position: absolute;
+    left: 50px;
+    height: 5px;
+    width: calc(100% - 195px);
+    border-radius: 2px;
+    background-color: #aaa;
+}
+
+#simulationProgressBar-progress {
+    height: 100%;
+    background-color: #780606; 
+    transition: width 0.2s ease forwards;
+}
+
+#simulationProgressBar:hover {
+    height: 8px;
+}
+
+#time-entry {
+    position: absolute;
+    right: 5px;
+    width: 100px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: #000;
+}
+
+#speedButton {
+    margin: 0px;
+    position: absolute;
+    right: 110px;
+    background-color: #fff;
+}
+
+#speedMenu {
+    position: absolute;
+    right: 0px;
+    bottom: 25px;
+    width: 145px;
+    height: 25px;
+    z-index: 10;
+    font: 12px #aaa; 
+    background-color: #fff;
+    border: #000 solid 1px;
+}
