@@ -311,6 +311,24 @@ function hideSpeedMenu() {
 document.getElementById("speedButton").addEventListener("pointerdown", showSpeedMenu);
 document.getElementById("hide-speedMenu-overlay-button").addEventListener("pointerup", hideSpeedMenu);
 
+
+function validateSpeedInput() {
+    const errorMessageDiv = document.getElementById("speedMenu-error-message");
+    errorMessageDiv.textContent = ""; //clear prev msgs
+
+    const speed_inp = document.getElementById("speedInput");
+    const speed = parseFloat(speed_inp.value);
+    if (isNaN(speed) || speed <= 0) {
+        errorMessageDiv.textContent = "Speed must be a positive non-zero float";
+        return false;
+    }
+
+    speedFactor = speed;
+    return true;
+}
+
+document.getElementById("speedInput").addEventListener("input", validateSpeedInput);
+
 async function setupPlayer() {
     const response = await communicator.loginFromSessionStorage();
     if (response.status === "ERR") {
