@@ -181,7 +181,7 @@
 .overlay-content {
     display: flex;
     flex-direction: column;
-    background: white;
+    background: #fff;
     padding: 20px;
     height: auto;
     text-align: center;

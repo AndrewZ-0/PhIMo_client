@@ -186,16 +186,21 @@ function handleMouseButtonDown(event) {
     }
 }
 
+export function selectObject(selectedObject) {
+    masterRenderer.handleSelection(selectedObject);
+
+    toggleSelectionMovement(null);
+    updateSelectedOverlay();
+
+    const objSelectedEvent = new CustomEvent("objectSelected", {detail: masterRenderer.objects[selectedObject]});
+    document.dispatchEvent(objSelectedEvent);
+}
+
 function handleMouseButtonUp(event) {
     if (event.button === 0) {
         if (clickFlag) {
-            raycastMouseCollisionCheck(event.x, event.y);
-            toggleSelectionMovement(null);
-            updateSelectedOverlay();
-
-            const selectedObject = masterRenderer.objects[masterRenderer.currentSelection];
-            const objSelectedEvent = new CustomEvent("objectSelected", {detail: selectedObject});
-            document.dispatchEvent(objSelectedEvent);
+            const selectedObject = raycastMouseCollisionCheck(event.x, event.y);
+            selectObject(selectedObject);
         }
         else {
             clickFlag = true;

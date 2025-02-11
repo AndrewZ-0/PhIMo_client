@@ -3,7 +3,7 @@ import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {updateSelectedOverlay} from "../AGRE/src/core/overlays.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
-import {bindAllControls, unbindAllKeyControls, quickReleaseKeys} from "../AGRE/src/core/listeners.js";
+import {bindAllControls, unbindAllKeyControls, quickReleaseKeys, selectObject} from "../AGRE/src/core/listeners.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
 import * as linearAlgebra from "../AGRE/src/utils/linearAlgebra.js";
 
@@ -454,7 +454,6 @@ function workbenchKeyEvents(event) {
 
 document.getElementById("createObject-button").addEventListener("pointerup", createObjectFromCreateNewObjectEntries);
 
-
 function showCreateObjectOverlay() {
     quickReleaseKeys();
 
@@ -479,6 +478,102 @@ function hideCreateObjectOverlay() {
 
     document.addEventListener("keydown", workbenchKeyEvents);
 }
+
+
+function showFindObjectOverlay() {
+    quickReleaseKeys();
+
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workbenchKeyEvents);
+    document.getElementById("findObject-overlay").classList.remove("hidden");
+    document.addEventListener("keydown", createObjectOverlayKeyEvents);
+
+    loadObjectsToFinderList();
+}
+
+function hideFindObjectOverlay() {
+    const errorMessageDiv = document.getElementById("find-object-error-message");
+    errorMessageDiv.textContent = ""; //clear prev msgs
+
+    document.getElementById("findObject-overlay").classList.add("hidden");
+    document.removeEventListener("keydown", createObjectOverlayKeyEvents);
+
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workbenchKeyEvents);
+}
+
+document.getElementById("openFindObjectMenu-button").addEventListener("pointerdown", showFindObjectOverlay);
+document.getElementById("hide-findObject-overlay-button").addEventListener("pointerup", hideFindObjectOverlay);
+
+
+async function loadObjectsToFinderList() {
+    const objectList = document.getElementById("objectsList");
+    objectList.replaceChildren();
+
+    for (const [name, value] of Object.entries(projectData.objects)) {
+        const option = document.createElement("option");
+
+        let typeName;
+        if (value.dtype == 0) {
+            typeName = "particle";
+        }
+        else if (value.dtype == 1) {
+            typeName = "plane";
+        }
+
+
+        let pos = {
+            x: Math.round(value.position[0] * 1000) / 1000,
+            y: Math.round(value.position[1] * 1000) / 1000,
+            z: Math.round(value.position[2] * 1000) / 1000, 
+        }
+
+        if (pos.x !== value.position[0]) {
+            pos.x += "...";
+        }
+        if (pos.y !== value.position[1]) {
+            pos.y += "...";
+        }
+        if (pos.z !== value.position[2]) {
+            pos.z += "...";
+        }
+
+        option.value = name;
+        option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
+        objectList.appendChild(option);
+    }
+}
+
+
+
+
+function selectFoundObject() {
+    const objectsList = document.getElementById("objectsList");
+    const selectedObject = objectsList.value;
+
+    if (! selectedObject) {
+        const errorMessageDiv = document.getElementById("find-object-error-message");
+        errorMessageDiv.textContent = "No object selected";
+        return;
+    }
+
+    const noOfObjects = masterRenderer.objects.length;
+    for (let i = 0; i < noOfObjects; i++) {
+        if (masterRenderer.objects[i].name === selectedObject) {
+            if (masterRenderer.currentSelection !== i) {
+                selectObject(i);
+            }
+            break;
+        }
+    }
+
+    hideFindObjectOverlay();
+}
+
+document.getElementById("selectFoundObject-button").addEventListener("pointerup", selectFoundObject)
+
+
 
 function hexToVec3(colourHex) {
     const r = parseInt(colourHex.slice(1, 3), 16) / 255;

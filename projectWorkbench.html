@@ -82,24 +82,26 @@
         <div id = "toolsMenu" class = "tab-content hidden">
             <button id = "openCreateObjectMenu-button">Create Object</button> <!--brings up create object menu to right-->
             <button id = "deleteObject-button">Delete Object</button> <!--delete selection-->
-            <button id = "findObject-button">Find Object</button> <!--find object (useful for finding lost objects)-->
+            <button id = "openFindObjectMenu-button">Find Object</button> <!--find object (useful for finding lost objects)-->
         </div>
         <div id = "modelsMenu" class = "tab-content hidden">
-            <div class = "input-group" style = "padding: 10px 5px 10px 5px;">
-                <label style = "font-size: 14px; width: 90px;">Gravity</label>
-                <input type = "checkbox" class = "model-toggle" id = "gravity-toggle">
+            <button id = "algorithmsMenu-button">Algorithms</button>
+
+            <div class = "input-group" style = "padding: 5px;">
+                <button id = "gravityMenu-button" style = "margin: 5px 5px;">Gravity</button>
+                <input type = "checkbox" class = "model-toggle" id = "gravity-toggle" style = "margin: 2px 5px;">
             </div>
-            <div class = "input-group" style = "padding: 10px 5px 10px 5px;">
-                <label style = "font-size: 14px; width: 90px;">Electric Froce</label> 
-                <input type = "checkbox" class = "model-toggle" id = "electricForce-toggle">
+            <div class = "input-group" style = "padding: 5px;">
+                <button id = "electricForceMenu-button" style = "margin: 5px 5px;">Electric Force</button>
+                <input type = "checkbox" class = "model-toggle" id = "electricForce-toggle" style = "margin: 2px 5px;">
             </div>
-            <div class = "input-group" style = "padding: 10px 5px 10px 5px;">
-                <label style = "font-size: 14px; width: 90px;">Magnetic Force</label> 
-                <input type = "checkbox" class = "model-toggle" id = "magneticForce-toggle">
+            <div class = "input-group" style = "padding: 5px;">
+                <button id = "magneticForceMenu-button" style = "margin: 5px 5px;">Magnetic Force</button>
+                <input type = "checkbox" class = "model-toggle" id = "magneticForce-toggle" style = "margin: 2px 5px;">
             </div>
-            <div class = "input-group" style = "padding: 10px 5px 10px 5px;">
-                <label style = "font-size: 14px; width: 90px;">Collisions</label> 
-                <input type = "checkbox" class = "model-toggle" id = "collisions-toggle">
+            <div class = "input-group" style = "padding: 5px;">
+                <button id = "collisionsMenu-button" style = "margin: 5px 5px;">Collisions</button>
+                <input type = "checkbox" class = "model-toggle" id = "collisions-toggle" style = "margin: 2px 5px;">
             </div>
         </div>
         <div id = "cameraMenu" class = "tab-content hidden">
@@ -238,11 +240,28 @@
             </div>
         </div>
 
+        <div id = "findObject-overlay" class = "hidden">
+            <button id = "hide-findObject-overlay-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
+                <h2>Find Object</h2>
+
+                <div class = "form-container" style = "max-width: 800px;" >
+                    <form id = "findNewObject-form" onsubmit = "return false;">
+                        <select id = "objectsList" name = "objects" size = "10"></select>
+
+                        <div id = "find-object-error-message" class = "error-message"></div>
+
+                        <button id = "selectFoundObject-button" type = "button">Select Object</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div id = "playSimulationMenu-overlay" class = "hidden">
             <button id = "hide-playSimulationMenu-overlay-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
                 <h2>Simulations</h2>
-                <select id = "simulationList" name = "Simulations" size = "5"></select>
+                <select id = "simulationList" name = "simulations" size = "5"></select>
                 <div id = "simulationListActions" style = "justify-content: center;">
                     <button id = "openSimulation" style = "width: 80px; height: 20px; font-size: 15px;">Open</button>
                     <button id = "deleteSimulation" style = "width: 80px; height: 20px; font-size: 15px;">Delete</button>

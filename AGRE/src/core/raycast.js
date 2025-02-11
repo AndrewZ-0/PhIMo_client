@@ -100,6 +100,7 @@ export function raycastMouseCollisionCheck(mouseX, mouseY) {
         console.log('No object selected');
     }
     */
-    masterRenderer.handleSelection(i);
+
+    return i;
 }
 
