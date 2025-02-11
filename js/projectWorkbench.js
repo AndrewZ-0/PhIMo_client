@@ -522,7 +522,6 @@ async function loadObjectsToFinderList() {
             typeName = "plane";
         }
 
-
         let pos = {
             x: Math.round(value.position[0] * 1000) / 1000,
             y: Math.round(value.position[1] * 1000) / 1000,
@@ -544,8 +543,6 @@ async function loadObjectsToFinderList() {
         objectList.appendChild(option);
     }
 }
-
-
 
 
 function selectFoundObject() {
@@ -948,6 +945,7 @@ document.getElementById("exitObjectDataMenu-button").addEventListener("pointerup
 
 document.addEventListener("objectSelected", toggleObjectDataMenu);
 
+document.getElementById("edit-objectName").addEventListener("input", updateObjectData);
 for (const element of document.getElementsByClassName("edit-input")) {
     element.addEventListener("input", updateObjectData);
 }
@@ -1222,6 +1220,14 @@ window.onbeforeunload = handleLeavePage;
 
 
 
+document.getElementById("edit-objectName").addEventListener("focus", () => {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workbenchKeyEvents);
+});
+document.getElementById("edit-objectName").addEventListener("focusout", () => {
+    bindAllControls(ge.canvas);
+    document.addEventListener("keydown", workbenchKeyEvents);
+});
 for (const element of document.getElementsByClassName("numInpBox")) {
     element.addEventListener("focus", () => {
         unbindAllKeyControls();
