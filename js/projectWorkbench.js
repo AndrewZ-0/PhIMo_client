@@ -21,8 +21,13 @@ document.getElementById("titleBarReturnButton").addEventListener("pointerdown", 
 function simulationMenuKeyEvents(event) {
     if (event.key === "Escape") {
         const simulationList = document.getElementById("simulationList");
-        simulationList.value = "";
-        updateSimulationButtons();
+        if ( simulationList.value !== "") {
+            simulationList.value = "";
+            updateSimulationButtons();
+        }
+        else {
+            hidePlaySimulationMenu();
+        }
     }
 }
 
@@ -479,6 +484,19 @@ function hideCreateObjectOverlay() {
     document.addEventListener("keydown", workbenchKeyEvents);
 }
 
+function findObjectOverlayKeyEvents(event) {
+    if (event.key === "Escape") {
+        const objectsList = document.getElementById("objectsList");
+
+        if (objectsList.value !== "") {
+            objectsList.value = "";
+        }
+        else {
+            hideFindObjectOverlay();
+        }
+    }
+}
+
 
 function showFindObjectOverlay() {
     quickReleaseKeys();
@@ -486,7 +504,7 @@ function showFindObjectOverlay() {
     unbindAllKeyControls();
     document.removeEventListener("keydown", workbenchKeyEvents);
     document.getElementById("findObject-overlay").classList.remove("hidden");
-    document.addEventListener("keydown", createObjectOverlayKeyEvents);
+    document.addEventListener("keydown", findObjectOverlayKeyEvents);
 
     loadObjectsToFinderList();
 }
@@ -496,7 +514,7 @@ function hideFindObjectOverlay() {
     errorMessageDiv.textContent = ""; //clear prev msgs
 
     document.getElementById("findObject-overlay").classList.add("hidden");
-    document.removeEventListener("keydown", createObjectOverlayKeyEvents);
+    document.removeEventListener("keydown", findObjectOverlayKeyEvents);
 
     bindAllControls(ge.canvas);
 
