@@ -88,19 +88,19 @@
             <button id = "algorithmsMenu-button">Algorithms</button>
 
             <div class = "input-group" style = "padding: 5px;">
-                <button id = "gravityMenu-button" style = "margin: 5px 5px;">Gravity</button>
+                <button id = "openGravityMenu-button" style = "margin: 5px 5px;">Gravity</button>
                 <input type = "checkbox" class = "model-toggle" id = "gravity-toggle" style = "margin: 2px 5px;">
             </div>
             <div class = "input-group" style = "padding: 5px;">
-                <button id = "electricForceMenu-button" style = "margin: 5px 5px;">Electric Force</button>
-                <input type = "checkbox" class = "model-toggle" id = "electricForce-toggle" style = "margin: 2px 5px;">
+                <button id = "openEForceMenu-button" style = "margin: 5px 5px;">Electric Force</button>
+                <input type = "checkbox" class = "model-toggle" id = "eForce-toggle" style = "margin: 2px 5px;">
             </div>
             <div class = "input-group" style = "padding: 5px;">
-                <button id = "magneticForceMenu-button" style = "margin: 5px 5px;">Magnetic Force</button>
-                <input type = "checkbox" class = "model-toggle" id = "magneticForce-toggle" style = "margin: 2px 5px;">
+                <button id = "openMForceMenu-button" style = "margin: 5px 5px;">Magnetic Force</button>
+                <input type = "checkbox" class = "model-toggle" id = "mForce-toggle" style = "margin: 2px 5px;">
             </div>
             <div class = "input-group" style = "padding: 5px;">
-                <button id = "collisionsMenu-button" style = "margin: 5px 5px;">Collisions</button>
+                <button id = "openCollisionsMenu-button" style = "margin: 5px 5px;">Collisions</button>
                 <input type = "checkbox" class = "model-toggle" id = "collisions-toggle" style = "margin: 2px 5px;">
             </div>
         </div>
@@ -111,6 +111,82 @@
         <div id = "shadersMenu" class = "tab-content hidden">
             <!--shaders-->
             <!--all the shaders stuff currently controlled only by keybinds-->
+        </div>
+
+        <div id = "gravityMenu-overlay" class = "solverMenu-overlay hidden">
+            <button id = "hide-gravityMenu-overlay-button" class = "hide-solverMenu-overlay-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 35%; min-width: 300px; max-width: 500px;">
+                <h2>Gravity</h2>
+                <div class = "form-container" style = "max-width: 800px;" >
+                    <form id = "findNewObject-form" onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "gravitationalConstant-input-group" style = "align-items: center;">
+                            <label for = "gravitationalConstant-input" style = "height: 20px; width: 50px; text-align: left; line-height: normal;">G</label>
+                            <input id = "gravitationalConstant-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%; height: 20px;" required>
+                        </div>
+
+                        <div id = "gravityMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
+
+                        <button id = "configureGravity-button" type = "button">Configure</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "eForceMenu-overlay" class = "solverMenu-overlay hidden">
+            <button id = "hide-eForceMenu-overlay-button" class = "hide-solverMenu-overlay-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 35%; min-width: 300px; max-width: 500px;">
+                <h2>Electic Force</h2>
+                <div class = "form-container" style = "max-width: 800px;" >
+                    <form id = "findNewObject-form" onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "vacuumPermittivity-input-group" style = "align-items: center;">
+                            <label for = "vacuumPermittivity-input" style = "height: 20px; width: 50px; text-align: left; line-height: normal;">ε0</label>
+                            <input id = "vacuumPermittivity-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%; height: 20px;" required>
+                        </div>
+
+                        <div id = "eForceMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
+
+                        <button id = "configureEForce-button" type = "button">Configure</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "mForceMenu-overlay" class = "solverMenu-overlay hidden">
+            <button id = "hide-mForceMenu-overlay-button" class = "hide-solverMenu-overlay-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 35%; min-width: 300px; max-width: 500px;">
+                <h2>Electic Force</h2>
+                <div class = "form-container" style = "max-width: 800px;" >
+                    <form id = "findNewObject-form" onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "vacuumPermeability-input-group" style = "align-items: center;">
+                            <label for = "vacuumPermeability-input" style = "height: 20px; width: 50px; text-align: left; line-height: normal;">μ0</label>
+                            <input id = "vacuumPermeability-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%; height: 20px;" required>
+                        </div>
+
+                        <div id = "mForceMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
+
+                        <button id = "configureMForce-button" type = "button">Configure</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "collisionsMenu-overlay" class = "solverMenu-overlay hidden">
+            <button id = "hide-collisionsMenu-overlay-button" class = "hide-solverMenu-overlay-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 35%; min-width: 300px; max-width: 500px;">
+                <h2>Collisions</h2>
+                <div class = "form-container" style = "max-width: 800px;" >
+                    <form id = "findNewObject-form" onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "coefficientOfRestitution-input-group" style = "align-items: center;">
+                            <label for = "coefficientOfRestitution-input" style = "height: 20px; width: 50px; text-align: left; line-height: normal;">e</label>
+                            <input id = "coefficientOfRestitution-input" type = "number" min = "0.0" step = "0.1" style = "width: 100%; height: 20px;" required>
+                        </div>
+
+                        <div id = "collisionsMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
+
+                        <button id = "configureCollisions-button" type = "button">Configure</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <div id = "createObject-overlay" class = "hidden">

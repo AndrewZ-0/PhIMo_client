@@ -265,6 +265,10 @@ class Communicator {
         return await this.fetchData("get_simulationData", {projectName, simulationName}, true)
     }
 
+    async listSolvers() {
+        return await this.fetchData("list_solvers", {}, true)
+    }
+
     async streamSimulationFramesFile(projectName, simulationName) {
         const connected = await this.connect();
 
