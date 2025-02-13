@@ -436,13 +436,17 @@ class AdvancedRenderer extends Renderer {
             }
 
             //----------------------------------------------------------------------------------------------------
-
             if (this.currentSelection !== null) {
                 this.renderSelected();
             }
             //----------------------------------------------------------------------------------------------------
 
             this.updateFlag = false;
+        }
+
+        if (this.camera.changedSinceLastFrame) {
+            const renderUpdateEvent = new CustomEvent("cameraUpdated");
+            document.dispatchEvent(renderUpdateEvent);
         }
     }
 }

@@ -115,9 +115,13 @@ button:active {
     right: 0px;
     padding: 4px 4px;
     border-radius: 50%;
-    background: #f00;
-    color: #fff;
     pointer-events: none;
+}
+.badge.highPriority {
+    background: #f00;
+}
+.badge.lowPriority {
+    background: #0c0;
 }
 
 .error-message {

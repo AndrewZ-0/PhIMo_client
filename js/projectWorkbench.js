@@ -1,12 +1,12 @@
 import {GraphicsEngine} from "../AGRE/src/app.js";
-import {masterRenderer} from "../AGRE/src/core/renderer.js";
+import {masterRenderer, axisRenderer} from "../AGRE/src/core/renderer.js";
 import {updateSelectedOverlay} from "../AGRE/src/core/overlays.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
 import {bindAllControls, unbindAllKeyControls, quickReleaseKeys, selectObject} from "../AGRE/src/core/listeners.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
 import * as linearAlgebra from "../AGRE/src/utils/linearAlgebra.js";
-import {setCameraMode} from "../AGRE/src/core/camera.js";
+import {camera, cameraMode, setCameraMode} from "../AGRE/src/core/camera.js";
 
 
 let ge;
@@ -23,7 +23,7 @@ let projectData = {
 let settingsData = {
     camera: {
         mode: "Y-Polar", 
-        orient: {r: 10, alt: 0, azi: 0}
+        pose: {r: 10, alt: 0, azi: 0}
     }
 };
 
@@ -213,6 +213,10 @@ async function loadData() {
     ge.start();
 
     setCameraMode(settingsData.camera.mode);
+    camera.setPose(settingsData.camera.pose);
+
+    camera.forceUpdateCamera(masterRenderer.matricies.view);
+    camera.forceUpdateCamera(axisRenderer.matricies.view);
 }
 
 function showProjectDataMenu() {
@@ -342,7 +346,7 @@ function createObjectFromCreateNewObjectEntries() {
     masterRenderer.quickInitialise(masterRenderer.objects);
     ge.quickAnimationStart();
 
-    markUnsavedChanges();
+    markUnsavedChanges("high");
     hideCreateObjectOverlay();
 }
 
@@ -421,7 +425,7 @@ function createObjectFromModelData(name, newObjectModel) {
     masterRenderer.quickInitialise(masterRenderer.objects);
     ge.quickAnimationStart();
 
-    markUnsavedChanges();
+    markUnsavedChanges("high");
     hideCreateObjectOverlay();
 }
 
@@ -656,7 +660,7 @@ function setGravitationalConstant() {
     const G = parseFloat(document.getElementById("gravitationalConstant-input").value);
 
     projectData.models.gravity.G = G;
-    markUnsavedChanges();
+    markUnsavedChanges("high");
 
     hideGravityMenuOverlay();
 }
@@ -724,7 +728,7 @@ function setVacuumPermittivity() {
     const E0 = parseFloat(document.getElementById("vacuumPermittivity-input").value);
 
     projectData.models.eForce.E0 = E0;
-    markUnsavedChanges();
+    markUnsavedChanges("high");
 
     hideEForceMenuOverlay();
 }
@@ -744,10 +748,6 @@ function validateVacuumPermittivity() {
 
 document.getElementById("vacuumPermittivity-input").addEventListener("input", validateVacuumPermittivity);
 document.getElementById("configureEForce-button").addEventListener("pointerup", setVacuumPermittivity);
-
-
-
-
 
 
 
@@ -797,7 +797,7 @@ function setVacuumPermeability() {
     const M0 = parseFloat(document.getElementById("vacuumPermeability-input").value);
 
     projectData.models.mForce.M0 = M0;
-    markUnsavedChanges();
+    markUnsavedChanges("high");
 
     hideMForceMenuOverlay();
 }
@@ -864,7 +864,7 @@ function setCoefficientOfRestitution() {
     const e = parseFloat(document.getElementById("coefficientOfRestitution-input").value);
 
     projectData.models.collisions.e = e;
-    markUnsavedChanges();
+    markUnsavedChanges("high");
 
     hideCollisionsMenuOverlay();
 }
@@ -904,20 +904,38 @@ function vec3ToHex(colourVec3) {
 }
 
 let unsavedChanges = false;
-function markUnsavedChanges() {
+function markUnsavedChanges(priority) {
     if (!unsavedChanges) {
         const badge = document.querySelector("#saveProjectButton .badge");
-        badge.classList.remove("hidden");
-        unsavedChanges = true;
+        badge.classList.remove("hidden", "lowPriority", "highPriority");
+
+        if (priority === "high") {
+            badge.classList.add("highPriority");
+        }
+        else if (priority === "low") {
+            badge.classList.add("lowPriority");
+        }
+
+        unsavedChanges = priority;
+    }
+    else if (priority === "high") {
+        const badge = document.querySelector("#saveProjectButton .badge");
+        badge.classList.remove("hidden", "lowPriority", "highPriority");
+
+        badge.classList.add("highPriority");
+        unsavedChanges = priority;
     }
 }
 function clearUnsavedChanges() {
-    if (unsavedChanges) {
+    if (unsavedChanges !== false) {
         const badge = document.querySelector("#saveProjectButton .badge");
+        badge.classList.remove("lowPriority", "highPriority");
         badge.classList.add("hidden");
         unsavedChanges = false;
     }
 }
+
+document.addEventListener("cameraUpdated", () => {markUnsavedChanges("low")})
 
 
 for (const element of document.getElementsByClassName("create-input")) {
@@ -958,7 +976,7 @@ function deleteObject() {
         ge.quickAnimationStart();
 
         updateSelectedOverlay();
-        markUnsavedChanges();
+        markUnsavedChanges("high");
     }
 }
 
@@ -969,7 +987,7 @@ function recordObjectMovement(event) {
 
     populateObjectDataForm(movedObject);
 
-    markUnsavedChanges();
+    markUnsavedChanges("high");
 }
 
 function populateObjectDataForm(object) {
@@ -1229,7 +1247,7 @@ function updateObjectData() {
     masterRenderer.quickInitialise(masterRenderer.objects);
     ge.quickAnimationStart();
 
-    markUnsavedChanges();
+    markUnsavedChanges("high");
 }
 
 function toggleObjectDataMenu(event) {
@@ -1278,7 +1296,7 @@ function updateModelData(event) {
     projectData.models.mForce.compute = document.getElementById("mForce-toggle").checked;
     projectData.models.collisions.compute = document.getElementById("collisions-toggle").checked;
 
-    markUnsavedChanges();
+    markUnsavedChanges("high");
 }
 
 for (const element of document.getElementsByClassName("model-toggle")) {
@@ -1290,6 +1308,14 @@ document.addEventListener("objectMoved", recordObjectMovement);
 
 async function saveProjectData() {
     const projectName = communicator.getProjNameFromUrl();
+
+    settingsData.camera.mode = cameraMode;
+    if (cameraMode === "Y-Polar") {
+        settingsData.camera.pose = {r: camera.r, alt: camera.alt, azi: camera.azi};
+    }
+    else { //Y-Cartesian or Quaternion
+        settingsData.camera.pose = {coords: camera.coords, orientation: camera.orientation};
+    }
 
     //super jank solution to merge the two surfaces when screenshotting (courtesty of stack overflow)
     const modelSurface = document.getElementById("model-surface");
@@ -1513,8 +1539,8 @@ document.getElementById("stepsPerFrame").addEventListener("input", validateSimul
 
 document.getElementById("stopComputingButton").addEventListener("pointerdown", stopComputingSimulation);
 
-function handleLeavePage (event) {
-    if (unsavedChanges) {
+function handleLeavePage(event) {
+    if (unsavedChanges === "high") {
         return "You have unsaved changes. If you leave now, your changes will be lost. Are you sure you want to leave?";
     } 
     else if (currentActiveWorkerId !== null) {

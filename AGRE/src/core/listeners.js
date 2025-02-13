@@ -151,11 +151,13 @@ function nextMouseOffset(event) {
     return {x: xoffset, y: yoffset};
 }
 
+//legacy code
+/*
 function quickUpdateMouseEvents() {
     if (selectionMovementAxis !== null) {
         masterRenderer.moveSelectedObjectAlong(selectionMovementAxis, lastX, lastY);
     }
-}
+}*/
 
 function handleMouseMove(event) {
     if (selectionMovementAxis !== null) {

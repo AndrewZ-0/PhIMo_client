@@ -147,6 +147,21 @@ class QuaternionCamera extends Camera {
     getOrientationViewMatrix(viewMatrix) {
         linearAlgebra.lookAt(viewMatrix, linearAlgebra.globalOrigin, camera.front, camera.up);
     }
+
+    setPose(pose) {
+        this.coords = {
+            x: pose.coords.x, 
+            y: pose.coords.y, 
+            z: pose.coords.z
+        };
+
+        this.orientation = {
+            x: pose.orientation.x, 
+            y: pose.orientation.y, 
+            z: pose.orientation.z, 
+            w: pose.orientation.w
+        };
+    }
 }
 
 class CartesianCamera extends QuaternionCamera {
@@ -298,6 +313,12 @@ class PolarCamera extends Camera {
 
     getOrientationViewMatrix(viewMatrix) {
         linearAlgebra.lookAt(viewMatrix, this.localOrigin, this.front, this.up);
+    }
+
+    setPose(pose) {
+        this.r = pose.r;
+        this.azi = pose.azi;
+        this.alt = pose.alt;
     }
 }
 
