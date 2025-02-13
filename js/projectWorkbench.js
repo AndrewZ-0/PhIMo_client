@@ -388,6 +388,8 @@ function copyObject() {
     }
 }
 
+document.getElementById("copyObject-button").addEventListener("pointerdown", copyObject);
+
 function createObjectFromModelData(name, newObjectModel) {
     let newObject;
     if (newObjectModel.dtype === 0) {
@@ -450,6 +452,8 @@ function pasteObject() {
         createObjectFromModelData(NewName, copiedObject);
     }
 }
+
+document.getElementById("pasteObject-button").addEventListener("pointerdown", pasteObject);
 
 
 function workbenchKeyEvents(event) {
@@ -1521,23 +1525,31 @@ window.onbeforeunload = handleLeavePage;
 
 
 
-document.getElementById("edit-objectName").addEventListener("focus", () => {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workbenchKeyEvents);
-});
-document.getElementById("edit-objectName").addEventListener("focusout", () => {
-    bindAllControls(ge.canvas);
-    document.addEventListener("keydown", workbenchKeyEvents);
-});
-for (const element of document.getElementsByClassName("numInpBox")) {
-    element.addEventListener("focus", () => {
+document.getElementById("edit-objectName").addEventListener(
+    "focus", () => {
         unbindAllKeyControls();
         document.removeEventListener("keydown", workbenchKeyEvents);
-    });
-    element.addEventListener("focusout", () => {
+    }
+);
+document.getElementById("edit-objectName").addEventListener(
+    "focusout", () => {
         bindAllControls(ge.canvas);
         document.addEventListener("keydown", workbenchKeyEvents);
-    });
+    }
+);
+for (const element of document.getElementsByClassName("numInpBox")) {
+    element.addEventListener(
+        "focus", () => {
+            unbindAllKeyControls();
+            document.removeEventListener("keydown", workbenchKeyEvents);
+        }
+    );
+    element.addEventListener(
+        "focusout", () => {
+            bindAllControls(ge.canvas);
+            document.addEventListener("keydown", workbenchKeyEvents);
+        }
+    );
 }
 
 
