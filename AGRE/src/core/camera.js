@@ -337,5 +337,5 @@ export function toggleCameraMode() {
 }
 
 
-//export let camera = new CartesianCamera({x: 0, y: 0, z: 6}, {x: 0, y: 0, z: 0, w: 1});
-export let camera = new PolarCamera(6, 0, 0);
+//export let camera = new CartesianCamera({x: 0, y: 10, z: 0}, {x: 0, y: 0, z: 0, w: 1});
+export let camera = new PolarCamera(10, 0, 0);

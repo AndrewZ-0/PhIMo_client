@@ -399,7 +399,8 @@ function createObjectFromModelData(name, newObjectModel) {
     }
     else if (newObjectModel.dtype === 1) {
         newObject = new Plane(
-            name, ...newObjectModel.position, 
+            name, 
+            ...newObjectModel.position, 
             ...newObjectModel.dimentions, 
             ...newObjectModel.orientation, 
             newObjectModel.colour
@@ -1378,23 +1379,15 @@ async function updateComputingProgress() {
 
 
         progressUpdateInterval = totalTimeEstimate / Math.cbrt(totalTimeEstimate);
-
         progressUpdateInterval = Math.round(progressUpdateInterval);
 
-
-        const progressBarTiming = {
-            duration: progressUpdateInterval,
-            iterations: 1,
-            fill: "forwards"
-        };
-        
-        progressBar.style.transitionTimingFunction = progressBarTiming;
+        progressBar.style.transitionDuration = `${progressUpdateInterval}ms`;
 
         const progressPercentage = progress * 100;
 
-        progressBar.style.width = `${progressPercentage}%`;
-
         document.getElementById("computeProgressText").textContent = `${progressPercentage.toFixed(2)}%`;
+
+        progressBar.style.width = `${progressPercentage}%`;
 
         currentProgressTimeout = setTimeout(updateComputingProgress, progressUpdateInterval);
     }

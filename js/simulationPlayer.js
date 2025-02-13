@@ -263,14 +263,8 @@ function handleScrubbing(event) {
 
 function updateProgressBar(progress, progressUpdateInterval) {
     const progressBar = document.getElementById("simulationProgressBar-progress");
-
-    const progressBarTiming = {
-        duration: progressUpdateInterval,
-        iterations: 1,
-        fill: "forwards"
-    };
     
-    progressBar.style.transitionTimingFunction = progressBarTiming;
+    progressBar.style.transitionDuration = `${progressUpdateInterval}ms`;
     progressBar.style.width = `${progress}%`;
 }
 
