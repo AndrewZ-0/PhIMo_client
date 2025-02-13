@@ -1,6 +1,6 @@
 class Communicator {
     constructor() {
-        this.ip = "https://127.0.0.1:1234";
+        this.ip = "https://phimo.ddns.net:1234";
 
         //changed the way the communicator handles certificates. Communicator now stores certificate locally.
         //communicator relys on session storage to maintain cert across pages
@@ -205,8 +205,8 @@ class Communicator {
         return await this.fetchData("get_certificateCookie", {});
     }
 
-    async updateProjectData(projectName, simConfig, screenshot) {
-        return await this.submitData("update_projectData", {projectName, simConfig, screenshot}, true);
+    async updateProjectData(projectName, simConfig, settingsData, screenshot) {
+        return await this.submitData("update_projectData", {projectName, simConfig, settingsData, screenshot}, true);
     }
 
     //can't use a standardised fetch request since data is not a json

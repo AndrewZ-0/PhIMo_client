@@ -172,7 +172,7 @@ function handleMouseMove(event) {
         //get relative change on screen
         const offset = nextMouseOffset(event);
 
-        camera.onMouseMove(offset);
+        camera.onPointerDrag(offset);
     }
 
     updateMousePosOverlays(event.x, event.y);

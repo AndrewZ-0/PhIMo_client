@@ -6,6 +6,7 @@ import {communicator} from "./communicator.js";
 import {bindAllControls, unbindAllKeyControls, quickReleaseKeys, selectObject} from "../AGRE/src/core/listeners.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
 import * as linearAlgebra from "../AGRE/src/utils/linearAlgebra.js";
+import {setCameraMode} from "../AGRE/src/core/camera.js";
 
 
 let ge;
@@ -19,7 +20,12 @@ let projectData = {
     }, 
     "objects": {}
 };
-let settingsData = {};
+let settingsData = {
+    camera: {
+        mode: "Y-Polar", 
+        orient: {r: 10, alt: 0, azi: 0}
+    }
+};
 
 function returnToDashboard(event) {
     location.href = "projectDashboard.html";
@@ -177,11 +183,11 @@ async function loadData() {
     document.getElementById("projectDataMenu-projectName").textContent = projectName;
     document.getElementById("project-creation-date").textContent = projectResponse.data.creationDate;
 
-    if (Object.keys(projectResponse.data.simConfig).length > 0) {
+    if (Object.keys(projectResponse.data.simConfig).length > 0) { //project is not brand new
         projectData = projectResponse.data.simConfig;
+        settingsData = projectResponse.data.settings;
     }
 
-    settingsData = projectResponse.data.settings; //will use this later
     let objects = [];
     for (let objectName in projectData.objects) {
         if (projectData.objects[objectName].dtype === 0) {
@@ -205,6 +211,8 @@ async function loadData() {
 
     ge = new GraphicsEngine(objects, true);
     ge.start();
+
+    setCameraMode(settingsData.camera.mode);
 }
 
 function showProjectDataMenu() {
@@ -1299,7 +1307,7 @@ async function saveProjectData() {
 
     const screenshot = offScreenCanvas.toDataURL("image/png");
 
-    const response = await communicator.updateProjectData(projectName, projectData, screenshot);
+    const response = await communicator.updateProjectData(projectName, projectData, settingsData, screenshot);
 
     if (response.status === "OK") {
         clearUnsavedChanges();

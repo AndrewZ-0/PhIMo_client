@@ -26,18 +26,18 @@ export function updateShaderOverlays() {
 
 export function updateCameraModeOverlay() {
     document.getElementById("cameraMode-overlay").innerText = `CameraMode: ${cameraMode}`;
-    if (cameraMode === "Y-Cartesian") {
-        document.getElementById("r-overlay").innerText = "";
-        document.getElementById("altitude-overlay").innerText = "";
-        document.getElementById("azimuth-overlay").innerText = "";
-    }
-    else {
+    if (cameraMode === "Y-Polar") {
         document.getElementById("x-overlay").innerText = "";
         document.getElementById("y-overlay").innerText = "";
         document.getElementById("z-overlay").innerText = "";
         document.getElementById("pitch-overlay").innerText = "";
         document.getElementById("yaw-overlay").innerText = "";
         document.getElementById("roll-overlay").innerText = "";
+    }
+    else {
+        document.getElementById("r-overlay").innerText = "";
+        document.getElementById("altitude-overlay").innerText = "";
+        document.getElementById("azimuth-overlay").innerText = "";
     }
 }
 
