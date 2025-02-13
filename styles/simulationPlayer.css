@@ -144,6 +144,14 @@
 
 #time-entry {
     font-family: Arial, sans-serif;
+    font-size: 14px ;
+    color: #fff;
+    border: none; 
+}
+
+
+#total-time {
+    font-family: Arial, sans-serif;
     font-size: 14px;
     color: #fff;
 }

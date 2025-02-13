@@ -3,7 +3,7 @@ import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
-import {bindCameraCallbacks, unbindCameraCallbacks} from "../AGRE/src/core/listeners.js";
+import {bindAllControls, bindCameraCallbacks, unbindAllKeyControls, unbindCameraCallbacks} from "../AGRE/src/core/listeners.js";
 import {FPS} from "../AGRE/src/core/clock.js";
 
 
@@ -114,7 +114,7 @@ async function loadData() {
     delta_t = simConfig.deltaT;
 
     updateProgressBar(0, 0); 
-    updateTiming(0, frames.length * delta_t);
+    updateTiming(0, (frames.length - 1) * delta_t);
 }
 
 
@@ -136,8 +136,8 @@ function displayFrame(frameIndex) {
         object.z = objectData[2];
     }
 
-    updateProgressBar(((frameIndex + 1) / frames.length) * 100, screenRefreshInterval);
-    updateTiming((frameIndex + 1) * delta_t, frames.length * delta_t);
+    updateProgressBar(frameIndex / (frames.length - 1) * 100, screenRefreshInterval);
+    updateTiming(frameIndex * delta_t, (frames.length - 1) * delta_t);
 
     masterRenderer.quickInitialise(masterRenderer.objects);
     ge.quickAnimationStart();
@@ -276,8 +276,53 @@ function updateProgressBar(progress, progressUpdateInterval) {
 
 function updateTiming(currentTime, totalTime) {
     const timeEntry = document.getElementById("time-entry");
-    timeEntry.textContent = `${formatTime(currentTime)} / ${formatTime(totalTime)}`;
+    const totalTimeEntry = document.getElementById("total-time");
+    timeEntry.textContent = `${formatTime(currentTime)}`;
+    totalTimeEntry.textContent = ` / ${formatTime(totalTime)}`;
 }
+
+
+function updateTimeEntry() {
+    const timeEntry = document.getElementById("time-entry");
+    const userInput = timeEntry.textContent.split(":");
+
+    let inputTime_inSecs;
+    if (userInput.length === 1) {
+        inputTime_inSecs = parseFloat(userInput[0]);
+    }
+    else if (userInput.length === 2) {
+        const [minutes, seconds] = userInput;
+
+        inputTime_inSecs = parseFloat(minutes) * 60 + parseFloat(seconds);
+    }
+    else {
+        displayFrame(currentFrame);
+        return;
+    }
+
+    if (isNaN(inputTime_inSecs) || inputTime_inSecs > (frames.length - 1) * delta_t) {
+        displayFrame(currentFrame);
+        return;
+    }
+
+    currentFrame = inputTime_inSecs / delta_t;
+    displayFrame(currentFrame);
+}
+
+function handleTimeEntry(event) {
+    if (event.key === "Enter") {
+        updateTimeEntry();
+    }
+}
+
+document.getElementById("time-entry").addEventListener("keypress", handleTimeEntry);
+document.getElementById("time-entry").addEventListener("focus", unbindAllKeyControls);
+document.getElementById("time-entry").addEventListener(
+    "focusout", () => {
+        updateTimeEntry(); 
+        bindAllControls(ge.canvas);
+    }
+);
 
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
