@@ -28,7 +28,8 @@ let settingsData = {
 };
 
 function returnToDashboard(event) {
-    location.href = "projectDashboard.html";
+    const serverQuery = communicator.getServerQuery();
+    location.href = "projectDashboard.html" + serverQuery;
 }
 
 document.getElementById("titleBarReturnButton").addEventListener("pointerdown", returnToDashboard);
@@ -163,9 +164,16 @@ async function openSimulation() {
     const selectedSimulation = simulationList.value;
     const projectName = communicator.getProjNameFromUrl();
 
-    await communicator.updateAccessSimulationTime(projectName, selectedSimulation);
+    let serverQuery = communicator.getServerQuery();
+    if (serverQuery !== "") {
+        serverQuery += "&";
+    }
+    else {
+        serverQuery = "?";
+    }
 
-    window.location.href = `simulationPlayer.html?project=${projectName}&simulation=${selectedSimulation}`;
+    await communicator.updateAccessSimulationTime(projectName, selectedSimulation);
+    window.location.href = "simulationPlayer.html" + serverQuery + `project=${projectName}&simulation=${selectedSimulation}`;
 }
 
 async function loadData() {
@@ -1585,7 +1593,8 @@ async function setupWorkbench() {
     const response = await communicator.loginFromSessionStorage();
     if (response.status === "ERR") {
         //console.error("Automatic login failed");
-        location.href = "login.html";
+        const serverQuery = communicator.getServerQuery();
+        location.href = "login.html" + serverQuery;
         return;
     }
 

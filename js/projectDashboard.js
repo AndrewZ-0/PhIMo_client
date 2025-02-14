@@ -6,7 +6,8 @@ async function logout(event) {
         await communicator.logout();
 
         sessionStorage.removeItem("certificate");
-        location.href = "mainMenu.html";
+        const serverQuery = communicator.getServerQuery();
+        location.href = "mainMenu.html" + serverQuery;
     }
 }
 
@@ -232,7 +233,14 @@ function handleSelectProjectCard(event) {
 
 async function openProjectWorkbench(projectName) {
     await communicator.updateAccessProjectTime(projectName);
-    window.location.href = `projectWorkbench.html?project=${projectName}`;
+    let serverQuery = communicator.getServerQuery();
+    if (serverQuery !== "") {
+        serverQuery += "&";
+    }
+    else {
+        serverQuery = "?";
+    }
+    window.location.href = "projectWorkbench.html" + serverQuery + `project=${projectName}`;
 }
 
 async function loadProjectCards() {
@@ -309,7 +317,8 @@ async function setupDashboard() {
     const response = await communicator.loginFromSessionStorage();
     if (response.status === "ERR") {
         //console.error("Automatic login failed");
-        location.href = "login.html";
+        const serverQuery = communicator.getServerQuery();
+        location.href = "login.html" + serverQuery;
         return;
     }
 

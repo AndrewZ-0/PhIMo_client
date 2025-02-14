@@ -1,6 +1,7 @@
 class Communicator {
     constructor() {
-        this.ip = "https://phimo.ddns.net:1234";
+        this.scheme = "https://"
+        this.serverDomainName = "phimo.ddns.net:1234";
 
         //changed the way the communicator handles certificates. Communicator now stores certificate locally.
         //communicator relys on session storage to maintain cert across pages
@@ -8,6 +9,11 @@ class Communicator {
     }
 
     async loginFromSessionStorage() {
+        const serverDomainName = this.getServerDomainNameFromUrl();
+        if (serverDomainName !== null) {
+            this.serverDomainName = serverDomainName;
+        }
+
         const certificate = sessionStorage.getItem("certificate");
 
         if (certificate) {
@@ -28,6 +34,11 @@ class Communicator {
     }
 
     async loginFromCookies() {
+        const serverDomainName = this.getServerDomainNameFromUrl();
+        if (serverDomainName !== null) {
+            this.serverDomainName = serverDomainName;
+        }
+
         const response = await this.getCertificateFromCookies();
     
         if (response.status !== "OK") {
@@ -56,6 +67,11 @@ class Communicator {
     }
 
     async loginFromCredentials(username, password, keepSignedIn) {
+        const serverDomainName = this.getServerDomainNameFromUrl();
+        if (serverDomainName !== null) {
+            this.serverDomainName = serverDomainName;
+        }
+
         const response = await this.submitData("login", {username, password, keepSignedIn});
 
         if (response.status === "OK") {
@@ -71,7 +87,7 @@ class Communicator {
 
     async connect() {
         try {
-            const response = await fetch(`${this.ip}/connect`);
+            const response = await fetch(`${this.scheme + this.serverDomainName}/connect`);
             if (response.ok) {
                 //console.log("Connected to server");
                 return true;
@@ -102,7 +118,7 @@ class Communicator {
             headers.certificate = this.certificate;
         }
 
-        const response = await fetch(`${this.ip}/${typeOfFetch}`, {
+        const response = await fetch(`${this.scheme + this.serverDomainName}/${typeOfFetch}`, {
             method: "POST",
             headers: headers,
             credentials: "include", //different system to cert
@@ -128,7 +144,7 @@ class Communicator {
             headers.certificate = this.certificate;
         }
         
-        const response = await fetch(`${this.ip}/${typeOfFetch}`, {
+        const response = await fetch(`${this.scheme + this.serverDomainName}/${typeOfFetch}`, {
             method: "GET",
             headers: headers,
             credentials: "include"  //different system to cert
@@ -223,7 +239,7 @@ class Communicator {
             projectName
         };
         
-        const response = await fetch(`${this.ip}/get_projectScreenshot`, {
+        const response = await fetch(`${this.scheme + this.serverDomainName}/get_projectScreenshot`, {
             method: "GET",
             headers: headers,
             credentials: "include"  //different system to cert
@@ -282,7 +298,7 @@ class Communicator {
             projectName, simulationName
         };
         
-        const response = await fetch(`${this.ip}/stream_simulationFramesFile`, {
+        const response = await fetch(`${this.scheme + this.serverDomainName}/stream_simulationFramesFile`, {
             method: "GET",
             headers: headers,
             credentials: "include"  //different system to cert
@@ -315,6 +331,20 @@ class Communicator {
 
     getSimNameFromUrl() {
         return new URLSearchParams(window.location.search).get("simulation");
+    }
+
+    getServerDomainNameFromUrl() {
+        return new URLSearchParams(window.location.search).get("server");
+    }
+
+    getServerQuery() {
+        const serverDomainName = communicator.getServerDomainNameFromUrl();
+        let serverQuery = "";
+        if (serverDomainName != null) {
+            serverQuery = `?server=${serverDomainName}`;
+        }
+
+        return serverQuery;
     }
 }
 

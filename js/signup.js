@@ -1,5 +1,18 @@
 import {communicator} from "./communicator.js";
 
+
+function returnToMainMenu() {
+    const serverQuery = communicator.getServerQuery();
+    window.location.href = "mainMenu.html" + serverQuery;
+}
+document.getElementById("titleBarReturnButton").addEventListener("pointerdown", returnToMainMenu);
+
+function toLogin() {
+    const serverQuery = communicator.getServerQuery();
+    window.location.href = "login.html" + serverQuery;
+}
+document.getElementById("toLoginLink").addEventListener("pointerdown", toLogin);
+
 async function handleSignup(event) {
     event.preventDefault();
 
@@ -49,7 +62,8 @@ async function handleSignup(event) {
     const signupResponse = await communicator.signup(username, password1, email);
     if (signupResponse.status === "OK") {
         await communicator.logout();
-        window.location.href = "login.html";
+        const serverQuery = communicator.getServerQuery();
+        window.location.href = "login.html" + serverQuery;
     } 
     else {
         //console.error("Signup failed:", signupResponse.message);

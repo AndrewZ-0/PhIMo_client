@@ -1,5 +1,19 @@
 import {communicator} from "./communicator.js";
 
+function returnToMainMenu() {
+    const serverQuery = communicator.getServerQuery();
+    window.location.href = "mainMenu.html" + serverQuery;
+}
+document.getElementById("titleBarReturnButton").addEventListener("pointerdown", returnToMainMenu);
+
+
+function toSignup() {
+    const serverQuery = communicator.getServerQuery();
+    window.location.href = "signup.html" + serverQuery;
+}
+document.getElementById("toSignupLink").addEventListener("pointerdown", toSignup);
+
+
 function togglePasswordVisibility() {
     const passwordField = document.getElementById("password");
 
@@ -30,15 +44,14 @@ async function validateForm(event) {
         return;
     }
 
+    const response = await communicator.loginFromCredentials(username, password, keepSignedIn);
+    if (response.status === "OK") {
+        const serverQuery = communicator.getServerQuery();
+        window.location.href = "projectDashboard.html" + serverQuery;
+    }
     else {
-        const response = await communicator.loginFromCredentials(username, password, keepSignedIn);
-        if (response.status === "OK") {
-            window.location.href = "projectDashboard.html";
-        }
-        else {
-            //console.error("Login failed:", response.message);
-            errorMessageDiv.textContent = response.message;
-        }
+        //console.error("Login failed:", response.message);
+        errorMessageDiv.textContent = response.message;
     }
 }
 

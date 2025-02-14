@@ -8,8 +8,15 @@ import {FPS} from "../AGRE/src/core/clock.js";
 
 
 function returnToWorkbench() {
+    let serverQuery = communicator.getServerQuery();
+    if (serverQuery !== "") {
+        serverQuery += "&";
+    }
+    else {
+        serverQuery = "?";
+    }
     const projectName = communicator.getProjNameFromUrl();
-    window.location.href = `projectWorkbench.html?project=${projectName}`;
+    window.location.href = "projectWorkbench.html" + serverQuery + `project=${projectName}`;
 }
 
 document.getElementById("titleBarReturnButton").addEventListener("pointerdown", returnToWorkbench);
@@ -23,9 +30,13 @@ let objectLookup = {};
 let delta_t;
 
 function parseFramesString(framesString) {
-    const lines = framesString.trim().split("\n");
+    const lines = framesString.split("\n");
 
-    const headers = lines[0].split(" "); //first line always contains the object headers
+    let headers = lines[0].split(" "); //first line always contains the object headers
+    
+    if (headers[0] === "" && headers.length === 1) {
+        headers = [];
+    }
 
     const frames = [];
 
@@ -372,7 +383,8 @@ async function setupPlayer() {
     const response = await communicator.loginFromSessionStorage();
     if (response.status === "ERR") {
         //console.error("Automatic login failed");
-        location.href = "login.html";
+        const serverQuery = communicator.getServerQuery();
+        location.href = "login.html" + serverQuery;
         return;
     }
 
