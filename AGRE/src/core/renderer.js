@@ -346,7 +346,6 @@ class AdvancedRenderer extends Renderer {
     }
 
     moveSelectedObjectAlong(axis, pointerX, pointerY) {
-
         if (axisViewport.activeAxis === null){
             return
         }
@@ -365,7 +364,7 @@ class AdvancedRenderer extends Renderer {
         const {x, y} = spaceTransforms.getNormalisedDeviceCoords(masterRenderer.canvas, pointerX, pointerY);
         const c = spaceTransforms.getRayFromNDC(x, y, masterRenderer.matricies.proj, masterRenderer.matricies.view);
 
-        const mu = linearAlgebra.dotVec3(OA, n) / (linearAlgebra.dotVec3(c, n)); //mu for poi between c and plane (A)
+        const mu = linearAlgebra.dotVec3(OA, n) * linearAlgebra.dotVec3(c, n); //mu for poi between c and plane (A)
         const P = linearAlgebra.addVec3(O, linearAlgebra.scaleVec3(c, mu));
 
         const AP = linearAlgebra.subVec3(P, A);
@@ -376,10 +375,10 @@ class AdvancedRenderer extends Renderer {
 
         let s;
         if (axis === "x") {
-            s = (OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x);
+            s = (OA.x * a.y - OA.y * a.x) / (norm_OP_prime.x * a.y - norm_OP_prime.y * a.x);
         }
         else if (axis === "z") {
-            s = (OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x);
+            s = (OA.z * a.y - OA.y * a.z) / (norm_OP_prime.z * a.y - norm_OP_prime.y * a.z);
         }
         else if (axis === "y") {
             s = (OA.y * a.z - OA.z * a.y) / (norm_OP_prime.y * a.z - norm_OP_prime.z * a.y);
@@ -391,7 +390,7 @@ class AdvancedRenderer extends Renderer {
     
             object[axis] = p_doublePrime[axis];
 
-            console.log(OP_prime);
+            //console.log(OP_prime);
             //console.log((OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x), (OA.x * a.z - OA.y * a.x) / (norm_OP_prime.x * a.y - norm_OP_prime.y * a.x), (OA.y * a.z - OA.z * a.y) / (norm_OP_prime.y * a.z - norm_OP_prime.z * a.y));
 
             this.updateFlag = true;
@@ -399,9 +398,6 @@ class AdvancedRenderer extends Renderer {
         }
     }
     
-
-        
-
     renderSelected() {
         this.frameObjectSetUp(this.objects[this.currentSelection], this.buffers[this.currentSelection]);
 

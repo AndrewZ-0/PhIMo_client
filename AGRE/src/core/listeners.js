@@ -137,6 +137,8 @@ function handleKeyUp(event) {
 }
 
 
+
+
 let lastX;
 let lastY;
 export let mouseDragging = false;
@@ -237,6 +239,7 @@ export function unbindCameraCallbacks(canvas) {
 export function bindAllControls(canvas) {
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", handleKeyUp);
+    document.addEventListener("blur", quickReleaseKeys);
 
     bindCameraCallbacks(canvas);
 }
@@ -244,6 +247,7 @@ export function bindAllControls(canvas) {
 export function unbindAllKeyControls() {
     document.removeEventListener("keydown", handleKeyDown);
     document.removeEventListener("keyup", handleKeyUp);
+    document.removeEventListener("blur", quickReleaseKeys);
 }
 
 export function bindVisabilityChange(lambda) {
