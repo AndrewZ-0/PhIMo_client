@@ -346,53 +346,56 @@ class AdvancedRenderer extends Renderer {
     }
 
     moveSelectedObjectAlong(axis, pointerX, pointerY) {
-        if (axisViewport.activeAxis !== null) {
-            const object = this.objects[this.currentSelection];
 
-            const {a: A, b: B} = axisViewport.activeAxis.getVertecies();
-            const O = this.camera.coords;
-            const OA = linearAlgebra.subVec3(A, O);
-            const AB = linearAlgebra.subVec3(B, A);
+        if (axisViewport.activeAxis === null){
+            return
+        }
 
-            const n = this.camera.front;
-            const a = linearAlgebra.normaliseVec3(AB);
-            const a_proj = linearAlgebra.normaliseVec3(linearAlgebra.subVec3(a, linearAlgebra.scaleVec3(n, linearAlgebra.dotVec3(a, n))));
+        const object = this.objects[this.currentSelection];
 
-            const {x, y} = spaceTransforms.getNormalisedDeviceCoords(masterRenderer.canvas, pointerX, pointerY);
-            const c = spaceTransforms.getRayFromNDC(x, y, masterRenderer.matricies.proj, masterRenderer.matricies.view);
+        const {a: A, b: B} = axisViewport.activeAxis.getVertecies();
+        const O = this.camera.coords;
+        const OA = linearAlgebra.subVec3(A, O);
+        const AB = linearAlgebra.subVec3(B, A);
 
-            const mu = linearAlgebra.dotVec3(OA, n) / (linearAlgebra.dotVec3(c, n)); //mu for poi between c and plane (A)
-            const P = linearAlgebra.addVec3(O, linearAlgebra.scaleVec3(c, mu));
+        const n = this.camera.front;
+        const a = linearAlgebra.normaliseVec3(AB);
+        const a_proj = linearAlgebra.normaliseVec3(linearAlgebra.subVec3(a, linearAlgebra.scaleVec3(n, linearAlgebra.dotVec3(a, n))));
 
-            const AP = linearAlgebra.subVec3(P, A);
+        const {x, y} = spaceTransforms.getNormalisedDeviceCoords(masterRenderer.canvas, pointerX, pointerY);
+        const c = spaceTransforms.getRayFromNDC(x, y, masterRenderer.matricies.proj, masterRenderer.matricies.view);
 
-            const OP_prime = linearAlgebra.addVec3(OA, linearAlgebra.scaleVec3(a_proj, linearAlgebra.dotVec3(AP, a_proj)));
+        const mu = linearAlgebra.dotVec3(OA, n) / (linearAlgebra.dotVec3(c, n)); //mu for poi between c and plane (A)
+        const P = linearAlgebra.addVec3(O, linearAlgebra.scaleVec3(c, mu));
 
-            const norm_OP_prime = linearAlgebra.normaliseVec3(OP_prime);
+        const AP = linearAlgebra.subVec3(P, A);
 
-            let s;
-            if (axis === "x") {
-                s = (OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x);
-            }
-            else if (axis === "z") {
-                s = (OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x);
-            }
-            else if (axis === "y") {
-                s = (OA.y * a.z - OA.z * a.y) / (norm_OP_prime.y * a.z - norm_OP_prime.z * a.y);
-            }
+        const OP_prime = linearAlgebra.addVec3(OA, linearAlgebra.scaleVec3(a_proj, linearAlgebra.dotVec3(AP, a_proj)));
 
+        const norm_OP_prime = linearAlgebra.normaliseVec3(OP_prime);
 
-            if (!isNaN(s)) {
-                const p_doublePrime = linearAlgebra.addVec3(O, linearAlgebra.scaleVec3(norm_OP_prime, s));
-        
-                object[axis] = p_doublePrime[axis];
+        let s;
+        if (axis === "x") {
+            s = (OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x);
+        }
+        else if (axis === "z") {
+            s = (OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x);
+        }
+        else if (axis === "y") {
+            s = (OA.y * a.z - OA.z * a.y) / (norm_OP_prime.y * a.z - norm_OP_prime.z * a.y);
+        }
 
 
-                //console.log((OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x), (OA.x * a.z - OA.y * a.x) / (norm_OP_prime.x * a.y - norm_OP_prime.y * a.x), (OA.y * a.z - OA.z * a.y) / (norm_OP_prime.y * a.z - norm_OP_prime.z * a.y));
+        if (!isNaN(s)) {
+            const p_doublePrime = linearAlgebra.addVec3(O, linearAlgebra.scaleVec3(norm_OP_prime, s));
+    
+            object[axis] = p_doublePrime[axis];
 
-                this.updateFlag = true;
-                this.render();
-            }
+            console.log(OP_prime);
+            //console.log((OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x), (OA.x * a.z - OA.y * a.x) / (norm_OP_prime.x * a.y - norm_OP_prime.y * a.x), (OA.y * a.z - OA.z * a.y) / (norm_OP_prime.y * a.z - norm_OP_prime.z * a.y));
+
+            this.updateFlag = true;
+            this.render();
         }
     }
     
