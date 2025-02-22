@@ -105,7 +105,7 @@ export function sumSquaresVec3(vec) {
 }
 
 export function magnitudeVec3(vec) {
-    return Math.sqrt(sumSquaresVec3(vec));
+    return sumSquaresVec3(vec) ** 0.5;
 }
 
 export function divVec3(vec, mag) {
@@ -481,6 +481,20 @@ export function applyEulerSet(vec, eulerSet) {
     ];
 
     return applyMat3(rotMat3, vec)
+}
+
+
+
+
+export function quatFromBasis(up, right, front) {
+    const _4w = 2 * (1 + right.x + up.y + front.z) ** 0.5;
+    
+    return {
+        x: (up.z - front.y) / _4w, 
+        y: (front.x - right.z) / _4w, 
+        z: (right.y - up.x) / _4w, 
+        w: _4w / 2
+    };
 }
 
 //new ------------------------------------------------------------------------------------------

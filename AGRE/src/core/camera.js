@@ -131,7 +131,7 @@ class QuaternionCamera extends Camera {
     }
 
     forceUpdateCamera(viewMatrix) {
-        //this.handleMovements();
+        this.updateDirectionVects();
     
         this.getViewMatrix(viewMatrix);
 
@@ -162,6 +162,10 @@ class QuaternionCamera extends Camera {
             w: pose.orientation.w
         };
     }
+
+    getPose() {
+        return {coords: camera.coords, orientation: camera.orientation};
+    }
 }
 
 class CartesianCamera extends QuaternionCamera {
@@ -172,15 +176,31 @@ class CartesianCamera extends QuaternionCamera {
     updateDirectionVects() {
         super.updateDirectionVects();
 
-        this.up = {x: 0, y: 1, z: 0};
+        this.right = linearAlgebra.crossVec3(this.front, linearAlgebra.globalUp);
+        this.up = linearAlgebra.crossVec3(this.right, this.front);
     }
 
     handleMovements() {
         if (keys.w || keys.s || keys.d || keys.a || keys.space || keys.shift || keys.left || keys.right || keys.up || keys.down) {
-            linearAlgebra.scaleTranslateVec3(this.coords, linearAlgebra.crossVec3(this.up, this.right), this.cameraSpeed * clock.deltaT * (keys.w - keys.s));
-            linearAlgebra.scaleTranslateVec3(this.coords, this.right, this.cameraSpeed * clock.deltaT * (keys.d - keys.a));
-            linearAlgebra.scaleTranslateVec3(this.coords, this.up, this.cameraSpeed * clock.deltaT * (keys.space - keys.shift));
+            linearAlgebra.scaleTranslateVec3(
+                this.coords, 
+                this.front, 
+                this.cameraSpeed * clock.deltaT * (keys.w - keys.s)
+            );
+            linearAlgebra.scaleTranslateVec3(
+                this.coords, 
+                linearAlgebra.subVec3(
+                    this.right, linearAlgebra.scaleVec3(linearAlgebra.globalUp, linearAlgebra.dotVec3(this.right, linearAlgebra.globalUp))
+                ), 
+                this.cameraSpeed * clock.deltaT * (keys.d - keys.a)
+            );
+            linearAlgebra.scaleTranslateVec3(
+                this.coords, 
+                linearAlgebra.globalUp, 
+                this.cameraSpeed * clock.deltaT * (keys.space - keys.shift)
+            );
             updateCameraCartesianCoordsOverlays();
+
 
             linearAlgebra.applyQuat(
                 this.orientation, linearAlgebra.getAxisAngle(
@@ -320,6 +340,10 @@ class PolarCamera extends Camera {
         this.azi = pose.azi;
         this.alt = pose.alt;
     }
+
+    getPose() {
+        return {r: this.r, alt: this.alt, azi: this.azi};
+    }
 }
 
 
@@ -358,8 +382,7 @@ export function toggleCameraMode() {
 }
 
 export function setCameraMode(mode) {
-    if (mode != cameraMode) {
-        
+    if (mode !== cameraMode) {
         if (mode === "Y-Polar") {
             cameraMode = mode;
 
@@ -373,18 +396,21 @@ export function setCameraMode(mode) {
             updateCameraModeOverlay();
         }
         else if (mode === "Y-Cartesian") {
+            let coords;
+            let orientation;
             if (cameraMode === "Y-Polar") {
-                camera = new CartesianCamera(
-                    linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi), 
-                    linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi)
-                );
+                coords = linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi);
+                orientation = linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi)
             }
             else { //if from quaternion
-                camera = new CartesianCamera(
-                    camera.coords, 
-                    camera.orientation
-                );
+                coords = camera.coords;
+                orientation = camera.orientation;
             }
+
+            camera = new CartesianCamera(
+                coords, 
+                orientation
+            );
 
             cameraMode = mode;
 
@@ -392,18 +418,21 @@ export function setCameraMode(mode) {
             camera.updateAllOverlays();
         }
         else if (mode === "Quaternion") {
+            let coords;
+            let orientation;
             if (cameraMode === "Y-Polar") {
-                camera = new QuaternionCamera(
-                    linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi), 
-                    linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi)
-                );
+                coords = linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi);
+                orientation = linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi)
             }
             else { //if from cartesian
-                camera = new QuaternionCamera(
-                    camera.coords, 
-                    camera.orientation
-                );
+                coords = camera.coords;
+                orientation = camera.orientation;
             }
+
+            camera = new QuaternionCamera(
+                coords, 
+                orientation
+            );
 
             cameraMode = mode;
 

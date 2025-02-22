@@ -220,11 +220,20 @@ async function loadData() {
     ge = new GraphicsEngine(objects, true);
     ge.start();
 
+    setCameraModeRadio(settingsData.camera.mode);
+
     setCameraMode(settingsData.camera.mode);
     camera.setPose(settingsData.camera.pose);
 
     camera.forceUpdateCamera(masterRenderer.matricies.view);
     camera.forceUpdateCamera(axisRenderer.matricies.view);
+}
+
+function setCameraModeRadio(mode) {
+    const radio = document.querySelector(`input[name = 'cameraMode'][value = '${mode}']`);
+    if (radio) {
+        radio.checked = true;
+    }
 }
 
 function showProjectDataMenu() {
@@ -1318,12 +1327,7 @@ async function saveProjectData() {
     const projectName = communicator.getProjNameFromUrl();
 
     settingsData.camera.mode = cameraMode;
-    if (cameraMode === "Y-Polar") {
-        settingsData.camera.pose = {r: camera.r, alt: camera.alt, azi: camera.azi};
-    }
-    else { //Y-Cartesian or Quaternion
-        settingsData.camera.pose = {coords: camera.coords, orientation: camera.orientation};
-    }
+    settingsData.camera.pose = camera.getPose();
 
     //super jank solution to merge the two surfaces when screenshotting (courtesty of stack overflow)
     const modelSurface = document.getElementById("model-surface");
@@ -1587,6 +1591,16 @@ for (const element of document.getElementsByClassName("numInpBox")) {
     );
 }
 
+function updateCameraMode(event) {
+    setCameraMode(event.target.value);
+
+    camera.forceUpdateCamera(masterRenderer.matricies.view);
+    camera.forceUpdateCamera(axisRenderer.matricies.view);
+}
+
+document.getElementById("Y-Polar-radio").addEventListener("change", updateCameraMode);
+document.getElementById("Y-Cartesian-radio").addEventListener("change", updateCameraMode);
+document.getElementById("Quaternion-radio").addEventListener("change", updateCameraMode);
 
 
 async function setupWorkbench() {

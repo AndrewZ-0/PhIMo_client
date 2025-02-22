@@ -107,8 +107,28 @@
             </div>
         </div>
         <div id = "cameraMenu" class = "tab-content hidden">
-            <!--camera-->
-            <!--all the camera stuff currently controlled only by keybinds-->
+            <fieldset style = "padding: 5px 2px; margin: 5px; display: flex; flex-direction: column;">
+                <legend style = "font-size: 13px;">Camera Mode</legend>
+
+                <label for = "Y-Polar" style = "font-size: 13px;">
+                    <input type = "radio" id = "Y-Polar-radio" name = "cameraMode" value = "Y-Polar" checked/> 
+                    Y-Polar
+                </label>
+
+                <label for = "Y-Cartesian" style = "font-size: 13px;">
+                    <input type = "radio" id = "Y-Cartesian-radio" name = "cameraMode" value = "Y-Cartesian"/> 
+                    Y-Cartesian
+                </label>
+
+                <label for = "Quaternion" style = "font-size: 13px;">
+                    <input type = "radio" id = "Quaternion-radio" name = "cameraMode" value = "Quaternion"/> 
+                    Quaternion
+                </label>
+            </fieldset>
+
+            <button id = "cameraProjection-menuButton">Projection</button>
+            <button id = "cameraPose-menuButton">Pose</button>
+
         </div>
         <div id = "shadersMenu" class = "tab-content hidden">
             <!--shaders-->
@@ -193,7 +213,7 @@
 
         <div id = "createObject-overlay" class = "hidden">
             <button id = "hide-createObject-overlay-button">ㄨ</button>
-            <div class = "overlay-content" style = "width: 30%; min-width: 300px; max-width: 600px;">
+            <div class = "overlay-content" style = "width: 30%; min-width: 350px; max-width: 500px;">
                 <h2>Create Object</h2>
 
                 <div class = "form-container">
