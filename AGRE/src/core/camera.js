@@ -418,21 +418,26 @@ export function setCameraMode(mode) {
             camera.updateAllOverlays();
         }
         else if (mode === "Quaternion") {
-            let coords;
-            let orientation;
             if (cameraMode === "Y-Polar") {
-                coords = linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi);
-                orientation = linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi)
+                const coords = linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi);
+                const orientation = linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi);
+
+                camera = new QuaternionCamera(
+                    coords,
+                    orientation
+                );
             }
             else { //if from cartesian
-                coords = camera.coords;
-                orientation = camera.orientation;
-            }
+                camera = new QuaternionCamera(
+                    camera.coords, 
+                    camera.orientation
+                );
 
-            camera = new QuaternionCamera(
-                coords, 
-                orientation
-            );
+                //because linear algebra comutative therefore wierd stuff happens when introducing roll
+                //same correction for cartesian (when going from cart to quat, always initilalised with y-orient)
+                camera.right = linearAlgebra.crossVec3(camera.front, linearAlgebra.globalUp);
+                camera.up = linearAlgebra.crossVec3(camera.right, camera.front);
+            }
 
             cameraMode = mode;
 
