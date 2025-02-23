@@ -1,5 +1,5 @@
 import {GraphicsEngine} from "../AGRE/src/app.js";
-import {masterRenderer, axisRenderer} from "../AGRE/src/core/renderer.js";
+import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {updateSelectedOverlay} from "../AGRE/src/core/overlays.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
@@ -1609,7 +1609,11 @@ for (const element of document.getElementsByClassName("numInpBox")) {
 }
 
 function updateCameraMode(event) {
-    setCameraMode(event.target.value);
+    const cameraMode = event.target.value;
+    setCameraMode(cameraMode);
+    settingsData.camera.mode = cameraMode; 
+
+    settingsData.camera.pose = camera.getPose();
 
     ge.quickAnimationStart();
 }
@@ -1626,6 +1630,7 @@ function configureCamera() {
 
     //set camera stuff here
     //------------------------------------------------------
+    //note to self: modulus the azi, alt pitch, yaw and roll
 
     ge.quickAnimationStart();
 
@@ -1643,7 +1648,54 @@ function cameraConfigOverlayKeyEvents(event) {
 }
 
 function fillCameraConfigMenu() {
+    const posGroup = document.getElementById("camera-position-group");
+    const orientGroup = document.getElementById("camera-orientation-group");
+    const radiusGroup = document.getElementById("camera-radius-group");
+    const altGroup = document.getElementById("camera-alt-group");
+    const aziGroup = document.getElementById("camera-azi-group");
 
+    const cameraData = settingsData.camera;
+
+    if (cameraData.mode === "Y-Polar") {
+        posGroup.classList.add("hidden");
+        orientGroup.classList.add("hidden");
+        radiusGroup.classList.remove("hidden");
+        altGroup.classList.remove("hidden");
+        aziGroup.classList.remove("hidden");
+
+        document.getElementById("camera-radius").value = cameraData.pose.r;
+        document.getElementById("camera-alt").value = cameraData.pose.alt;
+        document.getElementById("camera-azi").value = cameraData.pose.azi;
+    }
+    else {
+        posGroup.classList.remove("hidden");
+        orientGroup.classList.remove("hidden");
+        radiusGroup.classList.add("hidden");
+        altGroup.classList.add("hidden");
+        aziGroup.classList.add("hidden");
+
+        const axes = ["x", "y", "z"];
+        for (const axis of axes) {
+            document.getElementById(`camera-position-${axis}`).value = cameraData.pose.coords[axis];
+        }
+
+        const poseEuler = {
+            pitch: linearAlgebra.pitchFromQuat(cameraData.pose.orientation),
+            yaw: linearAlgebra.yawFromQuat(cameraData.pose.orientation),
+            roll: linearAlgebra.rollFromQuat(cameraData.pose.orientation) 
+        }
+
+        const orientations = ["pitch", "yaw", "roll"];
+        for (const orient of orientations) {
+            document.getElementById(`camera-orientation-${orient}`).value = poseEuler[orient];
+        }
+    }
+
+    document.getElementById("camera-draggingSensitivity").value = settingsData.camera.sensitivity.draggingSensitivity;
+    document.getElementById("camera-movementSpeed").value = settingsData.camera.sensitivity.movementSpeed;
+    document.getElementById("camera-near").value = settingsData.camera.projection.near;
+    document.getElementById("camera-far").value = settingsData.camera.projection.far;
+    document.getElementById("camera-fov").value = settingsData.camera.projection.fov;
 }
 
 function showCameraConfigMenuOverlay() {
@@ -1674,8 +1726,95 @@ document.getElementById("cameraConfig-menuButton").addEventListener("pointerdown
 document.getElementById("hide-cameraConfigMenu-overlay-button").addEventListener("pointerdown", hideCameraConfigMenuOverlay);
 
 function validateCameraConfigMenu() {
-    //validate the whole thing
-    console.log("valudating");
+    const errorMessageDiv = document.getElementById("cameraConfigMenu-error-message");
+    errorMessageDiv.textContent = ""; //clear prev msgs
+
+    if (settingsData.camera.mode === "Y-Polar") {
+        const radiusInp = document.getElementById("camera-radius");
+        const radius = parseFloat(radiusInp.value);
+        if (isNaN(radius)) {
+            errorMessageDiv.textContent = "Radius must be a float";
+            return false;
+        }
+
+        const altInp = document.getElementById("camera-alt");
+        const alt = parseFloat(altInp.value);
+        if (isNaN(alt)) {
+            errorMessageDiv.textContent = "Altitude must be a float";
+            return false;
+        }
+
+        const aziInp = document.getElementById("camera-azi");
+        const azi = parseFloat(aziInp.value);
+        if (isNaN(azi)) {
+            errorMessageDiv.textContent = "Azimuth must be a float";
+            return false;
+        }
+    }
+    else {
+        const axes = ["x", "y", "z"];
+        for (const axis of axes) {
+            const posInp = document.getElementById(`camera-position-${axis}`);
+            const pos = parseFloat(posInp.value);
+            if (isNaN(pos)) {
+                errorMessageDiv.textContent = `Position (${axis}) must be a float`;
+                return false;
+            }
+        }
+
+        const orientations = ["pitch", "yaw", "roll"];
+        for (const orient of orientations) {
+            const inp = document.getElementById(`camera-orientation-${orient}`);
+            const val = parseFloat(inp.value);
+            if (isNaN(val)) {
+                errorMessageDiv.textContent = `${orient} must be a float`;
+                return false;
+            }
+        }
+
+        const roll = parseFloat(document.getElementById("camera-orientation-roll").value);
+        if (settingsData.camera.mode === "Y-Cartesian" && roll !== 0) {
+            errorMessageDiv.textContent = "Roll must be 0 for Y-Cartesian mode";
+            return false;
+        }
+    }
+
+    const dragSenseInp = document.getElementById("camera-draggingSensitivity");
+    const dragSense = parseFloat(dragSenseInp.value);
+    if (isNaN(dragSense) || dragSense <= 0) {
+        errorMessageDiv.textContent = "Dragging Sensitivity must be a non-zero positive float";
+        return false;
+    }
+
+    const movSpeedInp = document.getElementById("camera-movementSpeed");
+    const movSpeed = parseFloat(movSpeedInp.value);
+    if (isNaN(movSpeed) || movSpeed <= 0) {
+        errorMessageDiv.textContent = "Movement Speed must be a non-zero positive float";
+        return false;
+    }
+
+    const nearInp = document.getElementById("camera-near");
+    const near = parseFloat(nearInp.value);
+    if (isNaN(near) || near <= 0) {
+        errorMessageDiv.textContent = "Near must be a non-zero positive float";
+        return false;
+    }
+
+    const farInp = document.getElementById("camera-far");
+    const far = parseFloat(farInp.value);
+    if (isNaN(far) || far <= 0) {
+        errorMessageDiv.textContent = "Far must be a non-zero positive float";
+        return false;
+    }
+
+    const fovInp = document.getElementById("camera-fov");
+    const fov = parseFloat(fovInp.value);
+    if (isNaN(fov) || fov <= 0) {
+        errorMessageDiv.textContent = "Field Of View must be a non-zero positive float";
+        return false;
+    }
+
+    return true;
 }
 
 for (const element of document.getElementsByClassName("cam-input")) {

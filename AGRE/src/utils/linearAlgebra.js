@@ -41,6 +41,23 @@ export function rollFromQuat(q) {
     );
 }
 
+//modified version of the one found on wikipedia (for left orient)
+export function quatFromEuler(pitch, yaw, roll) {
+    const cy = Math.cos(yaw / 2);
+    const sy = Math.sin(yaw / 2);
+    const cp = Math.cos(pitch / 2);
+    const sp = Math.sin(pitch / 2);
+    const cr = Math.cos(roll / 2);
+    const sr = Math.sin(roll / 2);
+
+    return {
+        x: cr * sp * cy + sr * cp * sy,
+        y: cr * cp * sy - sr * sp * cy,
+        z: sr * cp * cy - cr * sp * sy,
+        w: cr * cp * cy + sr * sp * sy
+    };
+}
+
 
 export function setMat4rotation(matrix, eulerSet) {
     const cy = Math.cos(eulerSet.yaw);
