@@ -123,6 +123,7 @@ function handleKeyUp(event) {
         case "c":
             if (!event.ctrlKey) {
                 toggleCameraMode();
+                document.dispatchEvent(new CustomEvent("cameraModeToggled"));
                 masterRenderer.camera = camera; //reset camera pointer for master renderer
                 axisRenderer.camera = camera;
                 orientationRenderer.camera = camera;

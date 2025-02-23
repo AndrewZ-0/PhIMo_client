@@ -1,9 +1,8 @@
 import {axisRenderer, masterRenderer} from "./renderer.js";
 import {SkeletonShader} from "./shaders.js";
 import {Line} from "../objects/objects.js";
-import {camera} from "./camera.js";
 import {selectionMovementAxis} from "./listeners.js";
-
+import {camera} from "./camera.js";
 
 const globalAxis = [
     new Line("Xavier", 0, 0, 0, [1, 0, 0], [1.0, 0.0, 0.0]), //red
@@ -38,7 +37,7 @@ class AxisViewport {
 
         this.activeAxis = null;
 
-        axisRenderer.initialise(this.gl, this.canvas, camera, new SkeletonShader(this.gl), allAxis);
+        axisRenderer.initialise(this.gl, this.canvas, new SkeletonShader(this.gl), allAxis);
 
         axisRenderer.setAllUniformMatrixies();
 

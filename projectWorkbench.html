@@ -110,24 +110,23 @@
             <fieldset style = "padding: 5px 2px; margin: 5px; display: flex; flex-direction: column;">
                 <legend style = "font-size: 13px;">Camera Mode</legend>
 
-                <label for = "Y-Polar" style = "font-size: 13px;">
+                <label for = "Y-Polar-radio" style = "font-size: 13px;">
                     <input type = "radio" id = "Y-Polar-radio" name = "cameraMode" value = "Y-Polar" checked/> 
                     Y-Polar
                 </label>
 
-                <label for = "Y-Cartesian" style = "font-size: 13px;">
+                <label for = "Y-Cartesian-radio" style = "font-size: 13px;">
                     <input type = "radio" id = "Y-Cartesian-radio" name = "cameraMode" value = "Y-Cartesian"/> 
                     Y-Cartesian
                 </label>
 
-                <label for = "Quaternion" style = "font-size: 13px;">
+                <label for = "Quaternion-radio" style = "font-size: 13px;">
                     <input type = "radio" id = "Quaternion-radio" name = "cameraMode" value = "Quaternion"/> 
                     Quaternion
                 </label>
             </fieldset>
 
-            <button id = "cameraProjection-menuButton">Projection</button>
-            <button id = "cameraPose-menuButton">Pose</button>
+            <button id = "cameraConfig-menuButton">Configuration</button>
 
         </div>
         <div id = "shadersMenu" class = "tab-content hidden">
@@ -135,15 +134,125 @@
             <!--all the shaders stuff currently controlled only by keybinds-->
         </div>
 
-        <div id = "gravityMenu-overlay" class = "solverMenu-overlay hidden">
-            <button id = "hide-gravityMenu-overlay-button" class = "hide-solverMenu-overlay-button">ㄨ</button>
+        <div id = "cameraConfigMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-cameraConfigMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 45%; min-width: 450px; max-width: 500px;">
+                <h2>Camera Configuration</h2>
+                <div class = "form-container" style = "max-width: 800px;" >
+                    <form onsubmit = "return false;">
+                        <div class = "input-group-group" id = "cameraPose-group" style = "flex-direction: row;">
+                            <label style = "height: 20px; margin-top: 12px; min-width: 85px; text-align: left; color: #444; font-size: 18px;">Pose</label>
+
+                            <div style = "outline: 1px #aaa solid; padding: 8px; flex-direction: column;">
+                                <div class = "input-group" id = "camera-position-group">
+                                    <label style = "height: 20px; width: 105px; text-align: left;">Position</label>
+
+                                    <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                        <div class = "input-subgroup">
+                                            <label for = "camera-position-x" class = "numInpLabel">X</label>
+                                            <input style = "width: 130px;" type = "number" id = "camera-position-x" name = "camera-position-x" class = "cam-input numInpBox" value = "0" required>
+                                        </div>
+
+                                        <div class = "input-subgroup">
+                                            <label for = "camera-position-y" class = "numInpLabel">Y</label>
+                                            <input style = "width: 130px;" type = "number" id = "camera-position-y" name = "camera-position-y" class = "cam-input numInpBox" value = "0" required>
+                                        </div>
+
+                                        <div class = "input-subgroup">
+                                            <label for = "camera-position-z" class = "numInpLabel">Z</label>
+                                            <input style = "width: 130px;" type = "number" id = "camera-position-z" name = "camera-position-z" class = "cam-input numInpBox" value = "0" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class = "input-group" id = "camera-orientation-group" style = "margin-top: 20px;">
+                                    <label style = "height: 20px; width: 105px; text-align: left;">Orientation</label>
+
+                                    <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                        <div class = "input-subgroup">
+                                            <label for = "camera-orientation-x" class = "numInpLabel">X</label>
+                                            <input style = "width: 130px;" type = "number" id = "camera-orientation-x" name = "camera-orientation-x" class = "cam-input numInpBox" value = "0" required>
+                                        </div>
+
+                                        <div class = "input-subgroup">
+                                            <label for = "camera-orientation-y" class = "numInpLabel">Y</label>
+                                            <input style = "width: 130px;" type = "number" id = "camera-orientation-y" name = "camera-orientation-y" class = "cam-input numInpBox" value = "0" required>
+                                        </div>
+
+                                        <div class = "input-subgroup">
+                                            <label for = "camera-orientation-z" class = "numInpLabel">Z</label>
+                                            <input style = "width: 130px;" type = "number" id = "camera-orientation-z" name = "camera-orientation-z" class = "cam-input numInpBox" value = "0" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class = "input-group" id = "camera-radius-group">
+                                    <label for = "camera-radius" class = "numInpLabel" style = "text-align: left; width: 150px; height: 20px;">Radius</label>
+                                    <input style = "width: 130px;" type = "number" id = "camera-radius" name = "camera-radius" class = "cam-input numInpBox" value = "0" required>
+                                </div>
+
+                                <div class = "input-group" id = "camera-alt-group" style = "margin-top: 12px;">
+                                    <label for = "camera-alt" class = "numInpLabel" style = "text-align: left; width: 150px; height: 20px;">Altitude</label>
+                                    <input style = "width: 130px;" type = "number" id = "camera-alt" name = "camera-alt" class = "cam-input numInpBox" value = "0" required>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class = "input-group-group" id = "cameraSensitivity-group" style = "flex-direction: row;">
+                            <label style = "height: 20px; margin-top: 12px; min-width: 85px; text-align: left; color: #444; font-size: 18px;">Sensitivity</label>
+
+                            <div style = "outline: 1px #aaa solid; padding: 8px; flex-direction: column;">
+                                <div class = "input-group" id = "camera-draggingSensitivity-group">
+                                    <label for = "camera-draggingSensitivity" class = "numInpLabel" style = "text-align: left; width: 150px; height: 20px;">Dragging Sensitivity</label>
+                                    <input style = "width: 130px;" type = "number" id = "camera-draggingSensitivity" name = "camera-draggingSensitivity" class = "cam-input numInpBox" value = "0" required>
+                                </div>
+
+                                <div class = "input-group" id = "camera-movingSpeed-group" style = "margin-top: 12px;">
+                                    <label for = "camera-movingSpeed" class = "numInpLabel" style = "text-align: left; width: 150px; height: 20px;">Movement Speed</label>
+                                    <input style = "width: 130px;" type = "number" id = "camera-movingSpeed" name = "camera-movingSpeed" class = "cam-input numInpBox" value = "0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class = "input-group-group" id = "cameraProjection-group" style = "flex-direction: row;">
+                            <label style = "height: 20px; margin-top: 12px; min-width: 85px; text-align: left; color: #444; font-size: 18px;">Projection</label>
+
+                            <div style = "outline: 1px #aaa solid; padding: 8px; flex-direction: column;">
+                                <div class = "input-group" id = "camera-near-group">
+                                    <label for = "camera-near" class = "numInpLabel" style = "text-align: left; width: 150px; height: 20px;">Near</label>
+                                    <input style = "width: 130px;" type = "number" id = "camera-near" name = "camera-near" class = "cam-input numInpBox" value = "0" required>
+                                </div>
+
+                                <div class = "input-group" id = "camera-far-group" style = "margin-top: 12px;">
+                                    <label for = "camera-far" class = "numInpLabel" style = "text-align: left; width: 150px; height: 20px;">Far</label>
+                                    <input style = "width: 130px;" type = "number" id = "camera-far" name = "camera-far" class = "cam-input numInpBox" value = "0" required>
+                                </div>
+
+                                <div class = "input-group" id = "camera-fov-group" style = "margin-top: 12px;">
+                                    <label for = "camera-fov" class = "numInpLabel" style = "text-align: left; width: 150px; height: 20px;">Field Of View</label>
+                                    <input style = "width: 130px;" type = "number" id = "camera-fov" name = "camera-fov" class = "cam-input numInpBox" value = "0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id = "cameraConfigMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
+
+                        <button id = "cameraConfig-configure-button" type = "button">Configure</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "gravityMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-gravityMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 35%; min-width: 300px; max-width: 500px;">
                 <h2>Gravity</h2>
                 <div class = "form-container" style = "max-width: 800px;" >
-                    <form id = "findNewObject-form" onsubmit = "return false;">
+                    <form onsubmit = "return false;">
                         <div class = "permanant-input-group" id = "gravitationalConstant-input-group" style = "align-items: center;">
                             <label for = "gravitationalConstant-input" style = "height: 20px; width: 50px; text-align: left; line-height: normal;">G</label>
-                            <input id = "gravitationalConstant-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%; height: 20px;" required>
+                            <input id = "gravitationalConstant-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%;" required>
                         </div>
 
                         <div id = "gravityMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
@@ -154,15 +263,15 @@
             </div>
         </div>
 
-        <div id = "eForceMenu-overlay" class = "solverMenu-overlay hidden">
-            <button id = "hide-eForceMenu-overlay-button" class = "hide-solverMenu-overlay-button">ㄨ</button>
+        <div id = "eForceMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-eForceMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 35%; min-width: 300px; max-width: 500px;">
                 <h2>Electic Force</h2>
                 <div class = "form-container" style = "max-width: 800px;" >
-                    <form id = "findNewObject-form" onsubmit = "return false;">
+                    <form onsubmit = "return false;">
                         <div class = "permanant-input-group" id = "vacuumPermittivity-input-group" style = "align-items: center;">
                             <label for = "vacuumPermittivity-input" style = "height: 20px; width: 50px; text-align: left; line-height: normal;">ε0</label>
-                            <input id = "vacuumPermittivity-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%; height: 20px;" required>
+                            <input id = "vacuumPermittivity-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%;" required>
                         </div>
 
                         <div id = "eForceMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
@@ -173,15 +282,15 @@
             </div>
         </div>
 
-        <div id = "mForceMenu-overlay" class = "solverMenu-overlay hidden">
-            <button id = "hide-mForceMenu-overlay-button" class = "hide-solverMenu-overlay-button">ㄨ</button>
+        <div id = "mForceMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-mForceMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 35%; min-width: 300px; max-width: 500px;">
                 <h2>Electic Force</h2>
                 <div class = "form-container" style = "max-width: 800px;" >
-                    <form id = "findNewObject-form" onsubmit = "return false;">
+                    <form onsubmit = "return false;">
                         <div class = "permanant-input-group" id = "vacuumPermeability-input-group" style = "align-items: center;">
                             <label for = "vacuumPermeability-input" style = "height: 20px; width: 50px; text-align: left; line-height: normal;">μ0</label>
-                            <input id = "vacuumPermeability-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%; height: 20px;" required>
+                            <input id = "vacuumPermeability-input" type = "number" min = "0.1" step = "0.1" style = "width: 100%;" required>
                         </div>
 
                         <div id = "mForceMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
@@ -192,15 +301,15 @@
             </div>
         </div>
 
-        <div id = "collisionsMenu-overlay" class = "solverMenu-overlay hidden">
-            <button id = "hide-collisionsMenu-overlay-button" class = "hide-solverMenu-overlay-button">ㄨ</button>
+        <div id = "collisionsMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-collisionsMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 35%; min-width: 300px; max-width: 500px;">
                 <h2>Collisions</h2>
                 <div class = "form-container" style = "max-width: 800px;" >
-                    <form id = "findNewObject-form" onsubmit = "return false;">
+                    <form onsubmit = "return false;">
                         <div class = "permanant-input-group" id = "coefficientOfRestitution-input-group" style = "align-items: center;">
                             <label for = "coefficientOfRestitution-input" style = "height: 20px; width: 50px; text-align: left; line-height: normal;">e</label>
-                            <input id = "coefficientOfRestitution-input" type = "number" min = "0.0" step = "0.1" style = "width: 100%; height: 20px;" required>
+                            <input id = "coefficientOfRestitution-input" type = "number" min = "0.0" step = "0.1" style = "width: 100%;" required>
                         </div>
 
                         <div id = "collisionsMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
@@ -212,7 +321,7 @@
         </div>
 
         <div id = "createObject-overlay" class = "hidden">
-            <button id = "hide-createObject-overlay-button">ㄨ</button>
+            <button id = "hide-createObject-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 30%; min-width: 350px; max-width: 500px;">
                 <h2>Create Object</h2>
 
@@ -220,7 +329,7 @@
                     <form id = "createNewObject-form" onsubmit = "return false;">
                         <div class = "permanant-input-group" id = "create-objectName-group">
                             <label for = "create-objectName" style = "height: 20px; width: 100px; text-align: left;">Object Name</label>
-                            <input type = "text" id = "create-objectName" name = "create-objectName" style = "width: 180px; height: 20px;" required>
+                            <input type = "text" id = "create-objectName" name = "create-objectName" style = "width: 180px;" required>
                         </div>
 
                         <div class = "permanant-input-group" id = "create-objectType-group">
@@ -339,12 +448,12 @@
         </div>
 
         <div id = "findObject-overlay" class = "hidden">
-            <button id = "hide-findObject-overlay-button">ㄨ</button>
+            <button id = "hide-findObject-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
                 <h2>Find Object</h2>
 
                 <div class = "form-container" style = "max-width: 800px;" >
-                    <form id = "findNewObject-form" onsubmit = "return false;">
+                    <form onsubmit = "return false;">
                         <select id = "objectsList" name = "objects" size = "10"></select>
 
                         <div id = "find-object-error-message" class = "error-message"></div>
@@ -356,18 +465,18 @@
         </div>
 
         <div id = "playSimulationMenu-overlay" class = "hidden">
-            <button id = "hide-playSimulationMenu-overlay-button">ㄨ</button>
+            <button id = "hide-playSimulationMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
                 <h2>Simulations</h2>
                 <select id = "simulationList" name = "simulations" size = "5"></select>
                 <div id = "simulationListActions" style = "justify-content: center;">
-                    <button id = "openSimulation" style = "width: 80px; height: 20px; font-size: 15px;">Open</button>
-                    <button id = "deleteSimulation" style = "width: 80px; height: 20px; font-size: 15px;">Delete</button>
-                    <button id = "renameSimulation" style = "width: 80px; height: 20px; font-size: 15px;">Rename</button>
+                    <button id = "openSimulation" style = "width: 80px; font-size: 15px;">Open</button>
+                    <button id = "deleteSimulation" style = "width: 80px; font-size: 15px;">Delete</button>
+                    <button id = "renameSimulation" style = "width: 80px; font-size: 15px;">Rename</button>
                 </div>
                 <div id = "simulationComputingActions" style = "justify-content: center;">
-                    <button id = "computeNewSimulationButton" style = "width: 150px; height: 20px; font-size: 15px;">Compute New</button>
-                    <button id = "stopComputingButton" style = "width: 150px; height: 20px; font-size: 15px;" class = "hidden">Stop Computing</button>
+                    <button id = "computeNewSimulationButton" style = "width: 150px; font-size: 15px;">Compute New</button>
+                    <button id = "stopComputingButton" style = "width: 150px; font-size: 15px;" class = "hidden">Stop Computing</button>
                 </div>
                 <div id = "computeProgress" style = "align-items: center; flex-direction: column;" class = "hidden">
                     <div id = "computeProgressBar">
@@ -414,12 +523,12 @@
                 <form id = "workbenchDataMenu-form" onsubmit = "return false;">
                     <div class = "permanant-input-group" id = "edit-objectName-group">
                         <label for = "edit-objectName" style = "height: 20px; width: 100px; text-align: left;">Object Name</label>
-                        <input type = "text" id = "edit-objectName" name = "edit-objectName" style = "width: 180px; height: 20px;" required>
+                        <input type = "text" id = "edit-objectName" name = "edit-objectName" style = "width: 180px;" required>
                     </div>
 
                     <div class = "permanant-input-group" id = "edit-objectType-group">
                         <label for = "edit-objectType" style = "height: 20px; width: 100px; text-align: left;">Object Type</label>
-                        <input type = "text" id = "edit-objectType" name = "edit-objectType" class = "edit-input" style = "width: 134px; height: 20px;" disabled>
+                        <input type = "text" id = "edit-objectType" name = "edit-objectType" class = "edit-input" style = "width: 134px;" disabled>
                     </div>
 
                     <div class = "input-group" id = "edit-position-group" style = "flex-direction: row;">

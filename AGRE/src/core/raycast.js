@@ -2,7 +2,7 @@ import {masterRenderer} from "./renderer.js";
 import * as linearAlgebra from "../utils/linearAlgebra.js";
 import * as spaceTransforms from "../utils/spaceTransforms.js";
 import {Sphere, Plane} from "../objects/objects.js";
-
+import {camera} from "./camera.js";
 
 
 //gigachad vector intersection function: 
@@ -69,11 +69,10 @@ function getIntersection(object, rayOrigin, rayDir) {
     }
 }
 
-
 export function raycastMouseCollisionCheck(mouseX, mouseY) {
     const {x, y} = spaceTransforms.getNormalisedDeviceCoords(masterRenderer.canvas, mouseX, mouseY);
     const rayDir = spaceTransforms.getRayFromNDC(x, y, masterRenderer.matricies.proj, masterRenderer.matricies.view); 
-    const rayOrigin = masterRenderer.camera.coords;
+    const rayOrigin = camera.coords;
 
     //console.log(rayDir);
 

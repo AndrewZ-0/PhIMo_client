@@ -1,9 +1,8 @@
 import * as linearAlgebra from "../utils/linearAlgebra.js";
 import {Sphere, Cylinder} from "../objects/objects.js";
-import {camera} from "./camera.js";
 import {orientationRenderer} from "./renderer.js";
 import {BasicShader} from "./shaders.js";
-
+import {camera} from "./camera.js";
 
 const objects = [
     new Cylinder("Xander", 0.4, 0, 0, 0, linearAlgebra.halfPi, 0, 0.04, 0.8, 5, [1, 0, 0]), 
@@ -28,7 +27,7 @@ class OrientationMenu {
         this.gl.frontFace(this.gl.CW);
         this.gl.cullFace(this.gl.BACK);
 
-        orientationRenderer.initialise(this.gl, this.canvas, camera, new BasicShader(this.gl), objects);
+        orientationRenderer.initialise(this.gl, this.canvas, new BasicShader(this.gl), objects);
 
         
         //override the default camera projection matrix with an orthogonal system 

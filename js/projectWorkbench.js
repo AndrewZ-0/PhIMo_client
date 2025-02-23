@@ -11,19 +11,32 @@ import {camera, cameraMode, setCameraMode} from "../AGRE/src/core/camera.js";
 
 let ge;
 let projectData = {
-    "deltaT": null, "noOfFrames": null, 
-    "models": {
-        "gravity": {"compute": true, "G": 6.6743015e-11}, 
-        "eForce": {"compute": true, "E0": 8.854187817e-12}, 
-        "mForce": {"compute": true, "M0": 1.2566370612720e-6}, 
-        "collisions": {"compute": true, "e": 1.0}
+    deltaT: null, 
+    noOfFrames: null, 
+    models: {
+        gravity: {compute: true, G: 6.6743015e-11}, 
+        eForce: {compute: true, E0: 8.854187817e-12}, 
+        mForce: {compute: true, M0: 1.2566370612720e-6}, 
+        collisions: {compute: true, e: 1.0}
     }, 
-    "objects": {}
+    objects: {}
 };
 let settingsData = {
     camera: {
         mode: "Y-Polar", 
-        pose: {r: 10, alt: 0, azi: 0}
+        pose: {r: 10, alt: 0, azi: 0}, 
+        projection : {
+            near: 0.01, 
+            far: 1000,
+            fov: 45
+        },
+        sensitivity: {
+            draggingSensitivity: 0.001, 
+            movementSpeed: 6
+        }
+    }, 
+    shaders: {
+
     }
 };
 
@@ -225,8 +238,10 @@ async function loadData() {
     setCameraMode(settingsData.camera.mode);
     camera.setPose(settingsData.camera.pose);
 
-    camera.forceUpdateCamera(masterRenderer.matricies.view);
-    camera.forceUpdateCamera(axisRenderer.matricies.view);
+    //camera.forceUpdateCamera(masterRenderer.matricies.view);
+    //camera.forceUpdateCamera(axisRenderer.matricies.view);
+
+    ge.quickAnimationStart();
 }
 
 function setCameraModeRadio(mode) {
@@ -235,6 +250,8 @@ function setCameraModeRadio(mode) {
         radio.checked = true;
     }
 }
+
+document.addEventListener("cameraModeToggled", () => {markUnsavedChanges("low")});
 
 function showProjectDataMenu() {
     document.getElementById("projectDataMenu").classList.remove("hidden");
@@ -1594,14 +1611,78 @@ for (const element of document.getElementsByClassName("numInpBox")) {
 function updateCameraMode(event) {
     setCameraMode(event.target.value);
 
-    camera.forceUpdateCamera(masterRenderer.matricies.view);
-    camera.forceUpdateCamera(axisRenderer.matricies.view);
+    ge.quickAnimationStart();
 }
 
 document.getElementById("Y-Polar-radio").addEventListener("change", updateCameraMode);
 document.getElementById("Y-Cartesian-radio").addEventListener("change", updateCameraMode);
 document.getElementById("Quaternion-radio").addEventListener("change", updateCameraMode);
 
+
+function configureCamera() {
+    if (! validateCameraConfigMenu()) {
+        return;
+    }
+
+    //set camera stuff here
+    //------------------------------------------------------
+
+    ge.quickAnimationStart();
+
+    markUnsavedChanges("low");
+    hideCameraConfigMenuOverlay();
+}
+
+function cameraConfigOverlayKeyEvents(event) {
+    if (event.key === "Escape") {
+        hideCameraConfigMenuOverlay();
+    }
+    else if (event.key === "Enter") {
+        configureCamera();
+    }
+}
+
+function fillCameraConfigMenu() {
+
+}
+
+function showCameraConfigMenuOverlay() {
+    quickReleaseKeys();
+
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workbenchKeyEvents);
+
+    document.getElementById("cameraConfigMenu-overlay").classList.remove("hidden");
+    document.addEventListener("keydown", cameraConfigOverlayKeyEvents); 
+
+    fillCameraConfigMenu();
+}
+
+function hideCameraConfigMenuOverlay() {
+    const errorMessageDiv = document.getElementById("cameraConfigMenu-error-message");
+    errorMessageDiv.textContent = ""; //clear prev msgs
+
+    document.getElementById("cameraConfigMenu-overlay").classList.add("hidden");
+    document.removeEventListener("keydown", cameraConfigOverlayKeyEvents);
+
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workbenchKeyEvents);
+}
+
+document.getElementById("cameraConfig-menuButton").addEventListener("pointerdown", showCameraConfigMenuOverlay);
+document.getElementById("hide-cameraConfigMenu-overlay-button").addEventListener("pointerdown", hideCameraConfigMenuOverlay);
+
+function validateCameraConfigMenu() {
+    //validate the whole thing
+    console.log("valudating");
+}
+
+for (const element of document.getElementsByClassName("cam-input")) {
+    element.addEventListener("input", validateCameraConfigMenu);
+}
+
+document.getElementById("cameraConfig-configure-button").addEventListener("pointerup", configureCamera);
 
 async function setupWorkbench() {
     const response = await communicator.loginFromSessionStorage();

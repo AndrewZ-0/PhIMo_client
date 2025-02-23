@@ -258,18 +258,6 @@
     display: none;
 }
 
-#hide-createObject-overlay-button {
-    position: absolute; 
-    top: 0; 
-    right: 0; 
-    width: 20; 
-    height: 20; 
-    font-weight: bold; 
-    font-size: 20px; 
-    color: #fff; 
-    background-color: rgba(0,0,0,0);
-}
-
 
 
 
@@ -288,18 +276,6 @@
 
 #findObject-overlay.hidden {
     display: none;
-}
-
-#hide-findObject-overlay-button {
-    position: absolute; 
-    top: 0; 
-    right: 0; 
-    width: 20; 
-    height: 20; 
-    font-weight: bold; 
-    font-size: 20px; 
-    color: #fff; 
-    background-color: rgba(0,0,0,0);
 }
 
 #objectsList {
@@ -326,7 +302,7 @@
 
 
 
-.solverMenu-overlay {
+.overlayMenu {
     position: fixed;
     top: 0;
     left: 0;
@@ -339,11 +315,11 @@
     z-index: 1000;
 }
 
-.solverMenu-overlay.hidden {
+.overlayMenu.hidden {
     display: none;
 }
 
-.hide-solverMenu-overlay-button {
+.hide-overlayMenu-button {
     position: absolute; 
     top: 0; 
     right: 0; 
@@ -352,10 +328,20 @@
     font-weight: bold; 
     font-size: 20px; 
     color: #fff; 
-    background-color: rgba(0,0,0,0);
+    background-color: rgba(0, 0, 0, 0);
 }
 
+.hide-overlayMenu-button:hover {
+    outline: 0.4px solid #fff; 
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0);
+}
 
+.hide-overlayMenu-button:active {
+    outline: 0.4px solid #999; 
+    color: #999;
+    background-color: rgba(0, 0, 0, 0.1);;
+}
 
 #playSimulationMenu-overlay {
     position: fixed;
@@ -372,18 +358,6 @@
 
 #playSimulationMenu-overlay.hidden {
     display: none;
-}
-
-#hide-playSimulationMenu-overlay-button {
-    position: absolute; 
-    top: 0; 
-    right: 0; 
-    width: 20; 
-    height: 20; 
-    font-weight: bold; 
-    font-size: 20px; 
-    color: #fff; 
-    background-color: rgba(0,0,0,0);
 }
 
 #simulationList {

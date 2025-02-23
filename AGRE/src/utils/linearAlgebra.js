@@ -18,7 +18,7 @@ export function toRadian(degrees) {
     return degrees * (Math.PI / 180);
 }
 
-//Shut up, I totally did not yoink this from wikipedia
+//"borrowed" from Wikipedia
 export function pitchFromQuat(q) {
     return Math.atan2(
         2 * (q.w * q.x + q.y * q.z),
@@ -40,30 +40,6 @@ export function rollFromQuat(q) {
         1 - 2 * (q.y * q.y + q.z * q.z)
     );
 }
-
-
-//------------------------------------------------------------------------------------------
-//p->y
-//y->r
-//r->p
-
-//angles in radians
-//don't really need this now, was using it for controlling roll during testing
-export function setQuaternian(q, pitch, yaw, roll) {
-    const cr = Math.cos(roll / 2);
-    const sr = Math.sin(roll / 2);
-    const cp = Math.cos(pitch / 2);
-    const sp = Math.sin(pitch / 2);
-    const cy = Math.cos(yaw / 2);
-    const sy = Math.sin(yaw / 2);
-
-    q[0] = sp * cy  - cp * sy * sr;  // x
-    q[1] = cp * sy  + sp * cy * sr;  // y
-    q[2] = cp * cy * sr - sp * sy ;  // z
-    q[3] = cp * cy  + sp * sy * sr;  // w
-}
-
-//------------------------------------------------------------------------------------------
 
 
 export function setMat4rotation(matrix, eulerSet) {
@@ -173,7 +149,7 @@ export function lookAt(viewOut, eye, front, up) {
 }
 
 export function transformQuat(out, vec, q) {
-    //God I'm smart: since crossVec only uses x, y, z passing it a vec4 such as q does not matter
+    //Since crossVec only uses x, y, z passing it a vec4 such as q does not matter
     let uv = crossVec3(q, vec);
     let uuv = crossVec3(q, uv);
 
@@ -294,8 +270,6 @@ export function dotVec2(a, b) {
     return a.x * b.x + a.y * b.y;
 }
 
-
-//new ------------------------------------------------------------------------------------------
 export function ortho(left, right, bottom, top, near, far) {
     const rl_diff = right - left;
     const tb_diff = top - bottom;
@@ -482,19 +456,3 @@ export function applyEulerSet(vec, eulerSet) {
 
     return applyMat3(rotMat3, vec)
 }
-
-
-
-
-export function quatFromBasis(up, right, front) {
-    const _4w = 2 * (1 + right.x + up.y + front.z) ** 0.5;
-    
-    return {
-        x: (up.z - front.y) / _4w, 
-        y: (front.x - right.z) / _4w, 
-        z: (right.y - up.x) / _4w, 
-        w: _4w / 2
-    };
-}
-
-//new ------------------------------------------------------------------------------------------

@@ -16,6 +16,14 @@
     font-weight: bold;
 }
 
+.form-container .input-group-group {
+    margin-top: 20px;
+}
+
+.form-container .input-group-group .input-group {
+    margin-top: 0px;
+}
+
 .form-container .input-group {
     margin-top: 20px;
 }
@@ -114,8 +122,7 @@
     text-align: left;
     width: 40px; 
     font-size: 12px; 
-    height: 16px; 
-    line-height: 20px;
+    height: 20px;
 }
 
 .numInpBox {

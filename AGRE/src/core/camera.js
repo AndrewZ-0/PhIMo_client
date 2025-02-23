@@ -5,8 +5,6 @@ import {
 } from "./overlays.js";
 import {clock} from "./clock.js";
 import {keys, mouseDragging} from "./listeners.js";
-import {masterRenderer, axisRenderer} from "./renderer.js";
-
 
 export let cameraMode = "Y-Polar";
 
@@ -136,8 +134,8 @@ class QuaternionCamera extends Camera {
         this.getViewMatrix(viewMatrix);
 
         this.changedSinceLastFrame = true;
-        masterRenderer.render();
-        axisRenderer.render();
+        //masterRenderer.render();
+        //axisRenderer.render();
     }
 
     getViewMatrix(viewMatrix) {
@@ -323,8 +321,9 @@ class PolarCamera extends Camera {
         this.getViewMatrix(viewMatrix);
 
         this.changedSinceLastFrame = true;
-        masterRenderer.render();
-        axisRenderer.render();
+        //masterRenderer.render();
+        //axisRenderer.render();
+        //this.changedSinceLastFrame = false;
     }
 
     getViewMatrix(viewMatrix) {
@@ -396,21 +395,21 @@ export function setCameraMode(mode) {
             updateCameraModeOverlay();
         }
         else if (mode === "Y-Cartesian") {
-            let coords;
-            let orientation;
             if (cameraMode === "Y-Polar") {
-                coords = linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi);
-                orientation = linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi)
+                const coords = linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi);
+                const orientation = linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi);
+
+                camera = new CartesianCamera(
+                    coords,
+                    orientation
+                );
             }
             else { //if from quaternion
-                coords = camera.coords;
-                orientation = camera.orientation;
+                camera = new CartesianCamera(
+                    camera.coords, 
+                    camera.orientation
+                );
             }
-
-            camera = new CartesianCamera(
-                coords, 
-                orientation
-            );
 
             cameraMode = mode;
 
@@ -432,11 +431,6 @@ export function setCameraMode(mode) {
                     camera.coords, 
                     camera.orientation
                 );
-
-                //because linear algebra comutative therefore wierd stuff happens when introducing roll
-                //same correction for cartesian (when going from cart to quat, always initilalised with y-orient)
-                camera.right = linearAlgebra.crossVec3(camera.front, linearAlgebra.globalUp);
-                camera.up = linearAlgebra.crossVec3(camera.right, camera.front);
             }
 
             cameraMode = mode;

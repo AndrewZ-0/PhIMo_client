@@ -32,7 +32,7 @@ export class GraphicsEngine {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
         //compile shaders, buffers and render transform matricies
-        masterRenderer.initialise(this.gl, this.canvas, camera, objects);
+        masterRenderer.initialise(this.gl, this.canvas, objects);
 
         updateCameraModeOverlay();
         updateCameraPerspectiveOverlays();
@@ -44,7 +44,6 @@ export class GraphicsEngine {
         bindAllControls(this.canvas);
         bindVisabilityChange(this.onVisibilityChange);
 
-        //shut up, it's for the mobile version. I would never
         this.resizeCanvas();
         window.addEventListener("resize", () => this.resizeCanvas());
     }
@@ -62,7 +61,9 @@ export class GraphicsEngine {
         clock.updateDeltaT();
         updateFpsOverlay();
 
-        this.currentAnimationFrame = requestAnimationFrame(this.mainloop)
+        //camera.changedSinceLastFrame = false;
+
+        this.currentAnimationFrame = requestAnimationFrame(this.mainloop);
     };
 
     start = () => {
@@ -90,7 +91,16 @@ export class GraphicsEngine {
 
     forceAnimationFrame() {
         camera.forceUpdateCamera(masterRenderer.matricies.view);
-        camera.forceUpdateCamera(axisRenderer.matricies.view);
+        masterRenderer.render();
+
+        axisViewport.updateView();
+        axisRenderer.render();
+        //camera.forceUpdateCamera(axisRenderer.matricies.view);
+
+        orientationMenu.updateView();
+        orientationRenderer.render();
+
+        //this.updateFlag = true;
         //camera.forceUpdateCamera(orientationRenderer.matricies.view);
         this.currentAnimationFrame = requestAnimationFrame(this.mainloop);
     }

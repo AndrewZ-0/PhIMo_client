@@ -5,6 +5,7 @@ import {BasicShader, SkeletonShader, PointsShader, LightingShader} from "./shade
 import * as linearAlgebra from "../utils/linearAlgebra.js";
 import * as spaceTransforms from "../utils/spaceTransforms.js";
 import {axisViewport} from "./axisViewPort.js";
+import {camera} from "./camera.js";
 
 class Renderer {
     constructor() {
@@ -14,7 +15,6 @@ class Renderer {
 
         this.gl;
         this.canvas;
-        this.camera;
         this.objects;
         this.shader;
         this.program;
@@ -22,10 +22,9 @@ class Renderer {
         this.updateFlag = false;
     }
 
-    initialise(gl, canvas, camera, objects) {
+    initialise(gl, canvas, objects) {
         this.gl = gl;
         this.canvas = canvas;
-        this.camera = camera;
         this.objects = objects;
 
         this.program = this.gl.createProgram();
@@ -97,7 +96,7 @@ class Renderer {
         linearAlgebra.identityMat4(this.matricies.world);
         linearAlgebra.lookAt(this.matricies.view, {x: 0, y: 0, z: -8}, linearAlgebra.globalOrigin, linearAlgebra.globalUp);
     
-        this.matricies.proj = this.camera.getProjMat(this.canvas);
+        this.matricies.proj = camera.getProjMat(this.canvas);
     }
 
     setUniforms() {
@@ -150,7 +149,7 @@ class Renderer {
     }
 
     render() {
-        this.updateFlag = this.updateFlag || this.camera.changedSinceLastFrame;
+        this.updateFlag = this.updateFlag || camera.changedSinceLastFrame;
 
         if (this.updateFlag) {
             this.gl.clear(this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
@@ -177,8 +176,8 @@ class AdvancedRenderer extends Renderer {
         this.currentSelection = null;
     }
 
-    initialise(gl, canvas, camera, objects, type = "basic") {
-        super.initialise(gl, canvas, camera, objects);
+    initialise(gl, canvas, objects, type = "basic") {
+        super.initialise(gl, canvas, objects);
 
         switch (type) {
             case "basic":
@@ -353,11 +352,11 @@ class AdvancedRenderer extends Renderer {
         const object = this.objects[this.currentSelection];
 
         const {a: A, b: B} = axisViewport.activeAxis.getVertecies();
-        const O = this.camera.coords;
+        const O = camera.coords;
         const OA = linearAlgebra.subVec3(A, O);
         const AB = linearAlgebra.subVec3(B, A);
 
-        const n = this.camera.front;
+        const n = camera.front;
         const a = linearAlgebra.normaliseVec3(AB);
         const a_proj = linearAlgebra.normaliseVec3(linearAlgebra.subVec3(a, linearAlgebra.scaleVec3(n, linearAlgebra.dotVec3(a, n))));
 
@@ -418,7 +417,7 @@ class AdvancedRenderer extends Renderer {
     }
 
     render() {
-        this.updateFlag = this.updateFlag || this.camera.changedSinceLastFrame;
+        this.updateFlag = this.updateFlag || camera.changedSinceLastFrame;
 
         if (this.updateFlag) {
             this.gl.clear(this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
@@ -443,7 +442,7 @@ class AdvancedRenderer extends Renderer {
             this.updateFlag = false;
         }
 
-        if (this.camera.changedSinceLastFrame) {
+        if (camera.changedSinceLastFrame) {
             const renderUpdateEvent = new CustomEvent("cameraUpdated");
             document.dispatchEvent(renderUpdateEvent);
         }
@@ -456,8 +455,8 @@ class BasicRenderer extends Renderer {
         super();
     }
 
-    initialise(gl, canvas, camera, shader, objects) {
-        super.initialise(gl, canvas, camera, objects);
+    initialise(gl, canvas, shader, objects) {
+        super.initialise(gl, canvas, objects);
 
         this.shader = shader;
 
