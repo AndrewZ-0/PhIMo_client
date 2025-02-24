@@ -115,14 +115,14 @@
                     Y-Polar
                 </label>
 
-                <label for = "Y-Cartesian-radio" style = "font-size: 13px;">
-                    <input type = "radio" id = "Y-Cartesian-radio" name = "cameraMode" value = "Y-Cartesian"/> 
-                    Y-Cartesian
+                <label for = "Y-CartesianPolar-radio" style = "font-size: 13px;">
+                    <input type = "radio" id = "Y-CartesianPolar-radio" name = "cameraMode" value = "Y-CartesianPolar"/> 
+                    Y-Cart-Polar
                 </label>
 
-                <label for = "Quaternion-radio" style = "font-size: 13px;">
-                    <input type = "radio" id = "Quaternion-radio" name = "cameraMode" value = "Quaternion"/> 
-                    Quaternion
+                <label for = "CartesianQuaternion-radio" style = "font-size: 13px;">
+                    <input type = "radio" id = "CartesianQuaternion-radio" name = "cameraMode" value = "CartesianQuaternion"/> 
+                    Cart-Quat
                 </label>
             </fieldset>
 
@@ -193,7 +193,7 @@
 
                                 <div class = "input-group" id = "camera-alt-group" style = "margin-top: 12px;">
                                     <label for = "camera-alt" class = "numInpLabel" style = "text-align: left; width: 130px; height: 20px;">Altitude</label>
-                                    <input style = "width: 150px;" type = "number" id = "camera-alt" name = "camera-alt" class = "cam-input numInpBox" value = "0" required>
+                                    <input style = "width: 150px;" type = "number" id = "camera-alt" name = "camera-alt" class = "cam-input numInpBox" value = "0" min = "-90" max = "90" required>
                                 </div>
 
                                 <div class = "input-group" id = "camera-azi-group" style = "margin-top: 12px;">

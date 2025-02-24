@@ -251,7 +251,13 @@ function setCameraModeRadio(mode) {
     }
 }
 
-document.addEventListener("cameraModeToggled", () => {markUnsavedChanges("low")});
+document.addEventListener(
+    "cameraModeToggled", () => {
+        settingsData.camera.mode = cameraMode;
+        settingsData.camera.pose = camera.getPose();
+        setCameraModeRadio(cameraMode);
+    }
+);
 
 function showProjectDataMenu() {
     document.getElementById("projectDataMenu").classList.remove("hidden");
@@ -969,7 +975,12 @@ function clearUnsavedChanges() {
     }
 }
 
-document.addEventListener("cameraUpdated", () => {markUnsavedChanges("low")})
+function handleCameraUpdate() {
+    settingsData.camera.pose = camera.getPose();
+    markUnsavedChanges("low");
+}
+
+document.addEventListener("cameraUpdated", handleCameraUpdate)
 
 
 for (const element of document.getElementsByClassName("create-input")) {
@@ -1619,8 +1630,8 @@ function updateCameraMode(event) {
 }
 
 document.getElementById("Y-Polar-radio").addEventListener("change", updateCameraMode);
-document.getElementById("Y-Cartesian-radio").addEventListener("change", updateCameraMode);
-document.getElementById("Quaternion-radio").addEventListener("change", updateCameraMode);
+document.getElementById("Y-CartesianPolar-radio").addEventListener("change", updateCameraMode);
+document.getElementById("CartesianQuaternion-radio").addEventListener("change", updateCameraMode);
 
 
 function configureCamera() {
@@ -1631,6 +1642,40 @@ function configureCamera() {
     //set camera stuff here
     //------------------------------------------------------
     //note to self: modulus the azi, alt pitch, yaw and roll
+
+    if (settingsData.camera.mode === "Y-Polar") {
+        settingsData.camera.pose = {
+            r: parseFloat(document.getElementById("camera-radius").value), 
+            alt: linearAlgebra.clamp(
+                linearAlgebra.toRadian(parseFloat(document.getElementById("camera-alt").value)), 
+                -linearAlgebra.halfPi, linearAlgebra.halfPi
+            ), 
+            azi: linearAlgebra.wrapPositive(
+                linearAlgebra.toRadian(parseFloat(document.getElementById("camera-azi").value)), 
+                linearAlgebra.twoPi
+            )
+        };
+    }
+    else {
+        const newCoords = {
+            x: parseFloat(document.getElementById("camera-position-x").value), 
+            y: parseFloat(document.getElementById("camera-position-y").value), 
+            z: parseFloat(document.getElementById("camera-position-z").value)
+        };
+
+        const newOrientation = linearAlgebra.quatFromEuler(
+            linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-pitch").value)), 
+            linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-yaw").value)),
+            linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-roll").value))
+        );
+
+        settingsData.camera.pose = {
+            coords: newCoords, 
+            orientation: newOrientation
+        };
+    }
+
+    camera.setPose(settingsData.camera.pose);
 
     ge.quickAnimationStart();
 
@@ -1664,8 +1709,8 @@ function fillCameraConfigMenu() {
         aziGroup.classList.remove("hidden");
 
         document.getElementById("camera-radius").value = cameraData.pose.r;
-        document.getElementById("camera-alt").value = cameraData.pose.alt;
-        document.getElementById("camera-azi").value = cameraData.pose.azi;
+        document.getElementById("camera-alt").value = linearAlgebra.toDegree(cameraData.pose.alt);
+        document.getElementById("camera-azi").value = linearAlgebra.toDegree(cameraData.pose.azi);
     }
     else {
         posGroup.classList.remove("hidden");
@@ -1680,9 +1725,9 @@ function fillCameraConfigMenu() {
         }
 
         const poseEuler = {
-            pitch: linearAlgebra.pitchFromQuat(cameraData.pose.orientation),
-            yaw: linearAlgebra.yawFromQuat(cameraData.pose.orientation),
-            roll: linearAlgebra.rollFromQuat(cameraData.pose.orientation) 
+            pitch: linearAlgebra.toDegree(linearAlgebra.pitchFromQuat(cameraData.pose.orientation)),
+            yaw: linearAlgebra.toDegree(linearAlgebra.yawFromQuat(cameraData.pose.orientation)),
+            roll: linearAlgebra.toDegree(linearAlgebra.rollFromQuat(cameraData.pose.orientation))
         }
 
         const orientations = ["pitch", "yaw", "roll"];
@@ -1739,8 +1784,8 @@ function validateCameraConfigMenu() {
 
         const altInp = document.getElementById("camera-alt");
         const alt = parseFloat(altInp.value);
-        if (isNaN(alt)) {
-            errorMessageDiv.textContent = "Altitude must be a float";
+        if (isNaN(alt) ||alt < -90 || alt > 90) {
+            errorMessageDiv.textContent = "Altitude must be a float between -90 and 90 degrees";
             return false;
         }
 
@@ -1772,10 +1817,16 @@ function validateCameraConfigMenu() {
             }
         }
 
-        const roll = parseFloat(document.getElementById("camera-orientation-roll").value);
-        if (settingsData.camera.mode === "Y-Cartesian" && roll !== 0) {
-            errorMessageDiv.textContent = "Roll must be 0 for Y-Cartesian mode";
-            return false;
+        if (settingsData.camera.mode === "Y-CartesianPolar") {
+            const roll = parseFloat(document.getElementById("camera-orientation-roll").value);
+
+            //need to fix
+
+            const pitch = parseFloat(document.getElementById("camera-orientation-pitch").value);
+            if (pitch > 90 || pitch < -90) {
+                errorMessageDiv.textContent = "Pitch must be between -90 and 90";
+                return false;
+            }
         }
     }
 

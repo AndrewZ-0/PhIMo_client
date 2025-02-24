@@ -7,7 +7,10 @@ export let identityMatrix = createMat4();
 identityMat4(identityMatrix);
 
 
+//hmm, note to self: might need to move all the trig stuff out of this file. (cause its not linear algebra...)
+
 export const halfPi = Math.PI / 2;
+export const twoPi = Math.PI * 2;
 
 //can't believe this is not a built in function..
 export function toDegree(radian) {
@@ -16,6 +19,18 @@ export function toDegree(radian) {
 
 export function toRadian(degrees) {
     return degrees * (Math.PI / 180);
+}
+
+export function wrapPositive(n, m) {
+    return (n % m + m) % m;
+}
+
+export function wrapSymmetric(n, m) {
+    return wrapPositive(n, 2 * m) - m;
+}
+
+export function clamp(n, min, max) {
+    return Math.max(min, Math.min(n, max));
 }
 
 //"borrowed" from Wikipedia
@@ -56,6 +71,48 @@ export function quatFromEuler(pitch, yaw, roll) {
         z: sr * cp * cy - cr * sp * sy,
         w: cr * cp * cy + sr * sp * sy
     };
+}
+
+//courtesey of stack overflow
+//https://math.stackexchange.com/questions/893984/conversion-of-rotation-matrix-to-quaternion
+export function quatFromBasis(front, right, up) {
+    let q;
+    let t;
+    if (up.z < 0) {
+        if (front.x > right.y) {
+            t = 1 + front.x - right.y - up.z;
+            q = {x: t, y: front.y + right.x, z: front.z + up.x, w: right.z - up.y};
+        } 
+        else {
+            t = 1 - front.x + right.y - up.z;
+            q = {x: front.y + right.x, y: t, z: right.z + up.y, w: up.x - front.z};
+        }
+    } 
+    else {
+        if (front.x < -right.y) {
+            t = 1 - front.x - right.y + up.z;
+            q = {x: up.z + front.x, y: right.y + up.z, z: t, w: front.x - right.y};
+        } 
+        else {
+            t = 1 + front.x + right.y + up.z;
+            q = {x: right.y - up.z, y: up.z - front.x, z: front.x - right.y, w: t};
+        }
+    }
+
+    const sf = 0.5 / Math.sqrt(t);
+    q = scaleQuat(q, sf);
+
+    return q;
+}
+
+
+export function scaleQuat(quat, sf) {
+    return {
+        x: quat.x * sf, 
+        y: quat.y * sf, 
+        z: quat.z * sf, 
+        w: quat.w * sf
+    }
 }
 
 
@@ -177,6 +234,33 @@ export function transformQuat(out, vec, q) {
     out.x = vec.x + uv.x + uuv.x;
     out.y = vec.y + uv.y + uuv.y;
     out.z = vec.z + uv.z + uuv.z;
+}
+
+//note to self for some reason x is the other way round in the calcs
+export function getBasisHorizontalCoords(orientation) {
+    const s_alt = Math.sin(orientation.alt);
+    const c_alt = Math.cos(orientation.alt);
+    const s_azi = Math.sin(orientation.azi);
+    const c_azi = Math.cos(orientation.azi);
+
+    return {
+        front: normaliseVec3({
+            x: s_azi * c_alt,  
+            y: s_alt,
+            z: c_azi * c_alt
+        }),
+        up: normaliseVec3({
+            x: -s_alt * s_azi, 
+            y: c_alt, 
+            z: -s_alt * c_azi
+        }),
+        right: normaliseVec3({
+            x: -c_azi,
+            y: 0,
+            z: s_azi
+        })
+    };
+
 }
 
 

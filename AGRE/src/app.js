@@ -61,7 +61,7 @@ export class GraphicsEngine {
         clock.updateDeltaT();
         updateFpsOverlay();
 
-        //camera.changedSinceLastFrame = false;
+        camera.changedSinceLastFrame = false;
 
         this.currentAnimationFrame = requestAnimationFrame(this.mainloop);
     };

@@ -5,6 +5,7 @@ import {
     updateMousePosOverlays, removeMousePosOverlays, 
     updateSelectedOverlay, updateSelectionMovementOverlay
 } from "./overlays.js";
+import { GraphicsEngine } from "../app.js";
 
 
 let moveObjects = false;
@@ -127,9 +128,8 @@ function handleKeyUp(event) {
                 masterRenderer.camera = camera; //reset camera pointer for master renderer
                 axisRenderer.camera = camera;
                 orientationRenderer.camera = camera;
+
                 camera.forceUpdateCamera(masterRenderer.matricies.view);
-                camera.forceUpdateCamera(axisRenderer.matricies.view);
-                //camera.forceUpdateCamera(orientationRenderer.matricies.view);
             }
             break;
         default:

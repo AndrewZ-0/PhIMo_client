@@ -35,7 +35,8 @@ class Camera {
 }
 
 
-class QuaternionCamera extends Camera {
+
+class CartesianQuaternionCamera extends Camera {
     constructor(init_coords, init_orientation) {
         super();
 
@@ -121,7 +122,7 @@ class QuaternionCamera extends Camera {
     }
 
     updateCamera(viewMatrix) {
-        this.changedSinceLastFrame = mouseDragging;
+        this.changedSinceLastFrame ||= mouseDragging;
 
         this.handleMovements();
     
@@ -134,8 +135,6 @@ class QuaternionCamera extends Camera {
         this.getViewMatrix(viewMatrix);
 
         this.changedSinceLastFrame = true;
-        //masterRenderer.render();
-        //axisRenderer.render();
     }
 
     getViewMatrix(viewMatrix) {
@@ -159,6 +158,8 @@ class QuaternionCamera extends Camera {
             z: pose.orientation.z, 
             w: pose.orientation.w
         };
+
+        this.updateAllOverlays();
     }
 
     getPose() {
@@ -166,7 +167,8 @@ class QuaternionCamera extends Camera {
     }
 }
 
-class CartesianCamera extends QuaternionCamera {
+//legacy camera system
+class CartesianCamera extends CartesianQuaternionCamera {
     constructor(init_coords, init_orientation) {
         super(init_coords, init_orientation);
     }
@@ -220,6 +222,155 @@ class CartesianCamera extends QuaternionCamera {
     }
 }
 
+class CartesianPolarCamera extends Camera {
+    constructor(init_coords, init_orientation) {
+        super();
+
+        this.coords = {
+            x: init_coords.x, 
+            y: init_coords.y, 
+            z: init_coords.z
+        };
+
+        this.orientation = {
+            alt: init_orientation.alt, 
+            azi: init_orientation.azi
+        }; 
+
+        //initilise direction vects based on initial camera position
+        this.setDirectionVects();
+    }
+
+    setDirectionVects() {
+        const basisVecs = linearAlgebra.getBasisHorizontalCoords(this.orientation);
+        this.front = basisVecs.front;
+        this.right = basisVecs.right;
+        this.up = basisVecs.up;
+
+        console.log(basisVecs)
+    }
+
+    handleMovements() {
+        if (keys.w || keys.s || keys.d || keys.a || keys.space || keys.shift || keys.left || keys.right || keys.up || keys.down) {
+            linearAlgebra.scaleTranslateVec3(
+                this.coords, 
+                this.front, 
+                this.cameraSpeed * clock.deltaT * (keys.w - keys.s)
+            );
+            linearAlgebra.scaleTranslateVec3(
+                this.coords, 
+                linearAlgebra.subVec3(
+                    this.right, linearAlgebra.scaleVec3(linearAlgebra.globalUp, linearAlgebra.dotVec3(this.right, linearAlgebra.globalUp))
+                ), 
+                this.cameraSpeed * clock.deltaT * (keys.d - keys.a)
+            );
+            linearAlgebra.scaleTranslateVec3(
+                this.coords, 
+                linearAlgebra.globalUp, 
+                this.cameraSpeed * clock.deltaT * (keys.space - keys.shift)
+            );
+            updateCameraCartesianCoordsOverlays();
+
+
+            this.orientation.azi += this.cameraSpeed * clock.deltaT * (keys.left - keys.right) * 0.08;
+            this.orientation.alt += this.cameraSpeed * clock.deltaT * (keys.up - keys.down) * 0.08;
+            this.readjustAngles();
+
+            const basisVecs = linearAlgebra.getBasisHorizontalCoords(this.orientation);
+            this.front = basisVecs.front;
+            this.right = basisVecs.right;
+            this.up = basisVecs.up;
+
+            this.setDirectionVects();
+
+            /////
+            updateCameraEulerAnglesOverlays(); //needs to change to alt azi
+
+            this.changedSinceLastFrame = true;
+        }
+    }
+
+    //to help overlay calls from outside camera class - polymorphism IG
+    updateAllOverlays() {
+        updateCameraCartesianCoordsOverlays();
+
+        /////
+        updateCameraEulerAnglesOverlays(); //needs to change to alt azi
+    }
+
+    readjustAngles() {
+        if (this.orientation.azi < -Math.PI) {
+            this.orientation.azi = Math.PI;
+        }
+        else if (this.orientation.azi > Math.PI) {
+            this.orientation.azi = -Math.PI;
+        }
+
+        if (this.orientation.alt < -linearAlgebra.halfPi) {
+            this.orientation.alt = -linearAlgebra.halfPi;
+        }
+        else if (this.orientation.alt > linearAlgebra.halfPi) {
+            this.orientation.alt = linearAlgebra.halfPi;
+        }
+    }
+
+    onPointerDrag(offset) {
+        //create a set of axis relative to camera to apply offsets to
+        this.orientation.azi += offset.x * this.sensitivity;
+        this.orientation.alt += offset.y * this.sensitivity;
+        this.readjustAngles();
+
+        this.setDirectionVects();
+
+        //////
+        updateCameraEulerAnglesOverlays(); //needs to change to alt azi
+    }
+
+    updateCamera(viewMatrix) {
+        this.changedSinceLastFrame ||= mouseDragging;
+
+        this.handleMovements();
+    
+        this.getViewMatrix(viewMatrix);
+    }
+
+    forceUpdateCamera(viewMatrix) {
+        this.setDirectionVects();
+    
+        this.getViewMatrix(viewMatrix);
+
+        this.changedSinceLastFrame = true;
+    }
+
+    getViewMatrix(viewMatrix) {
+        linearAlgebra.lookAt(viewMatrix, this.coords, this.front, this.up);
+    }
+
+    getOrientationViewMatrix(viewMatrix) {
+        linearAlgebra.lookAt(viewMatrix, linearAlgebra.globalOrigin, camera.front, camera.up);
+    }
+
+    setPose(pose) {
+        this.coords = {
+            x: pose.coords.x, 
+            y: pose.coords.y, 
+            z: pose.coords.z
+        };
+
+        this.orientation = {
+            alt: pose.alt, 
+            azi: pose.azi
+        };
+
+        this.updateAllOverlays();
+    }
+
+    getPose() {
+        return {coords: camera.coords, orientation: camera.orientation};
+    }
+}
+
+
 
 class PolarCamera extends Camera {
     constructor(init_r, init_alt, init_azi, init_origin = {x: 0, y: 0, z: 0}) {
@@ -247,19 +398,8 @@ class PolarCamera extends Camera {
     }
 
     readjustAngles() {
-        if (this.azi < -Math.PI) {
-            this.azi = Math.PI;
-        }
-        else if (this.azi > Math.PI) {
-            this.azi = -Math.PI;
-        }
-
-        if (this.alt < -linearAlgebra.halfPi) {
-            this.alt = -linearAlgebra.halfPi;
-        }
-        else if (this.alt > linearAlgebra.halfPi) {
-            this.alt = linearAlgebra.halfPi;
-        }
+        this.azi = linearAlgebra.wrapPositive(this.azi, linearAlgebra.twoPi);
+        this.alt = linearAlgebra.clamp(this.alt, -linearAlgebra.halfPi, linearAlgebra.halfPi);
     }
 
     updateAllOverlays() {
@@ -307,7 +447,7 @@ class PolarCamera extends Camera {
     }
 
     updateCamera(viewMatrix) {
-        this.changedSinceLastFrame = mouseDragging;
+        this.changedSinceLastFrame ||= mouseDragging;
 
         this.handleMovements();
 
@@ -345,40 +485,22 @@ class PolarCamera extends Camera {
     }
 }
 
-
 export function toggleCameraMode() {
     //pretty sure the old camera gets garbage collected... 
     //but if there is a memory leak, now you probably know why :)
-    if (cameraMode === "Quaternion") {
-        cameraMode = "Y-Polar";
-
-        const r = linearAlgebra.magnitudeVec3(camera.coords);
-        camera = new PolarCamera(
-            r, 
-            Math.asin(camera.coords.y / r), 
-            Math.atan2(camera.coords.x, camera.coords.z)
-        );
+    if (cameraMode === "CartesianQuaternion") {
+        setCameraMode("Y-Polar");
     }
     else if (cameraMode === "Y-Polar") {
-        cameraMode = "Y-Cartesian";
-
-        camera = new CartesianCamera(
-            linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi), 
-            linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi)
-        );
+        setCameraMode("Y-CartesianPolar");
     }
     else {
-        cameraMode = "Quaternion";
-
-        camera = new QuaternionCamera(
-            camera.coords, 
-            camera.orientation
-        );
-        camera.updateAllOverlays();
+        setCameraMode("CartesianQuaternion");
     }
 
     updateCameraModeOverlay();
 }
+
 
 export function setCameraMode(mode) {
     if (mode !== cameraMode) {
@@ -394,18 +516,17 @@ export function setCameraMode(mode) {
             );
             updateCameraModeOverlay();
         }
-        else if (mode === "Y-Cartesian") {
+        else if (mode === "Y-CartesianPolar") {
             if (cameraMode === "Y-Polar") {
-                const coords = linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi);
-                const orientation = linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi);
-
-                camera = new CartesianCamera(
-                    coords,
-                    orientation
+                //flipped since in y-polar, the alt/azi is used for positioning whereas here it is for orient
+                const flippedOrientation = {alt: -camera.alt, azi: camera.azi + Math.PI};
+                camera = new CartesianPolarCamera(
+                    linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi), 
+                    flippedOrientation
                 );
             }
-            else { //if from quaternion
-                camera = new CartesianCamera(
+            else { //if from CartesianQuaternion
+                camera = new CartesianPolarCamera(
                     camera.coords, 
                     camera.orientation
                 );
@@ -416,20 +537,23 @@ export function setCameraMode(mode) {
             updateCameraModeOverlay();
             camera.updateAllOverlays();
         }
-        else if (mode === "Quaternion") {
+        else if (mode === "CartesianQuaternion") {
             if (cameraMode === "Y-Polar") {
                 const coords = linearAlgebra.coordsfromPolar(camera.r, camera.alt, camera.azi);
                 const orientation = linearAlgebra.quatOrientationFromPolar(camera.alt, camera.azi);
 
-                camera = new QuaternionCamera(
+                camera = new CartesianQuaternionCamera(
                     coords,
                     orientation
                 );
             }
-            else { //if from cartesian
-                camera = new QuaternionCamera(
+            else { //if from cartesianPolar
+                const {front, right, up} = linearAlgebra.getBasisHorizontalCoords(camera.orientation);
+                const orientation = linearAlgebra.quatFromBasis(front, right, up);
+
+                camera = new CartesianQuaternionCamera(
                     camera.coords, 
-                    camera.orientation
+                    orientation
                 );
             }
 
