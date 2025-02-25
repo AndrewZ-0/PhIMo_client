@@ -6,8 +6,7 @@ import {communicator} from "./communicator.js";
 import {bindAllControls, unbindAllKeyControls, quickReleaseKeys, selectObject} from "../AGRE/src/core/listeners.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
 import * as linearAlgebra from "../AGRE/src/utils/linearAlgebra.js";
-import {camera, cameraMode, setCameraMode} from "../AGRE/src/core/camera.js";
-
+import {camera, cameraMode, setCameraMode, setDraggingSensitivity, setCameraMovementSpeed} from "../AGRE/src/core/camera.js";
 
 let ge;
 let projectData = {
@@ -69,7 +68,7 @@ function showPlaySimulationMenu(event) {
     loadSimulations();
     document.addEventListener("keydown", simulationMenuKeyEvents);
 
-    validateSimulaitonConfigEntrys();
+    validateSimilationConfigEntries();
 }
 
 function hidePlaySimulationMenu(event) {
@@ -236,11 +235,13 @@ async function loadData() {
     ge = new GraphicsEngine(objects, true);
     ge.start();
 
+    setDraggingSensitivity(settingsData.camera.sensitivity.draggingSensitivity);
+    setCameraMovementSpeed(settingsData.camera.sensitivity.movementSpeed);
+
     setCameraModeRadio(settingsData.camera.mode);
     
     setCameraMode(settingsData.camera.mode);
     camera.setPose(initialCameraPose);
-
 
     //camera.forceUpdateCamera(masterRenderer.matricies.view);
     //camera.forceUpdateCamera(axisRenderer.matricies.view);
@@ -1503,7 +1504,7 @@ async function stopComputingSimulation() {
 
 async function createAndComputeNewSimulation() {
     const errorMessageDiv = document.getElementById("simulationMenu-error-message");
-    if (! validateSimulaitonConfigEntrys()) {
+    if (! validateSimilationConfigEntries()) {
         return;
     }
 
@@ -1548,7 +1549,7 @@ async function createAndComputeNewSimulation() {
     currentProgressTimeout = setTimeout(updateComputingProgress, progressUpdateInterval);
 }
 
-function validateSimulaitonConfigEntrys() {
+function validateSimilationConfigEntries() {
     const errorMessageDiv = document.getElementById("simulationMenu-error-message");
     errorMessageDiv.textContent = ""; //clear prev msgs
 
@@ -1576,9 +1577,9 @@ function validateSimulaitonConfigEntrys() {
     return true;
 }
 
-document.getElementById("deltaT").addEventListener("input", validateSimulaitonConfigEntrys);
-document.getElementById("noOfFrames").addEventListener("input", validateSimulaitonConfigEntrys);
-document.getElementById("stepsPerFrame").addEventListener("input", validateSimulaitonConfigEntrys);
+document.getElementById("deltaT").addEventListener("input", validateSimilationConfigEntries);
+document.getElementById("noOfFrames").addEventListener("input", validateSimilationConfigEntries);
+document.getElementById("stepsPerFrame").addEventListener("input", validateSimilationConfigEntries);
 
 document.getElementById("stopComputingButton").addEventListener("pointerdown", stopComputingSimulation);
 
@@ -1666,11 +1667,20 @@ function configureCamera() {
             z: parseFloat(document.getElementById("camera-position-z").value)
         };
 
-        const newOrientation = linearAlgebra.quatFromEuler(
-            linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-pitch").value)), 
-            linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-yaw").value)),
-            linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-roll").value))
-        );
+        let newOrientation;
+        if (settingsData.camera.mode === "Y-CartesianPolar") {
+            newOrientation = {
+                alt: linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orient-alt").value)), 
+                azi: linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orient-azi").value))
+            };
+        }
+        else {
+            newOrientation = linearAlgebra.quatFromEuler(
+                linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-pitch").value)), 
+                linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-yaw").value)),
+                linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-roll").value))
+            );
+        }
 
         settingsData.camera.pose = {
             coords: newCoords, 
@@ -1679,6 +1689,14 @@ function configureCamera() {
     }
 
     camera.setPose(settingsData.camera.pose);
+
+    const newCameraSensitivity = parseFloat(document.getElementById("camera-draggingSensitivity").value);
+    setDraggingSensitivity(newCameraSensitivity);
+    settingsData.camera.sensitivity.draggingSensitivity = newCameraSensitivity;
+
+    const newCameraMovementSpeed = parseFloat(document.getElementById("camera-movementSpeed").value);
+    setCameraMovementSpeed(newCameraMovementSpeed);
+    settingsData.camera.sensitivity.movementSpeed = newCameraMovementSpeed;
 
     ge.quickAnimationStart();
 
@@ -1698,15 +1716,16 @@ function cameraConfigOverlayKeyEvents(event) {
 function fillCameraConfigMenu() {
     const posGroup = document.getElementById("camera-position-group");
     const orientGroup = document.getElementById("camera-orientation-group");
+    const polarOrientGroup = document.getElementById("camera-polarOrientation-group");
     const radiusGroup = document.getElementById("camera-radius-group");
     const altGroup = document.getElementById("camera-alt-group");
     const aziGroup = document.getElementById("camera-azi-group");
 
     const cameraData = settingsData.camera;
-
     if (cameraData.mode === "Y-Polar") {
         posGroup.classList.add("hidden");
         orientGroup.classList.add("hidden");
+        polarOrientGroup.classList.add("hidden");
         radiusGroup.classList.remove("hidden");
         altGroup.classList.remove("hidden");
         aziGroup.classList.remove("hidden");
@@ -1717,7 +1736,6 @@ function fillCameraConfigMenu() {
     }
     else {
         posGroup.classList.remove("hidden");
-        orientGroup.classList.remove("hidden");
         radiusGroup.classList.add("hidden");
         altGroup.classList.add("hidden");
         aziGroup.classList.add("hidden");
@@ -1727,15 +1745,27 @@ function fillCameraConfigMenu() {
             document.getElementById(`camera-position-${axis}`).value = cameraData.pose.coords[axis];
         }
 
-        const poseEuler = {
-            pitch: linearAlgebra.toDegree(linearAlgebra.pitchFromQuat(cameraData.pose.orientation)),
-            yaw: linearAlgebra.toDegree(linearAlgebra.yawFromQuat(cameraData.pose.orientation)),
-            roll: linearAlgebra.toDegree(linearAlgebra.rollFromQuat(cameraData.pose.orientation))
-        }
+        if (cameraData.mode === "Y-CartesianPolar") {
+            polarOrientGroup.classList.remove("hidden");
+            orientGroup.classList.add("hidden");
 
-        const orientations = ["pitch", "yaw", "roll"];
-        for (const orient of orientations) {
-            document.getElementById(`camera-orientation-${orient}`).value = poseEuler[orient];
+            document.getElementById("camera-orient-alt").value = linearAlgebra.toDegree(cameraData.pose.orientation.alt);
+            document.getElementById("camera-orient-azi").value = linearAlgebra.toDegree(cameraData.pose.orientation.azi);
+        }
+        else {
+            polarOrientGroup.classList.add("hidden");
+            orientGroup.classList.remove("hidden");
+
+            const poseEuler = {
+                pitch: linearAlgebra.toDegree(linearAlgebra.pitchFromQuat(cameraData.pose.orientation)),
+                yaw: linearAlgebra.toDegree(linearAlgebra.yawFromQuat(cameraData.pose.orientation)),
+                roll: linearAlgebra.toDegree(linearAlgebra.rollFromQuat(cameraData.pose.orientation))
+            }
+
+            const orientations = ["pitch", "yaw", "roll"];
+            for (const orient of orientations) {
+                document.getElementById(`camera-orientation-${orient}`).value = poseEuler[orient];
+            }
         }
     }
 
@@ -1787,7 +1817,7 @@ function validateCameraConfigMenu() {
 
         const altInp = document.getElementById("camera-alt");
         const alt = parseFloat(altInp.value);
-        if (isNaN(alt) ||alt < -90 || alt > 90) {
+        if (isNaN(alt) || alt < -90 || alt > 90) {
             errorMessageDiv.textContent = "Altitude must be a float between -90 and 90 degrees";
             return false;
         }
@@ -1810,25 +1840,30 @@ function validateCameraConfigMenu() {
             }
         }
 
-        const orientations = ["pitch", "yaw", "roll"];
-        for (const orient of orientations) {
-            const inp = document.getElementById(`camera-orientation-${orient}`);
-            const val = parseFloat(inp.value);
-            if (isNaN(val)) {
-                errorMessageDiv.textContent = `${orient} must be a float`;
+        if (settingsData.camera.mode === "Y-CartesianPolar") {
+            const altInp = document.getElementById("camera-orient-alt");
+            const alt = parseFloat(altInp.value);
+            if (isNaN(alt) || alt < -90 || alt > 90) {
+                errorMessageDiv.textContent = "Orientation Altitude must be a float between -90 and 90 degrees";
+                return false;
+            }
+
+            const aziInp = document.getElementById("camera-orient-azi");
+            const azi = parseFloat(aziInp.value);
+            if (isNaN(azi)) {
+                errorMessageDiv.textContent = "Orientation Azimuth must be a float";
                 return false;
             }
         }
-
-        if (settingsData.camera.mode === "Y-CartesianPolar") {
-            const roll = parseFloat(document.getElementById("camera-orientation-roll").value);
-
-            //need to fix
-
-            const pitch = parseFloat(document.getElementById("camera-orientation-pitch").value);
-            if (pitch > 90 || pitch < -90) {
-                errorMessageDiv.textContent = "Pitch must be between -90 and 90";
-                return false;
+        else {
+            const orientations = ["pitch", "yaw", "roll"];
+            for (const orient of orientations) {
+                const inp = document.getElementById(`camera-orientation-${orient}`);
+                const val = parseFloat(inp.value);
+                if (isNaN(val)) {
+                    errorMessageDiv.textContent = `${orient} must be a float`;
+                    return false;
+                }
             }
         }
     }

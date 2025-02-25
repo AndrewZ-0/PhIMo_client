@@ -48,7 +48,7 @@
                 <p id = "roll-overlay" class = "overlay-element"></p>
 
                 <p id = "r-overlay" class = "overlay-element"></p>
-                
+
                 <p id = "altitude-overlay" class = "overlay-element"></p>
                 <p id = "azimuth-overlay" class = "overlay-element"></p>
 
@@ -203,6 +203,22 @@
                                     <input style = "width: 150px;" type = "number" id = "camera-azi" name = "camera-azi" class = "cam-input numInpBox" value = "0" required>
                                 </div>
 
+                                <div class = "input-group" id = "camera-polarOrientation-group" style = "margin-top: 20px;">
+                                    <label style = "height: 20px; width: 95px; text-align: left;">Orientation</label>
+
+                                    <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                        <div class = "input-subgroup">
+                                            <label for = "camera-orient-alt" class = "numInpLabel" style = "width: 30px;">Alt</label>
+                                            <input style = "width: 150px;" type = "number" id = "camera-orient-alt" name = "camera-orient-alt" class = "cam-input numInpBox" value = "0" min = "-90" max = "90" required>
+                                        </div>
+
+                                        <div class = "input-subgroup">
+                                            <label for = "camera-orient-azi" class = "numInpLabel" style = "width: 30px;">Azi</label>
+                                            <input style = "width: 150px;" type = "number" id = "camera-orient-azi" name = "camera-orient-azi" class = "cam-input numInpBox" value = "0" required>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
 
@@ -212,7 +228,7 @@
                             <div style = "outline: 1px #aaa solid; padding: 8px; flex-direction: column;">
                                 <div class = "input-group" id = "camera-draggingSensitivity-group">
                                     <label for = "camera-draggingSensitivity" class = "numInpLabel" style = "text-align: left; width: 160px; height: 20px;">Dragging Sensitivity</label>
-                                    <input style = "width: 120px;" type = "number" id = "camera-draggingSensitivity" name = "camera-draggingSensitivity" class = "cam-input numInpBox" value = "0" min = "0" required>
+                                    <input style = "width: 120px;" type = "number" id = "camera-draggingSensitivity" name = "camera-draggingSensitivity" class = "cam-input numInpBox" value = "0" min = "0" step = "0.001" required>
                                 </div>
 
                                 <div class = "input-group" id = "camera-movementSpeed-group" style = "margin-top: 12px;">
@@ -438,7 +454,7 @@
 
                         <div class = "input-group" id = "create-charge-group">
                             <label style = "height: 20px; width: 100px; text-align: left;">Charge</label>
-                            <input style = "width: 130px;" type = "number" id = "create-charge" name = "create-charge" class = "numInpBox create-input" value = "0.1" min = "0.1" step = "0.1" required>
+                            <input style = "width: 130px;" type = "number" id = "create-charge" name = "create-charge" class = "numInpBox create-input" value = "0.001" min = "0.001" step = "0.001" required>
                         </div>
 
                         <div class = "input-group" id = "create-colour-group" style = "margin-bottom: 20px;">
@@ -629,7 +645,7 @@
 
                     <div class = "input-group" id = "edit-charge-group">
                         <label style = "height: 20px; width: 100px; text-align: left;">Charge</label>
-                        <input style = "width: 130px;" type = "number" id = "edit-charge" name = "edit-charge" class = "numInpBox edit-input" min = "0.1" step = "0.1" required>
+                        <input style = "width: 130px;" type = "number" id = "edit-charge" name = "edit-charge" class = "numInpBox edit-input" min = "0.001" step = "0.001" required>
                     </div>
 
                     <div class = "input-group" id = "edit-colour-group" style = "margin-bottom: 20px;">

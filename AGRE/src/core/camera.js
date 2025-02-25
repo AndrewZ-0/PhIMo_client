@@ -9,16 +9,14 @@ import {keys, mouseDragging} from "./listeners.js";
 
 export let cameraMode = "Y-Polar";
 
+export let cameraMovementSpeed = 6;
+export let draggingSensitivity = 0.001;
 
 class Camera {
     constructor() {
         this.fov = 45;
         this.near = 0.01;
         this.far = 100000; 
-
-        this.cameraSpeed = 6;
-
-        this.sensitivity = 0.001;
 
         this.coords;
 
@@ -34,8 +32,6 @@ class Camera {
         );
     }
 }
-
-
 
 class CartesianQuaternionCamera extends Camera {
     constructor(init_coords, init_orientation) {
@@ -72,25 +68,25 @@ class CartesianQuaternionCamera extends Camera {
 
     handleMovements() {
         if (keys.w || keys.s || keys.d || keys.a || keys.space || keys.shift || keys.left || keys.right || keys.up || keys.down || keys.period || keys.comma) {
-            linearAlgebra.scaleTranslateVec3(this.coords, this.front, this.cameraSpeed * clock.deltaT * (keys.w - keys.s));
-            linearAlgebra.scaleTranslateVec3(this.coords, this.right, this.cameraSpeed * clock.deltaT * (keys.d - keys.a));
-            linearAlgebra.scaleTranslateVec3(this.coords, this.up, this.cameraSpeed * clock.deltaT * (keys.space - keys.shift));
+            linearAlgebra.scaleTranslateVec3(this.coords, this.front, cameraMovementSpeed  * clock.deltaT * (keys.w - keys.s));
+            linearAlgebra.scaleTranslateVec3(this.coords, this.right, cameraMovementSpeed  * clock.deltaT * (keys.d - keys.a));
+            linearAlgebra.scaleTranslateVec3(this.coords, this.up, cameraMovementSpeed  * clock.deltaT * (keys.space - keys.shift));
             updateCartesianCameraCoordsOverlays();
 
 
             linearAlgebra.applyQuat(
                 this.orientation, linearAlgebra.getAxisAngle(
-                    this.right, this.cameraSpeed * clock.deltaT * (keys.up - keys.down) * 0.08
+                    this.right, cameraMovementSpeed  * clock.deltaT * (keys.up - keys.down) * 0.08
                 )
             ); //pitch
             linearAlgebra.applyQuat(
                 this.orientation, linearAlgebra.getAxisAngle(
-                    this.up, this.cameraSpeed * clock.deltaT * (keys.left - keys.right) * 0.08
+                    this.up, cameraMovementSpeed  * clock.deltaT * (keys.left - keys.right) * 0.08
                 )
             ); //yaw
             linearAlgebra.applyQuat(
                 this.orientation, linearAlgebra.getAxisAngle(
-                    this.front, this.cameraSpeed * clock.deltaT * (keys.period - keys.comma) * 0.08
+                    this.front, cameraMovementSpeed  * clock.deltaT * (keys.period - keys.comma) * 0.08
                 )
             ); //roll
             linearAlgebra.normaliseQuat(this.orientation);
@@ -110,8 +106,8 @@ class CartesianQuaternionCamera extends Camera {
     //Beefed up version of euler rotaion approach...
     onPointerDrag(offset) {
         //create a set of axis relative to camera to apply offsets to
-        linearAlgebra.applyQuat(this.orientation, linearAlgebra.getAxisAngle(this.up, offset.x * this.sensitivity));  //yaw
-        linearAlgebra.applyQuat(this.orientation, linearAlgebra.getAxisAngle(this.right, offset.y * this.sensitivity)); //pitch
+        linearAlgebra.applyQuat(this.orientation, linearAlgebra.getAxisAngle(this.up, offset.x * draggingSensitivity));  //yaw
+        linearAlgebra.applyQuat(this.orientation, linearAlgebra.getAxisAngle(this.right, offset.y * draggingSensitivity)); //pitch
 
         linearAlgebra.normaliseQuat(this.orientation);
 
@@ -170,61 +166,6 @@ class CartesianQuaternionCamera extends Camera {
     }
 }
 
-//legacy camera system
-class CartesianCamera extends CartesianQuaternionCamera {
-    constructor(init_coords, init_orientation) {
-        super(init_coords, init_orientation);
-    }
-
-    updateDirectionVects() {
-        super.updateDirectionVects();
-
-        this.right = linearAlgebra.crossVec3(this.front, linearAlgebra.globalUp);
-        this.up = linearAlgebra.crossVec3(this.right, this.front);
-    }
-
-    handleMovements() {
-        if (keys.w || keys.s || keys.d || keys.a || keys.space || keys.shift || keys.left || keys.right || keys.up || keys.down) {
-            linearAlgebra.scaleTranslateVec3(
-                this.coords, 
-                this.front, 
-                this.cameraSpeed * clock.deltaT * (keys.w - keys.s)
-            );
-            linearAlgebra.scaleTranslateVec3(
-                this.coords, 
-                linearAlgebra.subVec3(
-                    this.right, linearAlgebra.scaleVec3(linearAlgebra.globalUp, linearAlgebra.dotVec3(this.right, linearAlgebra.globalUp))
-                ), 
-                this.cameraSpeed * clock.deltaT * (keys.d - keys.a)
-            );
-            linearAlgebra.scaleTranslateVec3(
-                this.coords, 
-                linearAlgebra.globalUp, 
-                this.cameraSpeed * clock.deltaT * (keys.space - keys.shift)
-            );
-            updateCameraCartesianCoordsOverlays();
-
-
-            linearAlgebra.applyQuat(
-                this.orientation, linearAlgebra.getAxisAngle(
-                    this.right, this.cameraSpeed * clock.deltaT * (keys.up - keys.down) * 0.08
-                )
-            ); //pitch
-            linearAlgebra.applyQuat(
-                this.orientation, linearAlgebra.getAxisAngle(
-                    this.up, this.cameraSpeed * clock.deltaT * (keys.left - keys.right) * 0.08
-                )
-            ); //yaw
-
-            linearAlgebra.normaliseQuat(this.orientation);
-            this.updateDirectionVects();
-            updateCameraEulerAnglesOverlays();
-
-            this.changedSinceLastFrame = true;
-        }
-    }
-}
-
 class CartesianPolarCamera extends Camera {
     constructor(init_coords, init_orientation) {
         super();
@@ -258,24 +199,24 @@ class CartesianPolarCamera extends Camera {
                 linearAlgebra.subVec3(
                     this.front, linearAlgebra.scaleVec3(linearAlgebra.globalUp, linearAlgebra.dotVec3(this.front, linearAlgebra.globalUp))
                 ), 
-                this.cameraSpeed * clock.deltaT * (keys.w - keys.s)
+                cameraMovementSpeed  * clock.deltaT * (keys.w - keys.s)
             );
             linearAlgebra.scaleTranslateVec3(
                 this.coords, 
                 linearAlgebra.subVec3(
                     this.right, linearAlgebra.scaleVec3(linearAlgebra.globalUp, linearAlgebra.dotVec3(this.right, linearAlgebra.globalUp))
                 ), 
-                this.cameraSpeed * clock.deltaT * (keys.d - keys.a)
+                cameraMovementSpeed  * clock.deltaT * (keys.d - keys.a)
             );
             linearAlgebra.scaleTranslateVec3(
                 this.coords, 
                 linearAlgebra.globalUp, 
-                this.cameraSpeed * clock.deltaT * (keys.space - keys.shift)
+                cameraMovementSpeed  * clock.deltaT * (keys.space - keys.shift)
             );
             updateCartesianCameraCoordsOverlays();
 
-            this.orientation.azi += this.cameraSpeed * clock.deltaT * (keys.left - keys.right) * 0.08;
-            this.orientation.alt += this.cameraSpeed * clock.deltaT * (keys.up - keys.down) * 0.08;
+            this.orientation.azi += cameraMovementSpeed  * clock.deltaT * (keys.left - keys.right) * 0.08;
+            this.orientation.alt += cameraMovementSpeed  * clock.deltaT * (keys.up - keys.down) * 0.08;
             this.readjustAngles();
 
             this.setDirectionVects();
@@ -299,8 +240,8 @@ class CartesianPolarCamera extends Camera {
 
     onPointerDrag(offset) {
         //create a set of axis relative to camera to apply offsets to
-        this.orientation.azi += offset.x * this.sensitivity;
-        this.orientation.alt += offset.y * this.sensitivity;
+        this.orientation.azi += offset.x * draggingSensitivity;
+        this.orientation.alt += offset.y * draggingSensitivity;
         this.readjustAngles();
 
         this.setDirectionVects();
@@ -342,8 +283,8 @@ class CartesianPolarCamera extends Camera {
         };
 
         this.orientation = {
-            alt: pose.alt, 
-            azi: pose.azi
+            alt: pose.orientation.alt, 
+            azi: pose.orientation.azi
         };
 
         this.updateAllOverlays();
@@ -366,9 +307,8 @@ class PolarCamera extends Camera {
             z: init_origin.z
         }
 
-        this.sensitivity = 0.005;
-        this.azi_movement_sf = this.cameraSpeed * clock.deltaT / 2;
-        this.alt_movement_sf = this.cameraSpeed * clock.deltaT / 4;
+        this.azi_movement_sf = cameraMovementSpeed  * clock.deltaT / 2;
+        this.alt_movement_sf = cameraMovementSpeed  * clock.deltaT / 4;
 
         this.r = init_r; //radial distance
         this.alt = init_alt; //altitude
@@ -402,7 +342,7 @@ class PolarCamera extends Camera {
     }
 
     handleMovements() {
-        const deltaR = this.cameraSpeed * clock.deltaT * (keys.s - keys.w);
+        const deltaR = cameraMovementSpeed  * clock.deltaT * (keys.s - keys.w);
         const deltaAzi = this.azi_movement_sf * (keys.d - keys.a);
         const deltaAlt = this.alt_movement_sf * (keys.space - keys.shift);
 
@@ -419,8 +359,8 @@ class PolarCamera extends Camera {
     }
 
     onPointerDrag(offset) {
-        this.alt -= offset.y * this.sensitivity;
-        this.azi += offset.x * this.sensitivity;
+        this.alt -= offset.y * draggingSensitivity * 5;
+        this.azi += offset.x * draggingSensitivity * 5;
 
         this.readjustAngles();
         this.updatePosition();
@@ -550,6 +490,15 @@ export function setCameraMode(mode) {
             camera.updateAllOverlays();
         }
     }
+}
+
+
+export function setDraggingSensitivity(newSensitivity) {
+    draggingSensitivity = newSensitivity;
+}
+
+export function setCameraMovementSpeed(newSpeed) {
+    cameraMovementSpeed = newSpeed;
 }
 
 
