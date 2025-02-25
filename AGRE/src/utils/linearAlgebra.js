@@ -383,9 +383,6 @@ export function quatOrientationFromPolar(alt, azi) {
     };
 }
 
-
-
-
 export function polarFromQuatOrientation(quat) {
     let front = {x: 0, y: 0, z: 0};
     transformQuat(front, globalFront, quat);

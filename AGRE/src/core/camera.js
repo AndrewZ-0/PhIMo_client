@@ -1,7 +1,8 @@
 import * as linearAlgebra from "../utils/linearAlgebra.js";
 import {
-    updateCameraCartesianCoordsOverlays, updateCameraModeOverlay, 
-    updateCameraEulerAnglesOverlays, updateCameraPolarCoordsOverlays
+    updateCartesianCameraCoordsOverlays, updateCameraModeOverlay, 
+    updateCameraEulerAnglesOverlays, updatePolarCameraPoseOverlays, 
+    emptyAllCameraOverlays, updatePolarCartesianCameraOrientationOverlays
 } from "./overlays.js";
 import {clock} from "./clock.js";
 import {keys, mouseDragging} from "./listeners.js";
@@ -74,7 +75,7 @@ class CartesianQuaternionCamera extends Camera {
             linearAlgebra.scaleTranslateVec3(this.coords, this.front, this.cameraSpeed * clock.deltaT * (keys.w - keys.s));
             linearAlgebra.scaleTranslateVec3(this.coords, this.right, this.cameraSpeed * clock.deltaT * (keys.d - keys.a));
             linearAlgebra.scaleTranslateVec3(this.coords, this.up, this.cameraSpeed * clock.deltaT * (keys.space - keys.shift));
-            updateCameraCartesianCoordsOverlays();
+            updateCartesianCameraCoordsOverlays();
 
 
             linearAlgebra.applyQuat(
@@ -102,7 +103,7 @@ class CartesianQuaternionCamera extends Camera {
 
     //to help overlay calls from outside camera class - polymorphism IG
     updateAllOverlays() {
-        updateCameraCartesianCoordsOverlays();
+        updateCartesianCameraCoordsOverlays();
         updateCameraEulerAnglesOverlays();
     }
 
@@ -135,6 +136,8 @@ class CartesianQuaternionCamera extends Camera {
         this.getViewMatrix(viewMatrix);
 
         this.changedSinceLastFrame = true;
+
+        this.updateAllOverlays();
     }
 
     getViewMatrix(viewMatrix) {
@@ -269,8 +272,7 @@ class CartesianPolarCamera extends Camera {
                 linearAlgebra.globalUp, 
                 this.cameraSpeed * clock.deltaT * (keys.space - keys.shift)
             );
-            updateCameraCartesianCoordsOverlays();
-
+            updateCartesianCameraCoordsOverlays();
 
             this.orientation.azi += this.cameraSpeed * clock.deltaT * (keys.left - keys.right) * 0.08;
             this.orientation.alt += this.cameraSpeed * clock.deltaT * (keys.up - keys.down) * 0.08;
@@ -278,8 +280,7 @@ class CartesianPolarCamera extends Camera {
 
             this.setDirectionVects();
 
-            /////
-            updateCameraEulerAnglesOverlays(); //needs to change to alt azi
+            updatePolarCartesianCameraOrientationOverlays();
 
             this.changedSinceLastFrame = true;
         }
@@ -287,10 +288,8 @@ class CartesianPolarCamera extends Camera {
 
     //to help overlay calls from outside camera class - polymorphism IG
     updateAllOverlays() {
-        updateCameraCartesianCoordsOverlays();
-
-        /////
-        updateCameraEulerAnglesOverlays(); //needs to change to alt azi
+        updateCartesianCameraCoordsOverlays();
+        updatePolarCartesianCameraOrientationOverlays();
     }
 
     readjustAngles() {
@@ -306,8 +305,7 @@ class CartesianPolarCamera extends Camera {
 
         this.setDirectionVects();
 
-        //////
-        updateCameraEulerAnglesOverlays(); //needs to change to alt azi
+        updatePolarCartesianCameraOrientationOverlays();
     }
 
     updateCamera(viewMatrix) {
@@ -324,6 +322,8 @@ class CartesianPolarCamera extends Camera {
         this.getViewMatrix(viewMatrix);
 
         this.changedSinceLastFrame = true;
+
+        this.updateAllOverlays();
     }
 
     getViewMatrix(viewMatrix) {
@@ -377,8 +377,6 @@ class PolarCamera extends Camera {
         this.coords;
         this.front;
         this.up = linearAlgebra.globalUp;
-
-        //this.updatePosition();
     }
 
     readjustAngles() {
@@ -387,7 +385,7 @@ class PolarCamera extends Camera {
     }
 
     updateAllOverlays() {
-        updateCameraPolarCoordsOverlays();
+        updatePolarCameraPoseOverlays();
     }
 
     updatePosition() {
@@ -483,6 +481,7 @@ export function toggleCameraMode() {
     }
 
     updateCameraModeOverlay();
+    emptyAllCameraOverlays();
 }
 
 
@@ -499,6 +498,7 @@ export function setCameraMode(mode) {
                 Math.atan2(camera.coords.x, camera.coords.z)
             );
             updateCameraModeOverlay();
+            emptyAllCameraOverlays();
         }
         else if (mode === "Y-CartesianPolar") {
             if (cameraMode === "Y-Polar") {
@@ -521,6 +521,7 @@ export function setCameraMode(mode) {
             cameraMode = mode;
 
             updateCameraModeOverlay();
+            emptyAllCameraOverlays();
             camera.updateAllOverlays();
         }
         else if (mode === "CartesianQuaternion") {
@@ -545,6 +546,7 @@ export function setCameraMode(mode) {
             cameraMode = mode;
 
             updateCameraModeOverlay();
+            emptyAllCameraOverlays();
             camera.updateAllOverlays();
         }
     }
