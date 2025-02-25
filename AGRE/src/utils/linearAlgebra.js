@@ -73,38 +73,6 @@ export function quatFromEuler(pitch, yaw, roll) {
     };
 }
 
-//courtesey of stack overflow
-//https://math.stackexchange.com/questions/893984/conversion-of-rotation-matrix-to-quaternion
-export function quatFromBasis(front, right, up) {
-    let q;
-    let t;
-    if (up.z < 0) {
-        if (front.x > right.y) {
-            t = 1 + front.x - right.y - up.z;
-            q = {x: t, y: front.y + right.x, z: front.z + up.x, w: right.z - up.y};
-        } 
-        else {
-            t = 1 - front.x + right.y - up.z;
-            q = {x: front.y + right.x, y: t, z: right.z + up.y, w: up.x - front.z};
-        }
-    } 
-    else {
-        if (front.x < -right.y) {
-            t = 1 - front.x - right.y + up.z;
-            q = {x: up.z + front.x, y: right.y + up.z, z: t, w: front.x - right.y};
-        } 
-        else {
-            t = 1 + front.x + right.y + up.z;
-            q = {x: right.y - up.z, y: up.z - front.x, z: front.x - right.y, w: t};
-        }
-    }
-
-    const sf = 0.5 / Math.sqrt(t);
-    q = scaleQuat(q, sf);
-
-    return q;
-}
-
 
 export function scaleQuat(quat, sf) {
     return {
@@ -260,7 +228,6 @@ export function getBasisHorizontalCoords(orientation) {
             z: s_azi
         })
     };
-
 }
 
 
@@ -414,6 +381,16 @@ export function quatOrientationFromPolar(alt, azi) {
         z: -sp * sy, 
         w: cp * cy
     };
+}
+
+export function polarFromQuatOrientation(quat) {
+    const halfYaw = Math.atan2(quat.y, quat.w);
+    const halfPitch = Math.asin(quat.x / Math.cos(halfYaw));
+
+    const alt = -2 * halfPitch;
+    const azi = 2 * halfYaw;
+
+    return {alt, azi};
 }
 
 

@@ -246,15 +246,15 @@ class CartesianPolarCamera extends Camera {
         this.front = basisVecs.front;
         this.right = basisVecs.right;
         this.up = basisVecs.up;
-
-        console.log(basisVecs)
     }
 
     handleMovements() {
         if (keys.w || keys.s || keys.d || keys.a || keys.space || keys.shift || keys.left || keys.right || keys.up || keys.down) {
             linearAlgebra.scaleTranslateVec3(
                 this.coords, 
-                this.front, 
+                linearAlgebra.subVec3(
+                    this.right, linearAlgebra.scaleVec3(linearAlgebra.globalUp, linearAlgebra.dotVec3(this.front, linearAlgebra.globalUp))
+                ), 
                 this.cameraSpeed * clock.deltaT * (keys.w - keys.s)
             );
             linearAlgebra.scaleTranslateVec3(
@@ -276,11 +276,6 @@ class CartesianPolarCamera extends Camera {
             this.orientation.alt += this.cameraSpeed * clock.deltaT * (keys.up - keys.down) * 0.08;
             this.readjustAngles();
 
-            const basisVecs = linearAlgebra.getBasisHorizontalCoords(this.orientation);
-            this.front = basisVecs.front;
-            this.right = basisVecs.right;
-            this.up = basisVecs.up;
-
             this.setDirectionVects();
 
             /////
@@ -299,19 +294,8 @@ class CartesianPolarCamera extends Camera {
     }
 
     readjustAngles() {
-        if (this.orientation.azi < -Math.PI) {
-            this.orientation.azi = Math.PI;
-        }
-        else if (this.orientation.azi > Math.PI) {
-            this.orientation.azi = -Math.PI;
-        }
-
-        if (this.orientation.alt < -linearAlgebra.halfPi) {
-            this.orientation.alt = -linearAlgebra.halfPi;
-        }
-        else if (this.orientation.alt > linearAlgebra.halfPi) {
-            this.orientation.alt = linearAlgebra.halfPi;
-        }
+        this.orientation.azi = linearAlgebra.wrapPositive(this.orientation.azi, linearAlgebra.twoPi);
+        this.orientation.alt = linearAlgebra.clamp(this.orientation.alt, -linearAlgebra.halfPi, linearAlgebra.halfPi);
     }
 
     onPointerDrag(offset) {
@@ -526,9 +510,11 @@ export function setCameraMode(mode) {
                 );
             }
             else { //if from CartesianQuaternion
+                const {alt, azi} = linearAlgebra.polarFromQuatOrientation(camera.orientation);
+
                 camera = new CartesianPolarCamera(
                     camera.coords, 
-                    camera.orientation
+                    {alt: -alt, azi: azi + Math.PI}
                 );
             }
 
@@ -548,8 +534,7 @@ export function setCameraMode(mode) {
                 );
             }
             else { //if from cartesianPolar
-                const {front, right, up} = linearAlgebra.getBasisHorizontalCoords(camera.orientation);
-                const orientation = linearAlgebra.quatFromBasis(front, right, up);
+                const orientation = linearAlgebra.quatOrientationFromPolar(-camera.orientation.alt, camera.orientation.azi + Math.PI);
 
                 camera = new CartesianQuaternionCamera(
                     camera.coords, 

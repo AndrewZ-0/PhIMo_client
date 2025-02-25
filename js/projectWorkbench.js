@@ -230,13 +230,17 @@ async function loadData() {
         }
     }
 
+    //to prevent setting camera mode from overwriting intial one in setting data
+    const initialCameraPose = settingsData.camera.pose;
+
     ge = new GraphicsEngine(objects, true);
     ge.start();
 
     setCameraModeRadio(settingsData.camera.mode);
-
+    
     setCameraMode(settingsData.camera.mode);
-    camera.setPose(settingsData.camera.pose);
+    camera.setPose(initialCameraPose);
+
 
     //camera.forceUpdateCamera(masterRenderer.matricies.view);
     //camera.forceUpdateCamera(axisRenderer.matricies.view);
@@ -1354,8 +1358,7 @@ document.addEventListener("objectMoved", recordObjectMovement);
 async function saveProjectData() {
     const projectName = communicator.getProjNameFromUrl();
 
-    settingsData.camera.mode = cameraMode;
-    settingsData.camera.pose = camera.getPose();
+    console.log(settingsData.camera.pose);
 
     //super jank solution to merge the two surfaces when screenshotting (courtesty of stack overflow)
     const modelSurface = document.getElementById("model-surface");
@@ -1649,7 +1652,7 @@ function configureCamera() {
             alt: linearAlgebra.clamp(
                 linearAlgebra.toRadian(parseFloat(document.getElementById("camera-alt").value)), 
                 -linearAlgebra.halfPi, linearAlgebra.halfPi
-            ), 
+            ),
             azi: linearAlgebra.wrapPositive(
                 linearAlgebra.toRadian(parseFloat(document.getElementById("camera-azi").value)), 
                 linearAlgebra.twoPi
