@@ -367,13 +367,13 @@ export function coordsfromPolar(r, alt, azi) {
 //derrived this function by modifying and simplifying the standard euler to quat function 
 //since polar coord has y-axis fixed, no roll is introduced
 export function quatOrientationFromPolar(alt, azi) {
-    const halfPitch = -alt / 2;
-    const halfYaw = azi / 2;
+    const halfAlt = -alt / 2;
+    const halfAzi = azi / 2;
 
-    const cp = Math.cos(halfPitch);
-    const sp = Math.sin(halfPitch);
-    const cy = Math.cos(halfYaw);
-    const sy = Math.sin(halfYaw);
+    const cp = Math.cos(halfAlt);
+    const sp = Math.sin(halfAlt);
+    const cy = Math.cos(halfAzi);
+    const sy = Math.sin(halfAzi);
 
     return {
         x: sp * cy, 
@@ -383,12 +383,22 @@ export function quatOrientationFromPolar(alt, azi) {
     };
 }
 
-export function polarFromQuatOrientation(quat) {
-    const halfYaw = Math.atan2(quat.y, quat.w);
-    const halfPitch = Math.asin(quat.x / Math.cos(halfYaw));
 
-    const alt = -2 * halfPitch;
-    const azi = 2 * halfYaw;
+
+
+export function polarFromQuatOrientation(quat) {
+    let front = {x: 0, y: 0, z: 0};
+    transformQuat(front, globalFront, quat);
+
+    const alt = Math.asin(-front.y);
+
+    const xzPlane_front = normaliseVec3(subVec3(front, scaleVec3(globalUp, dotVec3(front, globalUp))));
+
+    let azi = Math.acos(-xzPlane_front.z);
+
+    if (xzPlane_front.x > 0) {
+        azi = twoPi - azi;
+    }
 
     return {alt, azi};
 }
@@ -400,35 +410,35 @@ export function toVec3(obj) {
 
 
 export function invertMat4(a) {
-    let a00 = a[0],
+    const a00 = a[0],
         a01 = a[1],
         a02 = a[2],
         a03 = a[3];
-    let a10 = a[4],
+    const a10 = a[4],
         a11 = a[5],
         a12 = a[6],
         a13 = a[7];
-    let a20 = a[8],
+    const a20 = a[8],
         a21 = a[9],
         a22 = a[10],
         a23 = a[11];
-    let a30 = a[12],
+    const a30 = a[12],
         a31 = a[13],
         a32 = a[14],
         a33 = a[15];
 
-    let b00 = a00 * a11 - a01 * a10;
-    let b01 = a00 * a12 - a02 * a10;
-    let b02 = a00 * a13 - a03 * a10;
-    let b03 = a01 * a12 - a02 * a11;
-    let b04 = a01 * a13 - a03 * a11;
-    let b05 = a02 * a13 - a03 * a12;
-    let b06 = a20 * a31 - a21 * a30;
-    let b07 = a20 * a32 - a22 * a30;
-    let b08 = a20 * a33 - a23 * a30;
-    let b09 = a21 * a32 - a22 * a31;
-    let b10 = a21 * a33 - a23 * a31;
-    let b11 = a22 * a33 - a23 * a32;
+    const b00 = a00 * a11 - a01 * a10;
+    const b01 = a00 * a12 - a02 * a10;
+    const b02 = a00 * a13 - a03 * a10;
+    const b03 = a01 * a12 - a02 * a11;
+    const b04 = a01 * a13 - a03 * a11;
+    const b05 = a02 * a13 - a03 * a12;
+    const b06 = a20 * a31 - a21 * a30;
+    const b07 = a20 * a32 - a22 * a30;
+    const b08 = a20 * a33 - a23 * a30;
+    const b09 = a21 * a32 - a22 * a31;
+    const b10 = a21 * a33 - a23 * a31;
+    const b11 = a22 * a33 - a23 * a32;
 
     //calculate the determinant
     let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;

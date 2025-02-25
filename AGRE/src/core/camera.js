@@ -253,7 +253,7 @@ class CartesianPolarCamera extends Camera {
             linearAlgebra.scaleTranslateVec3(
                 this.coords, 
                 linearAlgebra.subVec3(
-                    this.right, linearAlgebra.scaleVec3(linearAlgebra.globalUp, linearAlgebra.dotVec3(this.front, linearAlgebra.globalUp))
+                    this.front, linearAlgebra.scaleVec3(linearAlgebra.globalUp, linearAlgebra.dotVec3(this.front, linearAlgebra.globalUp))
                 ), 
                 this.cameraSpeed * clock.deltaT * (keys.w - keys.s)
             );
