@@ -1,3 +1,5 @@
+import {quickReleaseKeys} from "../../AGRE/src/core/listeners.js";
+
 export class OverlayMenu {
     constructor() {
         this.fillCallback = null;
@@ -25,6 +27,7 @@ export class OverlayMenu {
     }
 
     show() {
+        quickReleaseKeys();
         if (!! this.showCallback) {
             this.showCallback();
         }

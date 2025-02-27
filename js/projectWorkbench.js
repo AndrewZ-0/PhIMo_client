@@ -3,7 +3,7 @@ import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {updateSelectedOverlay} from "../AGRE/src/core/overlays.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
-import {bindAllControls, unbindAllKeyControls, quickReleaseKeys} from "../AGRE/src/core/listeners.js";
+import {bindAllControls, unbindAllKeyControls} from "../AGRE/src/core/listeners.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
 import * as linearAlgebra from "../AGRE/src/utils/linearAlgebra.js";
 import {
@@ -136,11 +136,9 @@ async function loadData() {
     createObjectOverlay.bindHideCallback(hideCreateObjectCallback);
     createObjectOverlay.configureObjectEntries();
 
-
     findObjectOverlay = new FindObjectOverlay();
     findObjectOverlay.bindShowCallback(showFindObjectCallback);
     findObjectOverlay.bindHideCallback(hideFindObjectCallback);
-
 
     simulationOverlay = new SimulationOverlay(projectData, saveProjectData);
     simulationOverlay.bindShowCallback(showPlaySimulationMenu);
@@ -225,8 +223,6 @@ document.getElementById("LightingShader-radio").addEventListener("change", updat
 
 
 function showCreateObjectCallback() {
-    quickReleaseKeys();
-    
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 }
@@ -334,8 +330,6 @@ function workspaceKeyEvents(event) {
 }
 
 function showFindObjectCallback() {
-    quickReleaseKeys();
-
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 
@@ -387,8 +381,6 @@ function loadObjectsToFinderList() {
 
 
 function showGravityMenuOverlay() {
-    quickReleaseKeys();
-
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 }
@@ -402,8 +394,6 @@ function hideGravityMenuOverlay() {
 
 
 function showEForceMenuOverlay() {
-    quickReleaseKeys();
-
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 }
@@ -417,8 +407,6 @@ function hideEForceMenuOverlay() {
 
 
 function showMForceMenuOverlay() {
-    quickReleaseKeys();
-
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 }
@@ -432,8 +420,6 @@ function hideMForceMenuOverlay() {
 
 
 function showCollisionsMenuOverlay() {
-    quickReleaseKeys();
-
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 }
@@ -863,8 +849,6 @@ document.getElementById("saveProjectButton").addEventListener("pointerdown", sav
 
 
 function showPlaySimulationMenu(event) {
-    quickReleaseKeys();
-
     unbindAllKeyControls();
 }
 
@@ -914,8 +898,6 @@ for (const element of document.getElementsByClassName("numInpBox")) {
 
 
 function showCameraConfigMenuOverlay() {
-    quickReleaseKeys();
-
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 }
