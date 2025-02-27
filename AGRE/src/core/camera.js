@@ -316,6 +316,8 @@ class PolarCamera extends Camera {
         this.coords;
         this.front;
         this.up = linearAlgebra.globalUp;
+
+        this.readjustPosition();
     }
 
     readjustAngles() {
@@ -327,7 +329,7 @@ class PolarCamera extends Camera {
         updatePolarCameraPoseOverlays();
     }
 
-    updatePosition() {
+    readjustPosition() {
         this.readjustAngles();
 
         this.coords = linearAlgebra.coordsfromPolar(this.r, this.alt, this.azi);
@@ -336,6 +338,10 @@ class PolarCamera extends Camera {
             y: this.localOrigin.y - this.coords.y, 
             z: this.localOrigin.z - this.coords.z
         });
+    }
+
+    updatePosition() {
+        this.readjustPosition();
 
         this.updateAllOverlays();
     }
@@ -377,14 +383,10 @@ class PolarCamera extends Camera {
 
     forceUpdateCamera(viewMatrix) {
         this.updatePosition();
-        //this.handleMovements();
     
         this.getViewMatrix(viewMatrix);
 
         this.changedSinceLastFrame = true;
-        //masterRenderer.render();
-        //axisRenderer.render();
-        //this.changedSinceLastFrame = false;
     }
 
     getViewMatrix(viewMatrix) {

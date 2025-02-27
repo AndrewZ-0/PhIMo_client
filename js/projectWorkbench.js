@@ -10,7 +10,7 @@ import {
     camera, cameraMode, setCameraMode, 
     setDraggingSensitivity, setCameraMovementSpeed
 } from "../AGRE/src/core/camera.js";
-import {} from "./tabMenu.js";
+import {toggleTab} from "./tabMenu.js";
 import {CreateObjectOverlay} from "./overlays/createObjectOverlay.js";
 import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
 import {SimulationOverlay} from "./overlays/simulationOverlay.js";
@@ -104,7 +104,6 @@ async function loadData() {
     const initialCameraPose = settingsData.camera.pose;
 
     ge = new GraphicsEngine(objects, true);
-    ge.start();
 
     setDraggingSensitivity(settingsData.camera.sensitivity.draggingSensitivity);
     setCameraMovementSpeed(settingsData.camera.sensitivity.movementSpeed);
@@ -138,8 +137,7 @@ async function loadData() {
     simulationOverlay.bindShowCallback(showPlaySimulationMenu);
     simulationOverlay.bindHideCallback(hidePlaySimulationMenu);
 
-
-    ge.quickAnimationStart();
+    ge.start();
 }
 
 
@@ -205,12 +203,12 @@ function showCreateObjectCallback() {
     quickReleaseKeys();
     
     unbindAllKeyControls();
-    document.removeEventListener("keydown", workbenchKeyEvents);
+    document.removeEventListener("keydown", workspaceKeyEvents);
 }
 
 function hideCreateObjectCallback() {
     bindAllControls(ge.canvas);
-    document.addEventListener("keydown", workbenchKeyEvents);
+    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
 
@@ -296,7 +294,7 @@ function pasteObject() {
 document.getElementById("pasteObject-button").addEventListener("pointerdown", pasteObject);
 
 
-function workbenchKeyEvents(event) {
+function workspaceKeyEvents(event) {
     if (event.ctrlKey) {
         if (event.key === "c") {
             copyObject();
@@ -314,13 +312,13 @@ function showFindObjectCallback() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
-    document.removeEventListener("keydown", workbenchKeyEvents);
+    document.removeEventListener("keydown", workspaceKeyEvents);
 
     loadObjectsToFinderList();
 }
 
 function hideFindObjectCallback() {
-    document.addEventListener("keydown", workbenchKeyEvents);
+    document.addEventListener("keydown", workspaceKeyEvents);
     bindAllControls(ge.canvas);
 }
 
@@ -379,7 +377,7 @@ function showGravityMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
-    document.removeEventListener("keydown", workbenchKeyEvents);
+    document.removeEventListener("keydown", workspaceKeyEvents);
     document.getElementById("gravityMenu-overlay").classList.remove("hidden");
     document.addEventListener("keydown", gravityMenuOverlayKeyEvents);
 
@@ -395,7 +393,7 @@ function hideGravityMenuOverlay() {
 
     bindAllControls(ge.canvas);
 
-    document.addEventListener("keydown", workbenchKeyEvents);
+    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
 document.getElementById("openGravityMenu-button").addEventListener("pointerdown", showGravityMenuOverlay);
@@ -447,7 +445,7 @@ function showEForceMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
-    document.removeEventListener("keydown", workbenchKeyEvents);
+    document.removeEventListener("keydown", workspaceKeyEvents);
     document.getElementById("eForceMenu-overlay").classList.remove("hidden");
     document.addEventListener("keydown", eForceMenuOverlayKeyEvents);
 
@@ -463,7 +461,7 @@ function hideEForceMenuOverlay() {
 
     bindAllControls(ge.canvas);
 
-    document.addEventListener("keydown", workbenchKeyEvents);
+    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
 document.getElementById("openEForceMenu-button").addEventListener("pointerdown", showEForceMenuOverlay);
@@ -516,7 +514,7 @@ function showMForceMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
-    document.removeEventListener("keydown", workbenchKeyEvents);
+    document.removeEventListener("keydown", workspaceKeyEvents);
     document.getElementById("mForceMenu-overlay").classList.remove("hidden");
     document.addEventListener("keydown", mForceMenuOverlayKeyEvents);
 
@@ -532,7 +530,7 @@ function hideMForceMenuOverlay() {
 
     bindAllControls(ge.canvas);
 
-    document.addEventListener("keydown", workbenchKeyEvents);
+    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
 document.getElementById("openMForceMenu-button").addEventListener("pointerdown", showMForceMenuOverlay);
@@ -583,7 +581,7 @@ function showCollisionsMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
-    document.removeEventListener("keydown", workbenchKeyEvents);
+    document.removeEventListener("keydown", workspaceKeyEvents);
     document.getElementById("collisionsMenu-overlay").classList.remove("hidden");
     document.addEventListener("keydown", collisionsMenuOverlayKeyEvents);
 
@@ -599,7 +597,7 @@ function hideCollisionsMenuOverlay() {
 
     bindAllControls(ge.canvas);
 
-    document.addEventListener("keydown", workbenchKeyEvents);
+    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
 document.getElementById("openCollisionsMenu-button").addEventListener("pointerdown", showCollisionsMenuOverlay);
@@ -675,8 +673,7 @@ function handleCameraUpdate() {
     settingsData.camera.pose = camera.getPose();
     markUnsavedChanges("low");
 }
-
-document.addEventListener("cameraUpdated", handleCameraUpdate)
+document.addEventListener("cameraUpdated", handleCameraUpdate);
 
 
 function deleteObject() {
@@ -1051,7 +1048,7 @@ async function saveProjectData() {
 
 
 document.getElementById("deleteObject-button").addEventListener("pointerdown", deleteObject);
-document.addEventListener("keydown", workbenchKeyEvents);
+document.addEventListener("keydown", workspaceKeyEvents);
 
 document.getElementById("saveProjectButton").addEventListener("pointerdown", saveProjectData);
 
@@ -1082,26 +1079,26 @@ window.onbeforeunload = handleLeavePage;
 document.getElementById("edit-objectName").addEventListener(
     "focus", () => {
         unbindAllKeyControls();
-        document.removeEventListener("keydown", workbenchKeyEvents);
+        document.removeEventListener("keydown", workspaceKeyEvents);
     }
 );
 document.getElementById("edit-objectName").addEventListener(
     "focusout", () => {
         bindAllControls(ge.canvas);
-        document.addEventListener("keydown", workbenchKeyEvents);
+        document.addEventListener("keydown", workspaceKeyEvents);
     }
 );
 for (const element of document.getElementsByClassName("numInpBox")) {
     element.addEventListener(
         "focus", () => {
             unbindAllKeyControls();
-            document.removeEventListener("keydown", workbenchKeyEvents);
+            document.removeEventListener("keydown", workspaceKeyEvents);
         }
     );
     element.addEventListener(
         "focusout", () => {
             bindAllControls(ge.canvas);
-            document.addEventListener("keydown", workbenchKeyEvents);
+            document.addEventListener("keydown", workspaceKeyEvents);
         }
     );
 }
@@ -1111,13 +1108,13 @@ function showCameraConfigMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
-    document.removeEventListener("keydown", workbenchKeyEvents);
+    document.removeEventListener("keydown", workspaceKeyEvents);
 }
 
 function hideCameraConfigMenuOverlay() {
     bindAllControls(ge.canvas);
 
-    document.addEventListener("keydown", workbenchKeyEvents);
+    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
 
@@ -1132,6 +1129,11 @@ async function setupWorkbench() {
 
     await loadData();
     configureModelDataToggles();
+
+    document.getElementById("toolsTab").addEventListener("pointerup", () => toggleTab("tools"));
+    document.getElementById("modelsTab").addEventListener("pointerup", () => toggleTab("models"));
+    document.getElementById("cameraTab").addEventListener("pointerup", () => toggleTab("camera"));
+    document.getElementById("shadersTab").addEventListener("pointerup", () => toggleTab("shaders"));
 }
 
 

@@ -73,7 +73,11 @@ export class GraphicsEngine {
     start = () => {
         //condition here as a quick fix for initial hidden document "inifinity fps issue"
         if (!document.hidden) {
-            this.quickAnimationStart();
+            camera.forceUpdateCamera(masterRenderer.matricies.view);
+            camera.changedSinceLastFrame = false;
+
+            masterRenderer.updateFlag = true;
+            this.currentAnimationFrame = requestAnimationFrame(this.mainloop);
         }
     }
 
@@ -83,7 +87,13 @@ export class GraphicsEngine {
             cancelAnimationFrame(this.currentAnimationFrame);
         } 
         else {
-            this.forceAnimationFrame();
+            cancelAnimationFrame(this.currentAnimationFrame);
+
+            camera.forceUpdateCamera(masterRenderer.matricies.view);
+            camera.changedSinceLastFrame = false;
+
+            masterRenderer.updateFlag = true;
+            this.currentAnimationFrame = requestAnimationFrame(this.mainloop);
         }
     }
 

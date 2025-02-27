@@ -28,10 +28,3 @@ export function toggleTab(tabId) {
         currentSelection = tabId;
     }
 }
-
-
-//probably should fix this later to make it less vomit enducing to look at...
-document.getElementById("toolsTab").addEventListener("pointerup", () => toggleTab("tools"));
-document.getElementById("modelsTab").addEventListener("pointerup", () => toggleTab("models"));
-document.getElementById("cameraTab").addEventListener("pointerup", () => toggleTab("camera"));
-document.getElementById("shadersTab").addEventListener("pointerup", () => toggleTab("shaders"));

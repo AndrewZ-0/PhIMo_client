@@ -132,26 +132,6 @@
 
 
 
-
-
-
-
-
-
-
-#createObject-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
 .overlay-content {
     display: flex;
     flex-direction: column;
@@ -163,29 +143,6 @@
     animation: fadeIn 0.3s ease;
 }
 
-#createObject-overlay.hidden {
-    display: none;
-}
-
-
-
-
-#findObject-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-#findObject-overlay.hidden {
-    display: none;
-}
 
 #objectsList {
     width: 100%;
@@ -208,66 +165,6 @@
     flex-direction: column;
 }
 
-
-
-
-.overlayMenu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.overlayMenu.hidden {
-    display: none;
-}
-
-.hide-overlayMenu-button {
-    position: absolute; 
-    top: 0; 
-    right: 0; 
-    width: 20; 
-    height: 20; 
-    font-weight: bold; 
-    font-size: 20px; 
-    color: #fff; 
-    background-color: rgba(0, 0, 0, 0);
-}
-
-.hide-overlayMenu-button:hover {
-    outline: 0.4px solid #fff; 
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0);
-}
-
-.hide-overlayMenu-button:active {
-    outline: 0.4px solid #999; 
-    color: #999;
-    background-color: rgba(0, 0, 0, 0.1);;
-}
-
-#playSimulationMenu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-#playSimulationMenu-overlay.hidden {
-    display: none;
-}
 
 #simulationList {
     width: 100%;

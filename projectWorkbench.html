@@ -7,6 +7,7 @@
         <link rel = "stylesheet" href = "./styles/master.css">
         <link rel = "stylesheet" href = "./styles/forms.css">
         <link rel = "stylesheet" href = "./styles/workspaceLevelMenu.css">
+        <link rel = "stylesheet" href = "./styles/overlayMenu.css">
         <link rel = "stylesheet" href = "./styles/projectWorkbench.css">
         <script src = "js/projectWorkbench.js" type = "module"></script>
     </head>
@@ -72,7 +73,7 @@
             </div>
         </div>
 
-        <div id = "#workspaceLevelMenu">
+        <div id = "workspaceLevelMenu">
             <div id = "tabIsle">
                 <button class = "tab" id = "toolsTab">Tools</button>
                 <button class = "tab" id = "modelsTab">Models</button>
@@ -369,7 +370,7 @@
             </div>
         </div>
 
-        <div id = "createObject-overlay" class = "hidden">
+        <div id = "createObject-overlay" class = "overlayMenu hidden">
             <button id = "hide-createObject-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 30%; min-width: 350px; max-width: 500px;">
                 <h2>Create Object</h2>
@@ -496,7 +497,7 @@
             </div>
         </div>
 
-        <div id = "findObject-overlay" class = "hidden">
+        <div id = "findObject-overlay" class = "overlayMenu hidden">
             <button id = "hide-findObject-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
                 <h2>Find Object</h2>
@@ -513,7 +514,7 @@
             </div>
         </div>
 
-        <div id = "playSimulationMenu-overlay" class = "hidden">
+        <div id = "playSimulationMenu-overlay" class = "overlayMenu hidden">
             <button id = "hide-playSimulationMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
                 <h2>Simulations</h2>

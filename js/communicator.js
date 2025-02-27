@@ -225,6 +225,10 @@ class Communicator {
         return await this.submitData("update_projectData", {projectName, simConfig, settingsData, screenshot}, true);
     }
 
+    async updateSimulationSettings(projectName, simulationName, settingsData) {
+        return await this.submitData("update_simulationSettings", {projectName, simulationName, settingsData}, true)
+    }
+
     //can't use a standardised fetch request since data is not a json
     async getProjectScreenshot(projectName) {
         const connected = await this.connect();
@@ -278,11 +282,11 @@ class Communicator {
     }
 
     async getSimulationData(projectName, simulationName) {
-        return await this.fetchData("get_simulationData", {projectName, simulationName}, true)
+        return await this.fetchData("get_simulationData", {projectName, simulationName}, true);
     }
 
     async listSolvers() {
-        return await this.fetchData("list_solvers", {}, true)
+        return await this.fetchData("list_solvers", {}, true);
     }
 
     async streamSimulationFramesFile(projectName, simulationName) {

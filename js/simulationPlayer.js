@@ -3,9 +3,16 @@ import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
-import {bindAllControls, bindCameraCallbacks, unbindAllKeyControls, unbindCameraCallbacks} from "../AGRE/src/core/listeners.js";
+import {
+    bindAllControls, bindCameraCallbacks, 
+    unbindAllKeyControls, unbindCameraCallbacks, 
+    quickReleaseKeys
+} from "../AGRE/src/core/listeners.js";
 import {FPS} from "../AGRE/src/core/clock.js";
-import {} from "./tabMenu.js";
+import {toggleTab} from "./tabMenu.js";
+import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
+import {CameraOverlay} from "./overlays/cameraOverlay.js";
+import {camera, setDraggingSensitivity, setCameraMovementSpeed, setCameraMode} from "../AGRE/src/core/camera.js";
 
 
 function returnToWorkbench() {
@@ -24,9 +31,12 @@ document.getElementById("titleBarReturnButton").addEventListener("pointerdown", 
 
 let ge;
 let simConfig = {};
+let settingsData = {};
 let objectHeaders;
 let frames = [];
 let objectLookup = {};
+let cameraOverlay;
+let findObjectOverlay;
 
 let delta_t;
 
@@ -73,6 +83,7 @@ async function loadData() {
     }
 
     simConfig = projectData.data.simConfig;
+    settingsData = projectData.data.settings;
 
 
     //const projectData = await communicator.getSimulationFrames(projectName, simulationName);
@@ -116,6 +127,9 @@ async function loadData() {
         }
     }
 
+    //to prevent setting camera mode from overwriting intial one in setting data
+    const initialCameraPose = settingsData.camera.pose;
+
     ge = new GraphicsEngine(objects);
     ge.start();
 
@@ -127,6 +141,30 @@ async function loadData() {
 
     updateProgressBar(0, 0); 
     updateTiming(0, (frames.length - 1) * delta_t);
+
+
+    setDraggingSensitivity(settingsData.camera.sensitivity.draggingSensitivity);
+    setCameraMovementSpeed(settingsData.camera.sensitivity.movementSpeed);
+
+    setCameraModeRadio(settingsData.camera.mode);
+    
+    setCameraMode(settingsData.camera.mode);
+    camera.setPose(initialCameraPose);
+
+    setShaderModeRadio(settingsData.shaders.mode);
+    masterRenderer.setShaderMode(settingsData.shaders.mode);
+
+
+    cameraOverlay = new CameraOverlay(ge, settingsData, markUnsavedChanges);
+    
+    cameraOverlay.bindShowCallback(showCameraConfigMenuOverlay);
+    cameraOverlay.bindHideCallback(hideCameraConfigMenuOverlay);
+
+    findObjectOverlay = new FindObjectOverlay();
+    findObjectOverlay.bindShowCallback(showFindObjectCallback);
+    findObjectOverlay.bindHideCallback(hideFindObjectCallback);
+
+    ge.start();
 }
 
 
@@ -183,6 +221,10 @@ function playSimulationFrame() {
         }
 
         displayFrame(currentFrame);
+
+        if (! findObjectOverlay.hidden) {
+            updateFinderListObjects();
+        }
     }
 
     requestAnimationFrame(playSimulationFrame);
@@ -380,6 +422,226 @@ function validateSpeedInput() {
 
 document.getElementById("speedInput").addEventListener("input", validateSpeedInput);
 
+async function saveSimulationSettings() {
+    const projectName = communicator.getProjNameFromUrl();
+    const simulationName = communicator.getSimNameFromUrl();
+
+    const response = await communicator.updateSimulationSettings(projectName, simulationName, settingsData);
+
+    if (response.status === "OK") {
+        clearUnsavedChanges();
+    }
+}
+document.getElementById("saveSimSettingsButton").addEventListener("pointerdown", saveSimulationSettings);
+
+let unsavedChanges = false;
+function markUnsavedChanges(priority) {
+    if (!unsavedChanges) {
+        const badge = document.querySelector("#saveSimSettingsButton .badge");
+        badge.classList.remove("hidden", "lowPriority", "highPriority");
+
+        if (priority === "high") {
+            badge.classList.add("highPriority");
+        }
+        else if (priority === "low") {
+            badge.classList.add("lowPriority");
+        }
+
+        unsavedChanges = priority;
+    }
+    else if (priority === "high") {
+        const badge = document.querySelector("#saveSimSettingsButton .badge");
+        badge.classList.remove("hidden", "lowPriority", "highPriority");
+
+        badge.classList.add("highPriority");
+        unsavedChanges = priority;
+    }
+}
+function clearUnsavedChanges() {
+    if (unsavedChanges !== false) {
+        const badge = document.querySelector("#saveSimSettingsButton .badge");
+        badge.classList.remove("lowPriority", "highPriority");
+        badge.classList.add("hidden");
+        unsavedChanges = false;
+    }
+}
+
+function handleCameraUpdate() {
+    settingsData.camera.pose = camera.getPose();
+    markUnsavedChanges("low");
+}
+
+document.addEventListener("cameraUpdated", handleCameraUpdate);
+
+
+
+function setCameraModeRadio(mode) {
+    const radio = document.querySelector(`input[name = 'cameraMode'][value = '${mode}']`);
+    if (radio) {
+        radio.checked = true;
+    }
+}
+
+document.addEventListener(
+    "cameraModeToggled", () => {
+        settingsData.camera.mode = cameraMode;
+        settingsData.camera.pose = camera.getPose();
+        setCameraModeRadio(cameraMode);
+    }
+);
+
+function setShaderModeRadio(mode) {
+    const radio = document.querySelector(`input[name = 'shaderMode'][value = '${mode}']`);
+    if (radio) {
+        radio.checked = true;
+    }
+}
+
+document.addEventListener(
+    "shaderModeToggled", () => {
+        settingsData.shaders.mode = masterRenderer.shader.mode;
+        setShaderModeRadio(masterRenderer.shader.mode);
+    }
+);
+
+function updateShaderMode(event) {
+    const shaderMode = event.target.value;
+    masterRenderer.setShaderMode(shaderMode);
+    settingsData.shaders.mode = shaderMode; 
+
+    markUnsavedChanges("low");
+}
+document.getElementById("BasicShader-radio").addEventListener("change", updateShaderMode);
+document.getElementById("SkeletonShader-radio").addEventListener("change", updateShaderMode);
+document.getElementById("PointsShader-radio").addEventListener("change", updateShaderMode);
+document.getElementById("LightingShader-radio").addEventListener("change", updateShaderMode);
+
+
+function workspaceKeyEvents(event) {
+    if (event.ctrlKey) {
+        if (event.key === "c") {
+            copyObject();
+        }
+        else if (event.key === "v") {
+            pasteObject();
+        }
+    }
+    else if (event.key === "Backspace") {
+        deleteObject();
+    }
+}
+
+
+function showFindObjectCallback() {
+    quickReleaseKeys();
+
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+
+    loadObjectsToFinderList();
+}
+
+function hideFindObjectCallback() {
+    document.addEventListener("keydown", workspaceKeyEvents);
+    bindAllControls(ge.canvas);
+}
+
+
+function showCameraConfigMenuOverlay() {
+    quickReleaseKeys();
+
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+}
+
+function hideCameraConfigMenuOverlay() {
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workspaceKeyEvents);
+}
+
+
+function updateFinderListObjects() {
+    const objectList = document.getElementById("objectsList");
+
+    for (const option of objectList) {
+        const name = option.value;
+        const object = objectLookup[name];
+
+
+        let typeName;
+        if (object instanceof Sphere) {
+            typeName = "particle";
+        }
+        else if (object instanceof Plane) {
+            typeName = "plane";
+        }
+
+        let pos = {
+            x: Math.round(object.x * 1000) / 1000,
+            y: Math.round(object.y * 1000) / 1000,
+            z: Math.round(object.z * 1000) / 1000, 
+        }
+
+        if (pos.x !== object.x) {
+            pos.x += "...";
+        }
+        if (pos.y !== object.y) {
+            pos.y += "...";
+        }
+        if (pos.z !== object.z) {
+            pos.z += "...";
+        }
+
+        option.value = name;
+        option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
+    }
+}
+
+function loadObjectsToFinderList() {
+    const objectList = document.getElementById("objectsList");
+    objectList.replaceChildren();
+
+    const noOfObject = objectHeaders.length;
+
+    for (let i = 0; i < noOfObject; i++) {
+        const name = objectHeaders[i];
+
+        const object = objectLookup[name];
+    
+        const option = document.createElement("option");
+
+        let typeName;
+        if (object instanceof Sphere) {
+            typeName = "particle";
+        }
+        else if (object instanceof Plane) {
+            typeName = "plane";
+        }
+
+        let pos = {
+            x: Math.round(object.x * 1000) / 1000,
+            y: Math.round(object.y * 1000) / 1000,
+            z: Math.round(object.z * 1000) / 1000, 
+        }
+
+        if (pos.x !== object.x) {
+            pos.x += "...";
+        }
+        if (pos.y !== object.y) {
+            pos.y += "...";
+        }
+        if (pos.z !== object.z) {
+            pos.z += "...";
+        }
+
+        option.value = name;
+        option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
+        objectList.appendChild(option);
+    }
+}
+
+
 async function setupPlayer() {
     const response = await communicator.loginFromSessionStorage();
     if (response.status === "ERR") {
@@ -390,6 +652,10 @@ async function setupPlayer() {
     }
 
     loadData();
+
+    document.getElementById("toolsTab").addEventListener("pointerup", () => toggleTab("tools"));
+    document.getElementById("cameraTab").addEventListener("pointerup", () => toggleTab("camera"));
+    document.getElementById("shadersTab").addEventListener("pointerup", () => toggleTab("shaders"));
 }
 
 setupPlayer();

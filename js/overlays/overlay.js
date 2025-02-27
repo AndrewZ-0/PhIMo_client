@@ -11,6 +11,8 @@ export class OverlayMenu {
         this.submit = this.submit.bind(this);
 
         this.keyEvents = this.keyEvents.bind(this);
+
+        this.hidden = true;
     }
 
     fill() {
@@ -26,6 +28,7 @@ export class OverlayMenu {
         if (!! this.showCallback) {
             this.showCallback();
         }
+        this.hidden = false;
     }
     bindShowCallback(showCallback) {
         this.showCallback = showCallback;
@@ -35,6 +38,7 @@ export class OverlayMenu {
         if (!! this.hideCallback) {
             this.hideCallback();
         }
+        this.hidden = true;
     }
     bindHideCallback(hideCallback) {
         this.hideCallback = hideCallback;
