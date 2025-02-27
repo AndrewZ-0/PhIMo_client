@@ -1,4 +1,8 @@
-import {camera, cameraMode} from "./camera.js";
+import {
+    camera, cameraMode, 
+    cameraMovementSpeed, draggingSensitivity, 
+    near, far, fov
+} from "./camera.js";
 import {masterRenderer} from "./renderer.js";
 import * as linearAlgebra from "../utils/linearAlgebra.js";
 import {clock} from "./clock.js";
@@ -40,10 +44,15 @@ export function emptyAllCameraOverlays() {
     document.getElementById("azimuth-overlay").innerText = "";
 }
 
+export function updateSensitivityOverlays() {
+    document.getElementById("cameraMovementSpeed-overlay").innerText = `Camera Movement Speed: ${cameraMovementSpeed}`;
+    document.getElementById("draggingSensitivity-overlay").innerText = `Dragging Sensitivity: ${draggingSensitivity}`;
+}
+
 export function updateCameraPerspectiveOverlays() {
-    document.getElementById("fov-overlay").innerText = `FOV: ${camera.fov}`;
-    document.getElementById("near-overlay").innerText = `Near: ${camera.near}`;
-    document.getElementById("far-overlay").innerText = `Far: ${camera.far}`;
+    document.getElementById("fov-overlay").innerText = `FOV: ${fov}`;
+    document.getElementById("near-overlay").innerText = `Near: ${near}`;
+    document.getElementById("far-overlay").innerText = `Far: ${far}`;
 }
 
 export function updateCartesianCameraCoordsOverlays() {

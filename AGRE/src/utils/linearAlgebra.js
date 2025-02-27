@@ -541,3 +541,20 @@ export function applyEulerSet(vec, eulerSet) {
 
     return applyMat3(rotMat3, vec)
 }
+
+
+export function hexToVec3(colourHex) {
+    const r = parseInt(colourHex.slice(1, 3), 16) / 255;
+    const g = parseInt(colourHex.slice(3, 5), 16) / 255;
+    const b = parseInt(colourHex.slice(5, 7), 16) / 255;
+
+    return [r, g, b];
+}
+
+export function vec3ToHex(colourVec3) {
+    const r = Math.round(colourVec3[0] * 255).toString(16).padStart(2, "0");
+    const g = Math.round(colourVec3[1] * 255).toString(16).padStart(2, "0");
+    const b = Math.round(colourVec3[2] * 255).toString(16).padStart(2, "0");
+
+    return "#" + r + g + b;
+}

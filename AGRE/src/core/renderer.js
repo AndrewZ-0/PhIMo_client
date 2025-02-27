@@ -254,18 +254,41 @@ class AdvancedRenderer extends Renderer {
     }
 
     toggleShaderMode() {
+        switch (this.shader.name) {
+            case "basic":
+                this.setShaderMode("skeleton");
+                break;
+            case "skeleton":
+                this.setShaderMode("points");
+                break;
+            case "points":
+                this.setShaderMode("lighting");
+                break;
+            case "lighting":
+                this.setShaderMode("basic");
+                break;
+            default:
+                return;
+        }
+    }
+
+    setShaderMode(mode) {
         this.nukeShader();
-        if (this.shader instanceof BasicShader) {
-            this.shader = new SkeletonShader(this.gl);
-        }
-        else if(this.shader instanceof SkeletonShader) {
-            this.shader = new PointsShader(this.gl);
-        }
-        else if(this.shader instanceof PointsShader) {
-            this.shader = new LightingShader(this.gl);
-        }
-        else if(this.shader instanceof LightingShader) {
-            this.shader = new BasicShader(this.gl);
+        switch (mode) {
+            case "basic":
+                this.shader = new BasicShader(this.gl);
+                break;
+            case "skeleton":
+                this.shader = new SkeletonShader(this.gl);
+                break;
+            case "points":
+                this.shader = new PointsShader(this.gl);
+                break;
+            case "lighting":
+                this.shader = new LightingShader(this.gl);
+                break;
+            default:
+                return;
         }
 
         this.initialiseShaderEnvironment();

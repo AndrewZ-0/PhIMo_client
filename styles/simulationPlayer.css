@@ -1,9 +1,16 @@
-#workspace {
+/*#workspace {
     position: relative;
     width: 100%;
     height: calc(100% - 25px);
     top: 25px;
     flex-direction: column;
+}
+*/
+#workspace {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 50px);
+    top: 50px;
 }
 
 #canvas-container {

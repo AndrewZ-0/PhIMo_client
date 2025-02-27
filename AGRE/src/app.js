@@ -2,7 +2,10 @@ import {clock} from "./core/clock.js";
 import {axisViewport} from "./core/axisViewPort.js";
 import {masterRenderer, orientationRenderer, axisRenderer} from "./core/renderer.js";
 import {camera} from "./core/camera.js";
-import {updateCameraModeOverlay, updateCameraPerspectiveOverlays, updateFpsOverlay} from "./core/overlays.js";
+import {
+    updateCameraModeOverlay, updateSensitivityOverlays, 
+    updateCameraPerspectiveOverlays, updateFpsOverlay
+} from "./core/overlays.js";
 import {bindVisabilityChange, bindAllControls, quickReleaseKeys, set_moveObjectsStatus} from "./core/listeners.js";
 import {orientationMenu} from "./core/orientationViewPort.js";
 
@@ -36,6 +39,7 @@ export class GraphicsEngine {
 
         updateCameraModeOverlay();
         updateCameraPerspectiveOverlays();
+        updateSensitivityOverlays();
         camera.updateAllOverlays();
 
         masterRenderer.setAllUniformMatrixies();

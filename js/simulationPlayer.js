@@ -5,6 +5,7 @@ import {communicator} from "./communicator.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
 import {bindAllControls, bindCameraCallbacks, unbindAllKeyControls, unbindCameraCallbacks} from "../AGRE/src/core/listeners.js";
 import {FPS} from "../AGRE/src/core/clock.js";
+import {} from "./tabMenu.js";
 
 
 function returnToWorkbench() {

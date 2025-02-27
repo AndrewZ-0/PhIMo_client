@@ -6,6 +6,7 @@
         
         <link rel = "stylesheet" href = "./styles/master.css">
         <link rel = "stylesheet" href = "./styles/forms.css">
+        <link rel = "stylesheet" href = "./styles/workspaceLevelMenu.css">
         <link rel = "stylesheet" href = "./styles/projectWorkbench.css">
         <script src = "js/projectWorkbench.js" type = "module"></script>
     </head>
@@ -34,9 +35,14 @@
             <div id = "overlays">
                 <p id = "shaderMode-overlay" class = "overlay-element"></p>
                 <p id = "cameraMode-overlay" class = "overlay-element"></p>
+
+                <p id = "cameraMovementSpeed-overlay" class = "overlay-element"></p>
+                <p id = "draggingSensitivity-overlay" class = "overlay-element"></p>
+
                 <p id = "fov-overlay" class = "overlay-element"></p>
                 <p id = "near-overlay" class = "overlay-element"></p>
                 <p id = "far-overlay" class = "overlay-element"></p>
+                
                 <p id = "fps-overlay" class = "overlay-element"></p>
 
                 <p id = "x-overlay" class = "overlay-element"></p>
@@ -66,7 +72,7 @@
             </div>
         </div>
 
-        <div id = "workbenchLevelMenu">
+        <div id = "#workspaceLevelMenu">
             <div id = "tabIsle">
                 <button class = "tab" id = "toolsTab">Tools</button>
                 <button class = "tab" id = "modelsTab">Models</button>
@@ -74,7 +80,7 @@
                 <button class = "tab" id = "shadersTab">Shaders</button>
             </div>
 
-            <div id = "workbenchControls">
+            <div id = "workspaceControls">
                 <button id = "undo-button">⭠</button>
                 <button id = "redo-button">⭢</button>
                 <!--other sim controls-->
@@ -129,11 +135,31 @@
             </fieldset>
 
             <button id = "cameraConfig-menuButton">Configuration</button>
-
         </div>
         <div id = "shadersMenu" class = "tab-content hidden">
-            <!--shaders-->
-            <!--all the shaders stuff currently controlled only by keybinds-->
+            <fieldset style = "padding: 5px 2px; margin: 5px; display: flex; flex-direction: column;">
+                <legend style = "font-size: 13px;">Shader Mode</legend>
+
+                <label for = "BasicShader-radio" style = "font-size: 13px;">
+                    <input type = "radio" id = "BasicShader-radio" name = "shaderMode" value = "basic" checked/> 
+                    Basic
+                </label>
+
+                <label for = "SkeletonShader-radio" style = "font-size: 13px;">
+                    <input type = "radio" id = "SkeletonShader-radio" name = "shaderMode" value = "skeleton"/> 
+                    Skeleton
+                </label>
+
+                <label for = "PointsShader-radio" style = "font-size: 13px;">
+                    <input type = "radio" id = "PointsShader-radio" name = "shaderMode" value = "points"/> 
+                    Points
+                </label>
+
+                <label for = "LightingShader-radio" style = "font-size: 13px;">
+                    <input type = "radio" id = "LightingShader-radio" name = "shaderMode" value = "lighting"/> 
+                    Lighting
+                </label>
+            </fieldset>
         </div>
 
         <div id = "cameraConfigMenu-overlay" class = "overlayMenu hidden">

@@ -120,6 +120,7 @@ function handleKeyUp(event) {
             break;
         case "p":
             masterRenderer.toggleShaderMode();
+            document.dispatchEvent(new CustomEvent("shaderModeToggled"));
             break;
         case "c":
             if (!event.ctrlKey) {

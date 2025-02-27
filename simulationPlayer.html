@@ -6,6 +6,7 @@
         
         <link rel = "stylesheet" href = "./styles/master.css">
         <link rel = "stylesheet" href = "./styles/forms.css">
+        <link rel = "stylesheet" href = "./styles/workspaceLevelMenu.css">
         <link rel = "stylesheet" href = "./styles/simulationPlayer.css">
         <script src = "js/simulationPlayer.js" type = "module"></script>
     </head>
@@ -28,9 +29,14 @@
             <div id = "overlays">
                 <p id = "shaderMode-overlay" class = "overlay-element"></p>
                 <p id = "cameraMode-overlay" class = "overlay-element"></p>
+
+                <p id = "cameraMovementSpeed-overlay" class = "overlay-element"></p>
+                <p id = "draggingSensitivity-overlay" class = "overlay-element"></p>
+
                 <p id = "fov-overlay" class = "overlay-element"></p>
                 <p id = "near-overlay" class = "overlay-element"></p>
                 <p id = "far-overlay" class = "overlay-element"></p>
+
                 <p id = "fps-overlay" class = "overlay-element"></p>
     
                 <p id = "x-overlay" class = "overlay-element"></p>
@@ -49,6 +55,214 @@
                 <p id = "mouseX-overlay" class = "overlay-element"></p>
                 <p id = "mouseY-overlay" class = "overlay-element"></p>
             </div>
+
+            <div id = "#workspaceLevelMenu">
+                <div id = "tabIsle">
+                    <button class = "tab" id = "toolsTab">Tools</button>
+                    <button class = "tab" id = "cameraTab">Camera</button>
+                    <button class = "tab" id = "shadersTab">Shaders</button>
+                </div>
+            </div>
+
+            <div id = "toolsMenu" class = "tab-content hidden">
+                <button id = "openFindObjectMenu-button">Find Object</button> 
+            </div>
+            <div id = "cameraMenu" class = "tab-content hidden">
+                <fieldset style = "padding: 5px 2px; margin: 5px; display: flex; flex-direction: column;">
+                    <legend style = "font-size: 13px;">Camera Mode</legend>
+
+                    <label for = "Y-Polar-radio" style = "font-size: 13px;">
+                        <input type = "radio" id = "Y-Polar-radio" name = "cameraMode" value = "Y-Polar" checked/> 
+                        Y-Polar
+                    </label>
+
+                    <label for = "Y-CartesianPolar-radio" style = "font-size: 13px;">
+                        <input type = "radio" id = "Y-CartesianPolar-radio" name = "cameraMode" value = "Y-CartesianPolar"/> 
+                        Y-Cart-Polar
+                    </label>
+
+                    <label for = "CartesianQuaternion-radio" style = "font-size: 13px;">
+                        <input type = "radio" id = "CartesianQuaternion-radio" name = "cameraMode" value = "CartesianQuaternion"/> 
+                        Cart-Quat
+                    </label>
+                </fieldset>
+
+                <button id = "cameraConfig-menuButton">Configuration</button>
+            </div>
+            <div id = "shadersMenu" class = "tab-content hidden">
+                <fieldset style = "padding: 5px 2px; margin: 5px; display: flex; flex-direction: column;">
+                    <legend style = "font-size: 13px;">Shader Mode</legend>
+
+                    <label for = "BasicShader-radio" style = "font-size: 13px;">
+                        <input type = "radio" id = "BasicShader-radio" name = "shaderMode" value = "basic" checked/> 
+                        Basic
+                    </label>
+
+                    <label for = "SkeletonShader-radio" style = "font-size: 13px;">
+                        <input type = "radio" id = "SkeletonShader-radio" name = "shaderMode" value = "skeleton"/> 
+                        Skeleton
+                    </label>
+
+                    <label for = "PointsShader-radio" style = "font-size: 13px;">
+                        <input type = "radio" id = "PointsShader-radio" name = "shaderMode" value = "points"/> 
+                        Points
+                    </label>
+
+                    <label for = "LightingShader-radio" style = "font-size: 13px;">
+                        <input type = "radio" id = "LightingShader-radio" name = "shaderMode" value = "lighting"/> 
+                        Lighting
+                    </label>
+                </fieldset>
+            </div>
+
+            <div id = "cameraConfigMenu-overlay" class = "overlayMenu hidden">
+                <button id = "hide-cameraConfigMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+                <div class = "overlay-content" style = "width: 45%; min-width: 450px; max-width: 500px;">
+                    <h2>Camera Configuration</h2>
+                    <div class = "form-container" style = "max-width: 800px;" >
+                        <form onsubmit = "return false;">
+                            <div class = "input-group-group" id = "cameraPose-group" style = "flex-direction: row;">
+                                <label style = "height: 20px; margin-top: 12px; min-width: 85px; text-align: left; color: #444; font-size: 18px;">Pose</label>
+
+                                <div style = "outline: 1px #aaa solid; padding: 8px; flex-direction: column;">
+                                    <div class = "input-group" id = "camera-position-group">
+                                        <label style = "height: 20px; width: 95px; text-align: left;">Position</label>
+
+                                        <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                            <div class = "input-subgroup">
+                                                <label for = "camera-position-x" class = "numInpLabel" style = "width: 30px;">X</label>
+                                                <input style = "width: 150px;" type = "number" id = "camera-position-x" name = "camera-position-x" class = "cam-input numInpBox" value = "0" required>
+                                            </div>
+
+                                            <div class = "input-subgroup">
+                                                <label for = "camera-position-y" class = "numInpLabel" style = "width: 30px;">Y</label>
+                                                <input style = "width: 150px;" type = "number" id = "camera-position-y" name = "camera-position-y" class = "cam-input numInpBox" value = "0" required>
+                                            </div>
+
+                                            <div class = "input-subgroup">
+                                                <label for = "camera-position-z" class = "numInpLabel" style = "width: 30px;">Z</label>
+                                                <input style = "width: 150px;" type = "number" id = "camera-position-z" name = "camera-position-z" class = "cam-input numInpBox" value = "0" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class = "input-group" id = "camera-orientation-group" style = "margin-top: 20px;">
+                                        <label style = "height: 20px; width: 95px; text-align: left;">Orientation</label>
+
+                                        <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                            <div class = "input-subgroup">
+                                                <label for = "camera-orientation-pitch" class = "numInpLabel" style = "width: 30px;">Pitch</label>
+                                                <input style = "width: 150px;" type = "number" id = "camera-orientation-pitch" name = "camera-orientation-pitch" class = "cam-input numInpBox" value = "0" required>
+                                            </div>
+
+                                            <div class = "input-subgroup">
+                                                <label for = "camera-orientation-yaw" class = "numInpLabel" style = "width: 30px;">Yaw</label>
+                                                <input style = "width: 150px;" type = "number" id = "camera-orientation-yaw" name = "camera-orientation-yaw" class = "cam-input numInpBox" value = "0" required>
+                                            </div>
+
+                                            <div class = "input-subgroup">
+                                                <label for = "camera-orientation-roll" class = "numInpLabel" style = "width: 30px;">Roll</label>
+                                                <input style = "width: 150px;" type = "number" id = "camera-orientation-roll" name = "camera-orientation-roll" class = "cam-input numInpBox" value = "0" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class = "input-group" id = "camera-radius-group">
+                                        <label for = "camera-radius" class = "numInpLabel" style = "text-align: left; width: 130px; height: 20px;">Radius</label>
+                                        <input style = "width: 150px;" type = "number" id = "camera-radius" name = "camera-radius" class = "cam-input numInpBox" value = "0" required>
+                                    </div>
+
+                                    <div class = "input-group" id = "camera-alt-group" style = "margin-top: 12px;">
+                                        <label for = "camera-alt" class = "numInpLabel" style = "text-align: left; width: 130px; height: 20px;">Altitude</label>
+                                        <input style = "width: 150px;" type = "number" id = "camera-alt" name = "camera-alt" class = "cam-input numInpBox" value = "0" min = "-90" max = "90" required>
+                                    </div>
+
+                                    <div class = "input-group" id = "camera-azi-group" style = "margin-top: 12px;">
+                                        <label for = "camera-azi" class = "numInpLabel" style = "text-align: left; width: 130px; height: 20px;">Azimuth</label>
+                                        <input style = "width: 150px;" type = "number" id = "camera-azi" name = "camera-azi" class = "cam-input numInpBox" value = "0" required>
+                                    </div>
+
+                                    <div class = "input-group" id = "camera-polarOrientation-group" style = "margin-top: 20px;">
+                                        <label style = "height: 20px; width: 95px; text-align: left;">Orientation</label>
+
+                                        <div style = "position: flex; flex-direction: column; gap: 5px;">
+                                            <div class = "input-subgroup">
+                                                <label for = "camera-orient-alt" class = "numInpLabel" style = "width: 30px;">Alt</label>
+                                                <input style = "width: 150px;" type = "number" id = "camera-orient-alt" name = "camera-orient-alt" class = "cam-input numInpBox" value = "0" min = "-90" max = "90" required>
+                                            </div>
+
+                                            <div class = "input-subgroup">
+                                                <label for = "camera-orient-azi" class = "numInpLabel" style = "width: 30px;">Azi</label>
+                                                <input style = "width: 150px;" type = "number" id = "camera-orient-azi" name = "camera-orient-azi" class = "cam-input numInpBox" value = "0" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class = "input-group-group" id = "cameraSensitivity-group" style = "flex-direction: row;">
+                                <label style = "height: 20px; margin-top: 12px; min-width: 85px; text-align: left; color: #444; font-size: 18px;">Sensitivity</label>
+
+                                <div style = "outline: 1px #aaa solid; padding: 8px; flex-direction: column;">
+                                    <div class = "input-group" id = "camera-draggingSensitivity-group">
+                                        <label for = "camera-draggingSensitivity" class = "numInpLabel" style = "text-align: left; width: 160px; height: 20px;">Dragging Sensitivity</label>
+                                        <input style = "width: 120px;" type = "number" id = "camera-draggingSensitivity" name = "camera-draggingSensitivity" class = "cam-input numInpBox" value = "0" min = "0" step = "0.001" required>
+                                    </div>
+
+                                    <div class = "input-group" id = "camera-movementSpeed-group" style = "margin-top: 12px;">
+                                        <label for = "camera-movementSpeed" class = "numInpLabel" style = "text-align: left; width: 160px; height: 20px;">Movement Speed</label>
+                                        <input style = "width: 120px;" type = "number" id = "camera-movementSpeed" name = "camera-movementSpeed" class = "cam-input numInpBox" value = "0" min = "0" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class = "input-group-group" id = "cameraProjection-group" style = "flex-direction: row;">
+                                <label style = "height: 20px; margin-top: 12px; min-width: 85px; text-align: left; color: #444; font-size: 18px;">Projection</label>
+
+                                <div style = "outline: 1px #aaa solid; padding: 8px; flex-direction: column;">
+                                    <div class = "input-group" id = "camera-near-group">
+                                        <label for = "camera-near" class = "numInpLabel" style = "text-align: left; width: 160px; height: 20px;">Near</label>
+                                        <input style = "width: 120px;" type = "number" id = "camera-near" name = "camera-near" class = "cam-input numInpBox" value = "0" min = "0" required>
+                                    </div>
+
+                                    <div class = "input-group" id = "camera-far-group" style = "margin-top: 12px;">
+                                        <label for = "camera-far" class = "numInpLabel" style = "text-align: left; width: 160px; height: 20px;">Far</label>
+                                        <input style = "width: 120px;" type = "number" id = "camera-far" name = "camera-far" class = "cam-input numInpBox" value = "0" min = "0" required>
+                                    </div>
+
+                                    <div class = "input-group" id = "camera-fov-group" style = "margin-top: 12px;">
+                                        <label for = "camera-fov" class = "numInpLabel" style = "text-align: left; width: 160px; height: 20px;">Field Of View</label>
+                                        <input style = "width: 120px;" type = "number" id = "camera-fov" name = "camera-fov" class = "cam-input numInpBox" value = "0" min = "0" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id = "cameraConfigMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
+
+                            <button id = "cameraConfig-configure-button" type = "button">Configure</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id = "findObject-overlay" class = "hidden">
+                <button id = "hide-findObject-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+                <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
+                    <h2>Find Object</h2>
+
+                    <div class = "form-container" style = "max-width: 800px;" >
+                        <form onsubmit = "return false;">
+                            <select id = "objectsList" name = "objects" size = "10"></select>
+
+                            <div id = "find-object-error-message" class = "error-message"></div>
+
+                            <button id = "selectFoundObject-button" type = "button">Select Object</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div id = "simulationProgressBarContainer">

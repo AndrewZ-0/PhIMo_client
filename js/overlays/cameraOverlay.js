@@ -1,0 +1,322 @@
+import {OverlayMenu} from "./overlay.js";
+import {masterRenderer} from "../../AGRE/src/core/renderer.js";
+import * as linearAlgebra from "../../AGRE/src/utils/linearAlgebra.js";
+import {
+    camera, setCameraMode, 
+    setDraggingSensitivity, setCameraMovementSpeed, 
+    setCameraNear, setCameraFar, setCameraFov
+} from "../../AGRE/src/core/camera.js";
+import {updateSensitivityOverlays, updateCameraPerspectiveOverlays} from "../../AGRE/src/core/overlays.js";
+
+export class CameraOverlay extends OverlayMenu {
+    constructor(ge, settingsData, markUnsavedChanges) {
+        super();
+
+        this.ge = ge;
+        this.settingsData = settingsData;
+        this.markUnsavedChanges = markUnsavedChanges.bind(this);
+
+        this.bindPermanantEvents();
+    }
+
+    show() {
+        super.show();
+
+        document.getElementById("cameraConfigMenu-overlay").classList.remove("hidden");
+
+        document.addEventListener("keydown", this.keyEvents);
+
+        this.fillCameraConfigMenu();
+    }
+
+    hide() {
+        super.hide();
+        
+        const errorMessageDiv = document.getElementById("cameraConfigMenu-error-message");
+        errorMessageDiv.textContent = ""; //clear prev msgs
+
+        document.getElementById("cameraConfigMenu-overlay").classList.add("hidden");
+        document.removeEventListener("keydown", this.keyEvents);
+    }
+
+    fillCameraConfigMenu() {
+        const posGroup = document.getElementById("camera-position-group");
+        const orientGroup = document.getElementById("camera-orientation-group");
+        const polarOrientGroup = document.getElementById("camera-polarOrientation-group");
+        const radiusGroup = document.getElementById("camera-radius-group");
+        const altGroup = document.getElementById("camera-alt-group");
+        const aziGroup = document.getElementById("camera-azi-group");
+    
+        const cameraData = this.settingsData.camera;
+        if (cameraData.mode === "Y-Polar") {
+            posGroup.classList.add("hidden");
+            orientGroup.classList.add("hidden");
+            polarOrientGroup.classList.add("hidden");
+            radiusGroup.classList.remove("hidden");
+            altGroup.classList.remove("hidden");
+            aziGroup.classList.remove("hidden");
+    
+            document.getElementById("camera-radius").value = cameraData.pose.r;
+            document.getElementById("camera-alt").value = linearAlgebra.toDegree(cameraData.pose.alt);
+            document.getElementById("camera-azi").value = linearAlgebra.toDegree(cameraData.pose.azi);
+        }
+        else {
+            posGroup.classList.remove("hidden");
+            radiusGroup.classList.add("hidden");
+            altGroup.classList.add("hidden");
+            aziGroup.classList.add("hidden");
+    
+            const axes = ["x", "y", "z"];
+            for (const axis of axes) {
+                document.getElementById(`camera-position-${axis}`).value = cameraData.pose.coords[axis];
+            }
+    
+            if (cameraData.mode === "Y-CartesianPolar") {
+                polarOrientGroup.classList.remove("hidden");
+                orientGroup.classList.add("hidden");
+    
+                document.getElementById("camera-orient-alt").value = linearAlgebra.toDegree(cameraData.pose.orientation.alt);
+                document.getElementById("camera-orient-azi").value = linearAlgebra.toDegree(cameraData.pose.orientation.azi);
+            }
+            else {
+                polarOrientGroup.classList.add("hidden");
+                orientGroup.classList.remove("hidden");
+    
+                const poseEuler = {
+                    pitch: linearAlgebra.toDegree(linearAlgebra.pitchFromQuat(cameraData.pose.orientation)),
+                    yaw: linearAlgebra.toDegree(linearAlgebra.yawFromQuat(cameraData.pose.orientation)),
+                    roll: linearAlgebra.toDegree(linearAlgebra.rollFromQuat(cameraData.pose.orientation))
+                }
+    
+                const orientations = ["pitch", "yaw", "roll"];
+                for (const orient of orientations) {
+                    document.getElementById(`camera-orientation-${orient}`).value = poseEuler[orient];
+                }
+            }
+        }
+    
+        document.getElementById("camera-draggingSensitivity").value = this.settingsData.camera.sensitivity.draggingSensitivity;
+        document.getElementById("camera-movementSpeed").value = this.settingsData.camera.sensitivity.movementSpeed;
+        document.getElementById("camera-near").value = this.settingsData.camera.projection.near;
+        document.getElementById("camera-far").value = this.settingsData.camera.projection.far;
+        document.getElementById("camera-fov").value = this.settingsData.camera.projection.fov;
+    }
+
+    configureCamera() {
+        if (! this.validateCameraConfigMenu()) {
+            return;
+        }
+    
+        if (this.settingsData.camera.mode === "Y-Polar") {
+            this.settingsData.camera.pose = {
+                r: parseFloat(document.getElementById("camera-radius").value), 
+                alt: linearAlgebra.clamp(
+                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-alt").value)), 
+                    -linearAlgebra.halfPi, linearAlgebra.halfPi
+                ),
+                azi: linearAlgebra.wrapPositive(
+                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-azi").value)), 
+                    linearAlgebra.twoPi
+                )
+            };
+        }
+        else {
+            const newCoords = {
+                x: parseFloat(document.getElementById("camera-position-x").value), 
+                y: parseFloat(document.getElementById("camera-position-y").value), 
+                z: parseFloat(document.getElementById("camera-position-z").value)
+            };
+    
+            let newOrientation;
+            if (this.settingsData.camera.mode === "Y-CartesianPolar") {
+                newOrientation = {
+                    alt: linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orient-alt").value)), 
+                    azi: linearAlgebra.wrapPositive(linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orient-azi").value)), linearAlgebra.twoPi)
+                };
+            }
+            else {
+                newOrientation = linearAlgebra.quatFromEuler(
+                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-pitch").value)), 
+                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-yaw").value)),
+                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-roll").value))
+                );
+            }
+    
+            this.settingsData.camera.pose = {
+                coords: newCoords, 
+                orientation: newOrientation
+            };
+        }
+    
+        camera.setPose(this.settingsData.camera.pose);
+    
+        const newCameraSensitivity = parseFloat(document.getElementById("camera-draggingSensitivity").value);
+        setDraggingSensitivity(newCameraSensitivity);
+        this.settingsData.camera.sensitivity.draggingSensitivity = newCameraSensitivity;
+    
+        const newCameraMovementSpeed = parseFloat(document.getElementById("camera-movementSpeed").value);
+        setCameraMovementSpeed(newCameraMovementSpeed);
+        this.settingsData.camera.sensitivity.movementSpeed = newCameraMovementSpeed;
+    
+        const newCameraNear = parseFloat(document.getElementById("camera-near").value);
+        setCameraNear(newCameraNear);
+        this.settingsData.camera.projection.near = newCameraNear;
+    
+        const newCameraFar = parseFloat(document.getElementById("camera-far").value);
+        setCameraFar(newCameraFar);
+        this.settingsData.camera.projection.far = newCameraFar;
+    
+        const newCameraFov = parseFloat(document.getElementById("camera-fov").value);
+        setCameraFov(newCameraFov);
+        this.settingsData.camera.projection.fov = newCameraFov;
+    
+        masterRenderer.setMatricies();
+        masterRenderer.setProjUniformMatrix4fv(); 
+    
+        updateSensitivityOverlays();
+        updateCameraPerspectiveOverlays();
+    
+        this.ge.quickAnimationStart();
+    
+        this.markUnsavedChanges("low");
+        this.hide();
+    }
+
+    validateCameraConfigMenu() {
+        const errorMessageDiv = document.getElementById("cameraConfigMenu-error-message");
+        errorMessageDiv.textContent = ""; //clear prev msgs
+    
+        if (this.settingsData.camera.mode === "Y-Polar") {
+            const radiusInp = document.getElementById("camera-radius");
+            const radius = parseFloat(radiusInp.value);
+            if (isNaN(radius)) {
+                errorMessageDiv.textContent = "Radius must be a float";
+                return false;
+            }
+    
+            const altInp = document.getElementById("camera-alt");
+            const alt = parseFloat(altInp.value);
+            if (isNaN(alt) || alt < -90 || alt > 90) {
+                errorMessageDiv.textContent = "Altitude must be a float between -90 and 90 degrees";
+                return false;
+            }
+    
+            const aziInp = document.getElementById("camera-azi");
+            const azi = parseFloat(aziInp.value);
+            if (isNaN(azi)) {
+                errorMessageDiv.textContent = "Azimuth must be a float";
+                return false;
+            }
+        }
+        else {
+            const axes = ["x", "y", "z"];
+            for (const axis of axes) {
+                const posInp = document.getElementById(`camera-position-${axis}`);
+                const pos = parseFloat(posInp.value);
+                if (isNaN(pos)) {
+                    errorMessageDiv.textContent = `Position (${axis}) must be a float`;
+                    return false;
+                }
+            }
+    
+            if (this.settingsData.camera.mode === "Y-CartesianPolar") {
+                const altInp = document.getElementById("camera-orient-alt");
+                const alt = parseFloat(altInp.value);
+                if (isNaN(alt) || alt < -90 || alt > 90) {
+                    errorMessageDiv.textContent = "Orientation Altitude must be a float between -90 and 90 degrees";
+                    return false;
+                }
+    
+                const aziInp = document.getElementById("camera-orient-azi");
+                const azi = parseFloat(aziInp.value);
+                if (isNaN(azi)) {
+                    errorMessageDiv.textContent = "Orientation Azimuth must be a float";
+                    return false;
+                }
+            }
+            else {
+                const orientations = ["pitch", "yaw", "roll"];
+                for (const orient of orientations) {
+                    const inp = document.getElementById(`camera-orientation-${orient}`);
+                    const val = parseFloat(inp.value);
+                    if (isNaN(val)) {
+                        errorMessageDiv.textContent = `${orient} must be a float`;
+                        return false;
+                    }
+                }
+            }
+        }
+    
+        const dragSenseInp = document.getElementById("camera-draggingSensitivity");
+        const dragSense = parseFloat(dragSenseInp.value);
+        if (isNaN(dragSense) || dragSense <= 0) {
+            errorMessageDiv.textContent = "Dragging Sensitivity must be a non-zero positive float";
+            return false;
+        }
+    
+        const movSpeedInp = document.getElementById("camera-movementSpeed");
+        const movSpeed = parseFloat(movSpeedInp.value);
+        if (isNaN(movSpeed) || movSpeed <= 0) {
+            errorMessageDiv.textContent = "Movement Speed must be a non-zero positive float";
+            return false;
+        }
+    
+        const nearInp = document.getElementById("camera-near");
+        const near = parseFloat(nearInp.value);
+        if (isNaN(near) || near <= 0) {
+            errorMessageDiv.textContent = "Near must be a non-zero positive float";
+            return false;
+        }
+    
+        const farInp = document.getElementById("camera-far");
+        const far = parseFloat(farInp.value);
+        if (isNaN(far) || far <= 0) {
+            errorMessageDiv.textContent = "Far must be a non-zero positive float";
+            return false;
+        }
+    
+        const fovInp = document.getElementById("camera-fov");
+        const fov = parseFloat(fovInp.value);
+        if (isNaN(fov) || fov <= 0) {
+            errorMessageDiv.textContent = "Field Of View must be a non-zero positive float";
+            return false;
+        }
+    
+        return true;
+    }
+
+    keyEvents(event) {
+        if (event.key === "Escape") {
+            this.hide();
+        }
+        else if (event.key === "Enter") {
+            configureCamera();
+        }
+    }
+
+    updateCameraMode(event) {
+        const cameraMode = event.target.value;
+        setCameraMode(cameraMode);
+        this.settingsData.camera.mode = cameraMode; 
+    
+        this.settingsData.camera.pose = camera.getPose();
+    
+        this.ge.quickAnimationStart();
+    }
+
+    bindPermanantEvents() {
+        super.bindPermanantEvents();
+
+        document.getElementById("cameraConfig-menuButton").addEventListener("pointerdown", this.show.bind(this));
+        document.getElementById("hide-cameraConfigMenu-overlay-button").addEventListener("pointerdown", this.hide.bind(this));
+        document.getElementById("cameraConfig-configure-button").addEventListener("pointerup", this.configureCamera.bind(this));
+
+        for (const element of document.getElementsByClassName("cam-input")) {
+            element.addEventListener("input", this.validateCameraConfigMenu.bind(this));
+        }
+
+        document.getElementById("Y-Polar-radio").addEventListener("change", this.updateCameraMode.bind(this));
+        document.getElementById("Y-CartesianPolar-radio").addEventListener("change", this.updateCameraMode.bind(this));
+        document.getElementById("CartesianQuaternion-radio").addEventListener("change", this.updateCameraMode.bind(this));
+    }
+}
