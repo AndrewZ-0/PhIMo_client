@@ -51,3 +51,22 @@
     color: #999;
     background-color: rgba(0, 0, 0, 0.1);
 }
+
+
+.overlay-content {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding: 20px;
+    height: auto;
+    text-align: center;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    animation: fadeIn 0.2s forwards ease-out;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}

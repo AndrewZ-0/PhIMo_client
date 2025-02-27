@@ -131,19 +131,6 @@
 }
 
 
-
-.overlay-content {
-    display: flex;
-    flex-direction: column;
-    background: white;
-    padding: 20px;
-    height: auto;
-    text-align: center;
-    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.3s ease;
-}
-
-
 #objectsList {
     width: 100%;
 }

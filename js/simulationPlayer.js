@@ -384,7 +384,6 @@ function formatTime(seconds) {
     return minutes + ":" + formattedSeconds;
 }
 
-
 function showSpeedMenu() {
     const speedMenu = document.getElementById("speedMenu-overlay");
     const speedButton = document.getElementById("speedButton");
