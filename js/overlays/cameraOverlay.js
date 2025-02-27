@@ -1,5 +1,5 @@
 import {OverlayMenu} from "./overlay.js";
-import {masterRenderer} from "../../AGRE/src/core/renderer.js";
+import {axisRenderer, masterRenderer} from "../../AGRE/src/core/renderer.js";
 import * as linearAlgebra from "../../AGRE/src/utils/linearAlgebra.js";
 import {
     camera, setCameraMode, 
@@ -102,7 +102,9 @@ export class CameraOverlay extends OverlayMenu {
         document.getElementById("camera-fov").value = this.settingsData.camera.projection.fov;
     }
 
-    configureCamera() {
+    submit() {
+        super.submit();
+
         if (! this.validateCameraConfigMenu()) {
             return;
         }
@@ -172,6 +174,9 @@ export class CameraOverlay extends OverlayMenu {
     
         masterRenderer.setMatricies();
         masterRenderer.setProjUniformMatrix4fv(); 
+
+        axisRenderer.setMatricies();
+        axisRenderer.setProjUniformMatrix4fv(); 
     
         updateSensitivityOverlays();
         updateCameraPerspectiveOverlays();
@@ -290,7 +295,7 @@ export class CameraOverlay extends OverlayMenu {
             this.hide();
         }
         else if (event.key === "Enter") {
-            configureCamera();
+            this.submit();
         }
     }
 
@@ -309,7 +314,7 @@ export class CameraOverlay extends OverlayMenu {
 
         document.getElementById("cameraConfig-menuButton").addEventListener("pointerdown", this.show.bind(this));
         document.getElementById("hide-cameraConfigMenu-overlay-button").addEventListener("pointerdown", this.hide.bind(this));
-        document.getElementById("cameraConfig-configure-button").addEventListener("pointerup", this.configureCamera.bind(this));
+        document.getElementById("cameraConfig-configure-button").addEventListener("pointerup", this.submit.bind(this));
 
         for (const element of document.getElementsByClassName("cam-input")) {
             element.addEventListener("input", this.validateCameraConfigMenu.bind(this));

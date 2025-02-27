@@ -3,7 +3,7 @@ export const globalFront = {x: 0, y: 0, z: -1};
 export const globalRight = {x: 1, y: 0, z: 0};
 export const globalUp = {x: 0, y: 1, z: 0};
 
-export let identityMatrix = createMat4();
+export const identityMatrix = createMat4();
 identityMat4(identityMatrix);
 
 
@@ -42,11 +42,12 @@ export function pitchFromQuat(q) {
 }
 
 export function yawFromQuat(q) {
-    const thingthatidontknowthenameof = Math.atan2(
-        (1 + 2 * (q.w * q.y - q.x * q.z)) ** 0.5, 
-        (1 - 2 * (q.w * q.y - q.x * q.z)) ** 0.5
-    )
-    return 2 * thingthatidontknowthenameof - halfPi;
+    return (
+        2 * Math.atan2(
+            (1 + 2 * (q.w * q.y - q.x * q.z)) ** 0.5, 
+            (1 - 2 * (q.w * q.y - q.x * q.z)) ** 0.5
+        ) - halfPi
+    );
 }
 
 export function rollFromQuat(q) {
@@ -384,7 +385,7 @@ export function quatOrientationFromPolar(alt, azi) {
 }
 
 export function polarFromQuatOrientation(quat) {
-    let front = {x: 0, y: 0, z: 0};
+    const front = {x: 0, y: 0, z: 0};
     transformQuat(front, globalFront, quat);
 
     const alt = Math.asin(-front.y);

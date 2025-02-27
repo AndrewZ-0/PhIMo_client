@@ -1,5 +1,5 @@
 import {GraphicsEngine} from "../AGRE/src/app.js";
-import {axisRenderer, masterRenderer, orientationRenderer} from "../AGRE/src/core/renderer.js";
+import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {updateSelectedOverlay} from "../AGRE/src/core/overlays.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
@@ -15,6 +15,11 @@ import {CreateObjectOverlay} from "./overlays/createObjectOverlay.js";
 import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
 import {SimulationOverlay} from "./overlays/simulationOverlay.js";
 import {CameraOverlay} from "./overlays/cameraOverlay.js";
+import {GravityOverlay} from "./overlays/gravityOverlay.js";
+import {ElectricForceOverlay} from "./overlays/eForceOverlay.js";
+import {MagneticForceOverlay} from "./overlays/mForceOverlay.js";
+import {CollisionsOverlay} from "./overlays/collisionsOverlay.js";
+
 
 let ge;
 let projectData = {
@@ -50,6 +55,10 @@ let cameraOverlay;
 let createObjectOverlay;
 let findObjectOverlay;
 let simulationOverlay;
+let gravityOverlay;
+let eForceOverlay;
+let mForceOverlay;
+let collisionsOverlay;
 
 function returnToDashboard(event) {
     const serverQuery = communicator.getServerQuery();
@@ -136,6 +145,22 @@ async function loadData() {
     simulationOverlay = new SimulationOverlay(projectData, saveProjectData);
     simulationOverlay.bindShowCallback(showPlaySimulationMenu);
     simulationOverlay.bindHideCallback(hidePlaySimulationMenu);
+
+    gravityOverlay = new GravityOverlay(projectData, markUnsavedChanges);
+    gravityOverlay.bindShowCallback(showGravityMenuOverlay);
+    gravityOverlay.bindHideCallback(hideGravityMenuOverlay);
+
+    eForceOverlay = new ElectricForceOverlay(projectData, markUnsavedChanges);
+    eForceOverlay.bindShowCallback(showEForceMenuOverlay);
+    eForceOverlay.bindHideCallback(hideEForceMenuOverlay);
+
+    mForceOverlay = new MagneticForceOverlay(projectData, markUnsavedChanges);
+    mForceOverlay.bindShowCallback(showMForceMenuOverlay);
+    mForceOverlay.bindHideCallback(hideMForceMenuOverlay);
+
+    collisionsOverlay = new CollisionsOverlay(projectData, markUnsavedChanges);
+    collisionsOverlay.bindShowCallback(showCollisionsMenuOverlay);
+    collisionsOverlay.bindHideCallback(hideCollisionsMenuOverlay);
 
     ge.start();
 }
@@ -361,279 +386,63 @@ function loadObjectsToFinderList() {
 }
 
 
-
-
-function loadGravitationalConstant() {
-    document.getElementById("gravitationalConstant-input").value = projectData.models.gravity.G;
-}
-
-function gravityMenuOverlayKeyEvents(event) {
-    if (event.key === "Escape") {
-        hideGravityMenuOverlay();
-    }
-}
-
 function showGravityMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
-    document.getElementById("gravityMenu-overlay").classList.remove("hidden");
-    document.addEventListener("keydown", gravityMenuOverlayKeyEvents);
-
-    loadGravitationalConstant();
 }
 
 function hideGravityMenuOverlay() {
-    const errorMessageDiv = document.getElementById("gravityMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    document.getElementById("gravityMenu-overlay").classList.add("hidden");
-    document.removeEventListener("keydown", gravityMenuOverlayKeyEvents);
-
     bindAllControls(ge.canvas);
 
     document.addEventListener("keydown", workspaceKeyEvents);
 }
 
-document.getElementById("openGravityMenu-button").addEventListener("pointerdown", showGravityMenuOverlay);
-document.getElementById("hide-gravityMenu-overlay-button").addEventListener("pointerup", hideGravityMenuOverlay);
 
-
-function setGravitationalConstant() {
-    if (! validateGravitationalConstant()) {
-        return;
-    }
-
-    const G = parseFloat(document.getElementById("gravitationalConstant-input").value);
-
-    projectData.models.gravity.G = G;
-    markUnsavedChanges("high");
-
-    hideGravityMenuOverlay();
-}
-
-function validateGravitationalConstant() {
-    const errorMessageDiv = document.getElementById("gravityMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    const G = parseFloat(document.getElementById("gravitationalConstant-input").value);
-
-    if (isNaN(G)) {
-        errorMessageDiv.textContent = "Gravitational constant must be a float";
-        return false;
-    }
-    return true;
-}
-
-document.getElementById("gravitationalConstant-input").addEventListener("input", validateGravitationalConstant);
-document.getElementById("configureGravity-button").addEventListener("pointerup", setGravitationalConstant);
-
-
-
-function loadVacuumPermittivity() {
-    document.getElementById("vacuumPermittivity-input").value = projectData.models.eForce.E0;
-}
-
-function eForceMenuOverlayKeyEvents(event) {
-    if (event.key === "Escape") {
-        hideEForceMenuOverlay();
-    }
-}
 
 function showEForceMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
-    document.getElementById("eForceMenu-overlay").classList.remove("hidden");
-    document.addEventListener("keydown", eForceMenuOverlayKeyEvents);
-
-    loadVacuumPermittivity();
 }
 
 function hideEForceMenuOverlay() {
-    const errorMessageDiv = document.getElementById("eForceMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    document.getElementById("eForceMenu-overlay").classList.add("hidden");
-    document.removeEventListener("keydown", eForceMenuOverlayKeyEvents);
-
     bindAllControls(ge.canvas);
 
     document.addEventListener("keydown", workspaceKeyEvents);
 }
 
-document.getElementById("openEForceMenu-button").addEventListener("pointerdown", showEForceMenuOverlay);
-document.getElementById("hide-eForceMenu-overlay-button").addEventListener("pointerup", hideEForceMenuOverlay);
 
-
-function setVacuumPermittivity() {
-    if (! validateVacuumPermittivity()) {
-        return;
-    }
-
-    const E0 = parseFloat(document.getElementById("vacuumPermittivity-input").value);
-
-    projectData.models.eForce.E0 = E0;
-    markUnsavedChanges("high");
-
-    hideEForceMenuOverlay();
-}
-
-function validateVacuumPermittivity() {
-    const errorMessageDiv = document.getElementById("eForceMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    const E0 = parseFloat(document.getElementById("vacuumPermittivity-input").value);
-
-    if (isNaN(E0)) {
-        errorMessageDiv.textContent = "Vacuum permittivity must be a float";
-        return false;
-    }
-    return true;
-}
-
-document.getElementById("vacuumPermittivity-input").addEventListener("input", validateVacuumPermittivity);
-document.getElementById("configureEForce-button").addEventListener("pointerup", setVacuumPermittivity);
-
-
-
-
-function loadVacuumPermeability() {
-    document.getElementById("vacuumPermeability-input").value = projectData.models.mForce.M0;
-}
-
-function mForceMenuOverlayKeyEvents(event) {
-    if (event.key === "Escape") {
-        hideMForceMenuOverlay();
-    }
-}
 
 function showMForceMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
-    document.getElementById("mForceMenu-overlay").classList.remove("hidden");
-    document.addEventListener("keydown", mForceMenuOverlayKeyEvents);
-
-    loadVacuumPermeability();
 }
 
 function hideMForceMenuOverlay() {
-    const errorMessageDiv = document.getElementById("mForceMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    document.getElementById("mForceMenu-overlay").classList.add("hidden");
-    document.removeEventListener("keydown", mForceMenuOverlayKeyEvents);
-
     bindAllControls(ge.canvas);
 
     document.addEventListener("keydown", workspaceKeyEvents);
 }
 
-document.getElementById("openMForceMenu-button").addEventListener("pointerdown", showMForceMenuOverlay);
-document.getElementById("hide-mForceMenu-overlay-button").addEventListener("pointerup", hideMForceMenuOverlay);
 
-
-function setVacuumPermeability() {
-    if (! validateVacuumPermeability()) {
-        return;
-    }
-
-    const M0 = parseFloat(document.getElementById("vacuumPermeability-input").value);
-
-    projectData.models.mForce.M0 = M0;
-    markUnsavedChanges("high");
-
-    hideMForceMenuOverlay();
-}
-
-function validateVacuumPermeability() {
-    const errorMessageDiv = document.getElementById("mForceMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    const M0 = parseFloat(document.getElementById("vacuumPermeability-input").value);
-
-    if (isNaN(M0)) {
-        errorMessageDiv.textContent = "Vacuum permeability must be a float";
-        return false;
-    }
-    return true;
-}
-
-document.getElementById("vacuumPermeability-input").addEventListener("input", validateVacuumPermeability);
-document.getElementById("configureMForce-button").addEventListener("pointerup", setVacuumPermeability);
-
-
-function loadCoefficientOfRestitution() {
-    document.getElementById("coefficientOfRestitution-input").value = projectData.models.collisions.e;
-}
-
-function collisionsMenuOverlayKeyEvents(event) {
-    if (event.key === "Escape") {
-        hideCollisionsMenuOverlay();
-    }
-}
 
 function showCollisionsMenuOverlay() {
     quickReleaseKeys();
 
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
-    document.getElementById("collisionsMenu-overlay").classList.remove("hidden");
-    document.addEventListener("keydown", collisionsMenuOverlayKeyEvents);
-
-    loadCoefficientOfRestitution();
 }
 
 function hideCollisionsMenuOverlay() {
-    const errorMessageDiv = document.getElementById("collisionsMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    document.getElementById("collisionsMenu-overlay").classList.add("hidden");
-    document.removeEventListener("keydown", collisionsMenuOverlayKeyEvents);
-
     bindAllControls(ge.canvas);
 
     document.addEventListener("keydown", workspaceKeyEvents);
 }
-
-document.getElementById("openCollisionsMenu-button").addEventListener("pointerdown", showCollisionsMenuOverlay);
-document.getElementById("hide-collisionsMenu-overlay-button").addEventListener("pointerup", hideCollisionsMenuOverlay);
-
-
-function setCoefficientOfRestitution() {
-    if (! validateCoefficientOfRestitution()) {
-        return;
-    }
-
-    const e = parseFloat(document.getElementById("coefficientOfRestitution-input").value);
-
-    projectData.models.collisions.e = e;
-    markUnsavedChanges("high");
-
-    hideCollisionsMenuOverlay();
-}
-
-function validateCoefficientOfRestitution() {
-    const errorMessageDiv = document.getElementById("collisionsMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    const e = parseFloat(document.getElementById("coefficientOfRestitution-input").value);
-
-    if (isNaN(e) || e < 0) {
-        errorMessageDiv.textContent = "Coefficient of restitution constant must be a positive float";
-        return false;
-    }
-    return true;
-}
-
-document.getElementById("coefficientOfRestitution-input").addEventListener("input", validateCoefficientOfRestitution);
-document.getElementById("configureCollisions-button").addEventListener("pointerup", setCoefficientOfRestitution);
-
-
 
 
 
