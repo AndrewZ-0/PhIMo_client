@@ -39,7 +39,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 10;
+    z-index: 2;
     background-color: rgba(0, 0, 0, 0);
     pointer-events: none;
     display: flex;
@@ -64,13 +64,12 @@
     font-weight: 600; 
     background: #d6d6d6;
     padding: 0 10px;
-    max-width: 220px;
+    max-width: 420px;
     height: 22px;
     border-radius: 5px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    display: flex;
     user-select: none;
     margin: 0 5px 0 5px;
     line-height: 22px;

@@ -67,13 +67,18 @@ function parseFramesString(framesString) {
     return {headers, frames};
 }
 
-
+const maxProjectNameLength = 20;
 async function loadData() {
     const projectName = communicator.getProjNameFromUrl();
     const simulationName = communicator.getSimNameFromUrl();
-    console.log("Opening simulation:", `${projectName}::${simulationName}`);
     
-    document.getElementById("titlebar-simulation-name").textContent = `${projectName}::${simulationName}`;
+    if (projectName.length > maxProjectNameLength) {
+        const projectName_str = projectName.slice(0, maxProjectNameLength) + "...";
+        document.getElementById("titlebar-simulation-name").textContent = `${projectName_str}::${simulationName}`;
+    }
+    else {
+        document.getElementById("titlebar-simulation-name").textContent = `${projectName}::${simulationName}`;
+    }
 
     const projectData = await communicator.getSimulationData(projectName, simulationName);
 
