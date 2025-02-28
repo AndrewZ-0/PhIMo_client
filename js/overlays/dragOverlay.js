@@ -1,15 +1,15 @@
 import {OverlayMenu} from "./overlay.js";
 
-const errorMessageDiv = document.getElementById("collisionsMenu-error-message");
-const coefficientOfRestitution_input = document.getElementById("coefficientOfRestitution-input");
+const errorMessageDiv = document.getElementById("dragMenu-error-message");
+const airDensity_input = document.getElementById("airDensity-input");
 
-const openMenuButton = document.getElementById("openCollisionsMenu-button");
-const hideMenuButton = document.getElementById("hide-collisionsMenu-overlay-button");
-const submitButton = document.getElementById("configureCollisions-button");
+const openMenuButton = document.getElementById("openDragMenu-button");
+const hideMenuButton = document.getElementById("hide-dragMenu-overlay-button");
+const submitButton = document.getElementById("configureDrag-button");
 
-const overlayMenu = document.getElementById("collisionsMenu-overlay");
+const overlayMenu = document.getElementById("dragMenu-overlay");
 
-export class CollisionsOverlay extends OverlayMenu {
+export class DragOverlay extends OverlayMenu {
     constructor(projectData, markUnsavedChanges) {
         super();
 
@@ -22,7 +22,7 @@ export class CollisionsOverlay extends OverlayMenu {
     show() {
         super.show();
 
-        coefficientOfRestitution_input.value = this.projectData.models.collisions.e;
+        airDensity_input.value = this.projectData.models.drag.rho;
 
         overlayMenu.classList.remove("hidden");
         document.addEventListener("keydown", this.keyEvents);
@@ -37,13 +37,13 @@ export class CollisionsOverlay extends OverlayMenu {
         document.removeEventListener("keydown", this.keyEvents);
     }
 
-    validateCoefficientOfRestitution() {
+    validateAirDensity() {
         errorMessageDiv.textContent = ""; //clear prev msgs
     
-        const e = parseFloat(coefficientOfRestitution_input.value);
+        const rho = parseFloat(airDensity_input.value);
     
-        if (isNaN(e)) {
-            errorMessageDiv.textContent = "Coefficient of Restitution constant must be a float";
+        if (isNaN(rho) || rho < 0) {
+            errorMessageDiv.textContent = "Air Density must be a positive float";
             return false;
         }
         return true;
@@ -52,13 +52,14 @@ export class CollisionsOverlay extends OverlayMenu {
     submit() {
         super.submit();
 
-        if (! this.validateCoefficientOfRestitution()) {
+        if (! this.validateAirDensity()) {
             return;
         }
     
-        const e = parseFloat(coefficientOfRestitution_input.value);
+        const rho = parseFloat(airDensity_input.value);
     
-        this.projectData.models.collisions.e = e;
+        this.projectData.models.drag.rho = rho;
+        console.log(this.projectData.models)
         this.markUnsavedChanges("high");
     
         this.hide();
@@ -81,6 +82,6 @@ export class CollisionsOverlay extends OverlayMenu {
         
         submitButton.addEventListener("pointerup", this.submit);
 
-        coefficientOfRestitution_input.addEventListener("input", this.validateCoefficientOfRestitution);
+        airDensity_input.addEventListener("input", this.validateAirDensity);
     }
 }

@@ -308,9 +308,6 @@ class PolarCamera extends Camera {
             z: init_origin.z
         }
 
-        this.azi_movement_sf = cameraMovementSpeed  * clock.deltaT / 2;
-        this.alt_movement_sf = cameraMovementSpeed  * clock.deltaT / 4;
-
         this.r = init_r; //radial distance
         this.alt = init_alt; //altitude
         this.azi = init_azi; //azimuth
@@ -349,9 +346,9 @@ class PolarCamera extends Camera {
     }
 
     handleMovements() {
-        const deltaR = cameraMovementSpeed  * clock.deltaT * (keys.s - keys.w);
-        const deltaAzi = this.azi_movement_sf * (keys.d - keys.a);
-        const deltaAlt = this.alt_movement_sf * (keys.space - keys.shift);
+        const deltaR = cameraMovementSpeed * clock.deltaT * (keys.s - keys.w) * this.r * 0.1;
+        const deltaAzi = cameraMovementSpeed * clock.deltaT / 2 * (keys.d - keys.a);
+        const deltaAlt = cameraMovementSpeed * clock.deltaT / 4 * (keys.space - keys.shift);
 
         if (deltaR || deltaAzi || deltaAlt) {
             this.r += deltaR;

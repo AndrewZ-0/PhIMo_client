@@ -54,6 +54,7 @@ export class CreateObjectOverlay extends OverlayMenu {
             document.getElementById("create-mass-group").classList.remove("hidden");
             document.getElementById("create-charge-group").classList.remove("hidden");
             document.getElementById("create-colour-group").classList.remove("hidden");
+            document.getElementById("create-dragCoefficient-group").classList.remove("hidden");
         }
         else if (objectType === "1") {
             document.getElementById("create-position-group").classList.remove("hidden");
@@ -94,6 +95,7 @@ export class CreateObjectOverlay extends OverlayMenu {
             const radius = parseFloat(document.getElementById("create-radius").value);
             const mass = parseFloat(document.getElementById("create-mass").value);
             const charge = parseFloat(document.getElementById("create-charge").value);
+            const dragCoef = parseFloat(document.getElementById("create-dragCoefficient").value);
             const colour = linearAlgebra.hexToVec3(document.getElementById("create-colour").value);
     
             const fidelity = calculateScaledFidelity(radius);
@@ -102,7 +104,7 @@ export class CreateObjectOverlay extends OverlayMenu {
             this.projectData.objects[name] = {
                 dtype: 0,
                 position, velocity,
-                radius, mass, charge, colour
+                radius, mass, charge, dragCoef, colour
             };
         }
         else if (objectType === "1") {

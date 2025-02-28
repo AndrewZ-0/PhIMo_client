@@ -19,6 +19,7 @@ import {GravityOverlay} from "./overlays/gravityOverlay.js";
 import {ElectricForceOverlay} from "./overlays/eForceOverlay.js";
 import {MagneticForceOverlay} from "./overlays/mForceOverlay.js";
 import {CollisionsOverlay} from "./overlays/collisionsOverlay.js";
+import {DragOverlay} from "./overlays/dragOverlay.js";
 
 
 let ge;
@@ -26,10 +27,11 @@ let projectData = {
     deltaT: null, 
     noOfFrames: null, 
     models: {
-        gravity: {compute: true, G: 6.6743015e-11}, 
-        eForce: {compute: true, E0: 8.854187817e-12}, 
-        mForce: {compute: true, M0: 1.2566370612720e-6}, 
-        collisions: {compute: true, e: 1.0}
+        gravity: {compute: true, G: 6.6743015e-11, g: {x: 0, y: -9.81, z: 0}}, 
+        eForce: {compute: true, E0: 8.854187817e-12, E: {x: 0, y: 0, z: 0}}, 
+        mForce: {compute: true, M0: 1.2566370612720e-6, B: {x: 0, y: 0, z: 0}}, 
+        collisions: {compute: true, e: 1.0}, 
+        drag: {compute: true, rho: 1.225}
     }, 
     objects: {}
 };
@@ -59,6 +61,7 @@ let gravityOverlay;
 let eForceOverlay;
 let mForceOverlay;
 let collisionsOverlay;
+let dragOverlay;
 
 function returnToDashboard(event) {
     const serverQuery = communicator.getServerQuery();
@@ -159,6 +162,10 @@ async function loadData() {
     collisionsOverlay = new CollisionsOverlay(projectData, markUnsavedChanges);
     collisionsOverlay.bindShowCallback(showCollisionsMenuOverlay);
     collisionsOverlay.bindHideCallback(hideCollisionsMenuOverlay);
+
+    dragOverlay = new DragOverlay(projectData, markUnsavedChanges);
+    dragOverlay.bindShowCallback(showDragMenuOverlay);
+    dragOverlay.bindHideCallback(hideDragMenuOverlay);
 
     ge.start();
 }
@@ -432,6 +439,19 @@ function hideCollisionsMenuOverlay() {
 
 
 
+function showDragMenuOverlay() {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+}
+
+function hideDragMenuOverlay() {
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workspaceKeyEvents);
+}
+
+
+
 let unsavedChanges = false;
 function markUnsavedChanges(priority) {
     if (!unsavedChanges) {
@@ -518,6 +538,7 @@ function populateObjectDataForm(object) {
         document.getElementById("edit-radius").value = projectData.objects[object.name].radius;
         document.getElementById("edit-mass").value = projectData.objects[object.name].mass;
         document.getElementById("edit-charge").value = projectData.objects[object.name].charge;
+        document.getElementById("edit-dragCoefficient").value = projectData.objects[object.name].dragCoef;
         document.getElementById("edit-colour").value = linearAlgebra.vec3ToHex(projectData.objects[object.name].colour);
     }
     else if (objectType === 1) {
@@ -553,6 +574,7 @@ function configureObjectDataForm(object) {
         document.getElementById("edit-radius-group").classList.remove("hidden");
         document.getElementById("edit-mass-group").classList.remove("hidden");
         document.getElementById("edit-charge-group").classList.remove("hidden");
+        document.getElementById("edit-dragCoefficient-group").classList.remove("hidden");
         document.getElementById("edit-colour-group").classList.remove("hidden");
     }
     else if (objectType === 1) {
@@ -656,6 +678,15 @@ function validateObjectBasedInputs(prefix) {
         }
     }
 
+    if (! document.getElementById(`${prefix}dragCoefficient-group`).classList.contains("hidden")) {
+        const dragCoefInp = document.getElementById(`${prefix}dragCoefficient`);
+        const dragCoef = parseFloat(dragCoefInp.value);
+        if (isNaN(dragCoef) || dragCoef < 0) {
+            errorMessageDiv.textContent = "Drag Coefficient must be a positive non-zero float";
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -685,6 +716,7 @@ function updateObjectData() {
         }
         const mass = parseFloat(document.getElementById("edit-mass").value);
         const charge = parseFloat(document.getElementById("edit-charge").value);
+        const dragCoef = parseFloat(document.getElementById("edit-dragCoefficient").value);
         const colour = linearAlgebra.hexToVec3(document.getElementById("edit-colour").value);
 
         //update view data
@@ -706,6 +738,7 @@ function updateObjectData() {
         projectData.objects[name].radius = radius;
         projectData.objects[name].mass = mass;
         projectData.objects[name].charge = charge;
+        projectData.objects[name].dragCoef = dragCoef;
         projectData.objects[name].colour = colour;
         projectData.objects[name].dtype = dtype;
     }
@@ -797,6 +830,7 @@ function configureModelDataToggles() {
     document.getElementById("eForce-toggle").checked = projectData.models.eForce.compute;
     document.getElementById("mForce-toggle").checked = projectData.models.mForce.compute;
     document.getElementById("collisions-toggle").checked = projectData.models.collisions.compute;
+    document.getElementById("drag-toggle").checked = projectData.models.drag.compute;
 }
 
 function updateModelData(event) {
@@ -804,6 +838,7 @@ function updateModelData(event) {
     projectData.models.eForce.compute = document.getElementById("eForce-toggle").checked;
     projectData.models.mForce.compute = document.getElementById("mForce-toggle").checked;
     projectData.models.collisions.compute = document.getElementById("collisions-toggle").checked;
+    projectData.models.drag.compute = document.getElementById("drag-toggle").checked;
 
     markUnsavedChanges("high");
 }
