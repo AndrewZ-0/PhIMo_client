@@ -46,7 +46,7 @@ export class GravityOverlay extends OverlayMenu {
         document.removeEventListener("keydown", this.keyEvents);
     }
 
-    validateGravitationalConstant() {
+    validateInputs() {
         errorMessageDiv.textContent = ""; //clear prev msgs
     
         const G = parseFloat(gravitationalConstant_input.value);
@@ -57,8 +57,8 @@ export class GravityOverlay extends OverlayMenu {
 
         const axes = ["x", "y", "z"];
         for (const axis of axes) {
-            const E_axis = parseFloat(gravitationalFieldStrength_input[axis].value);
-            if (isNaN(E_axis)) {
+            const g_axis = parseFloat(gravitationalFieldStrength_input[axis].value);
+            if (isNaN(g_axis)) {
                 errorMessageDiv.textContent = `Gravitational Field Strength (${axis}) must be a float`;
                 return false;
             }
@@ -70,7 +70,7 @@ export class GravityOverlay extends OverlayMenu {
     submit() {
         super.submit();
 
-        if (! this.validateGravitationalConstant()) {
+        if (! this.validateInputs()) {
             return;
         }
     
@@ -79,7 +79,7 @@ export class GravityOverlay extends OverlayMenu {
 
         const axes = ["x", "y", "z"];
         for (const axis of axes) {
-            this.projectData.models.gravity.E[axis] = parseFloat(gravitationalFieldStrength_input.axis.value);
+            this.projectData.models.gravity.g[axis] = parseFloat(gravitationalFieldStrength_input[axis].value);
         }
 
         this.markUnsavedChanges("high");
@@ -104,6 +104,8 @@ export class GravityOverlay extends OverlayMenu {
         
         submitButton.addEventListener("pointerup", this.submit);
 
-        gravitationalConstant_input.addEventListener("input", this.validateGravitationalConstant);
+        for (const element of document.getElementsByClassName("grav-input")) {
+            element.addEventListener("input", this.validateInputs);
+        }
     }
 }

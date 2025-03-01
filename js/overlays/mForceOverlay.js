@@ -2,6 +2,11 @@ import {OverlayMenu} from "./overlay.js";
 
 const errorMessageDiv = document.getElementById("mForceMenu-error-message");
 const vacuumPermeability_input = document.getElementById("vacuumPermeability-input");
+const magneticFieldStrength_input = {
+    x: document.getElementById("global-magneticFieldStrength-x"), 
+    y: document.getElementById("global-magneticFieldStrength-y"), 
+    z: document.getElementById("global-magneticFieldStrength-z")
+}
 
 const openMenuButton = document.getElementById("openMForceMenu-button");
 const hideMenuButton = document.getElementById("hide-mForceMenu-overlay-button");
@@ -23,6 +28,9 @@ export class MagneticForceOverlay extends OverlayMenu {
         super.show();
 
         vacuumPermeability_input.value = this.projectData.models.mForce.M0;
+        magneticFieldStrength_input.x.value = this.projectData.models.mForce.B.x;
+        magneticFieldStrength_input.y.value = this.projectData.models.mForce.B.y;
+        magneticFieldStrength_input.z.value = this.projectData.models.mForce.B.z;
 
         overlayMenu.classList.remove("hidden");
         document.addEventListener("keydown", this.keyEvents);
@@ -37,7 +45,7 @@ export class MagneticForceOverlay extends OverlayMenu {
         document.removeEventListener("keydown", this.keyEvents);
     }
 
-    validateVacuumPermeability() {
+    validateInputs() {
         errorMessageDiv.textContent = ""; //clear prev msgs
     
         const M0 = parseFloat(vacuumPermeability_input.value);
@@ -46,19 +54,34 @@ export class MagneticForceOverlay extends OverlayMenu {
             errorMessageDiv.textContent = "Vacuum Permeability must be a float";
             return false;
         }
+
+        const axes = ["x", "y", "z"];
+        for (const axis of axes) {
+            const B_axis = parseFloat(magneticFieldStrength_input[axis].value);
+            if (isNaN(B_axis)) {
+                errorMessageDiv.textContent = `Magnetic Field Strength (${axis}) must be a float`;
+                return false;
+            }
+        }
+
         return true;
     }
 
     submit() {
         super.submit();
 
-        if (! this.validateVacuumPermeability()) {
+        if (! this.validateInputs()) {
             return;
         }
     
-        const G = parseFloat(vacuumPermeability_input.value);
+        const M0 = parseFloat(vacuumPermeability_input.value);
+
+        const axes = ["x", "y", "z"];
+        for (const axis of axes) {
+            this.projectData.models.mForce.B[axis] = parseFloat(magneticFieldStrength_input[axis].value);
+        }
     
-        this.projectData.models.mForce.G = G;
+        this.projectData.models.mForce.M0 = M0;
         this.markUnsavedChanges("high");
     
         this.hide();
@@ -81,6 +104,8 @@ export class MagneticForceOverlay extends OverlayMenu {
         
         submitButton.addEventListener("pointerup", this.submit);
 
-        vacuumPermeability_input.addEventListener("input", this.validateVacuumPermeability);
+        for (const element of document.getElementsByClassName("mForce-input")) {
+            element.addEventListener("input", this.validateInputs);
+        }
     }
 }

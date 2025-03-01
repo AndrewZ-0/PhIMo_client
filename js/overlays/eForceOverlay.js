@@ -1,7 +1,12 @@
 import {OverlayMenu} from "./overlay.js";
 
-const errorMessageDiv = document.getElementById("gravityMenu-error-message");
+const errorMessageDiv = document.getElementById("eForceMenu-error-message");
 const vacuumPermittivity_input = document.getElementById("vacuumPermittivity-input");
+const electricFieldStrength_input = {
+    x: document.getElementById("global-electricFieldStrength-x"), 
+    y: document.getElementById("global-electricFieldStrength-y"), 
+    z: document.getElementById("global-electricFieldStrength-z")
+}
 
 const openMenuButton = document.getElementById("openEForceMenu-button");
 const hideMenuButton = document.getElementById("hide-eForceMenu-overlay-button");
@@ -23,6 +28,9 @@ export class ElectricForceOverlay extends OverlayMenu {
         super.show();
 
         vacuumPermittivity_input.value = this.projectData.models.eForce.E0;
+        electricFieldStrength_input.x.value = this.projectData.models.eForce.E.x;
+        electricFieldStrength_input.y.value = this.projectData.models.eForce.E.y;
+        electricFieldStrength_input.z.value = this.projectData.models.eForce.E.z;
 
         overlayMenu.classList.remove("hidden");
         document.addEventListener("keydown", this.keyEvents);
@@ -37,7 +45,7 @@ export class ElectricForceOverlay extends OverlayMenu {
         document.removeEventListener("keydown", this.keyEvents);
     }
 
-    validateVacuumPermittivity() {
+    validateInputs() {
         errorMessageDiv.textContent = ""; //clear prev msgs
     
         const E0 = parseFloat(vacuumPermittivity_input.value);
@@ -46,17 +54,32 @@ export class ElectricForceOverlay extends OverlayMenu {
             errorMessageDiv.textContent = "Vacuum permittivity must be a float";
             return false;
         }
+
+        const axes = ["x", "y", "z"];
+        for (const axis of axes) {
+            const E_axis = parseFloat(electricFieldStrength_input[axis].value);
+            if (isNaN(E_axis)) {
+                errorMessageDiv.textContent = `Electric Field Strength (${axis}) must be a float`;
+                return false;
+            }
+        }
+
         return true;
     }
 
     submit() {
         super.submit();
 
-        if (! this.validateVacuumPermittivity()) {
+        if (! this.validateInputs()) {
             return;
         }
     
         const E0 = parseFloat(vacuumPermittivity_input.value);
+
+        const axes = ["x", "y", "z"];
+        for (const axis of axes) {
+            this.projectData.models.eForce.E[axis] = parseFloat(electricFieldStrength_input[axis].value);
+        }
     
         this.projectData.models.eForce.E0 = E0;
         this.markUnsavedChanges("high");
@@ -81,6 +104,8 @@ export class ElectricForceOverlay extends OverlayMenu {
         
         submitButton.addEventListener("pointerup", this.submit);
 
-        vacuumPermittivity_input.addEventListener("input", this.validateVacuumPermittivity);
+        for (const element of document.getElementsByClassName("eForce-input")) {
+            element.addEventListener("input", this.validateInputs);
+        }
     }
 }
