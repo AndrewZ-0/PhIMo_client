@@ -70,7 +70,12 @@ export class FindObjectOverlay extends OverlayEditMenu {
         super.bindPermanantEvents();
 
         selectFoundObject_button.addEventListener("pointerup", this.submit.bind(this));
-        openMenu_button.addEventListener("pointerdown", this.show.bind(this));
+        openMenu_button.addEventListener("pointerup", this.show.bind(this));
         hideMenu_button.addEventListener("pointerup", this.hide.bind(this));
+        overlayMenu.addEventListener("pointerup", (event) => {
+            if (event.target === overlayMenu) {
+                this.hide(); 
+            }
+        });
     }
 }

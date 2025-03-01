@@ -115,7 +115,7 @@ export class CreateObjectOverlay extends OverlayEditMenu {
         }
     }
 
-    createObjectFromCreateNewObjectEntries() {
+    submit() {
         const name = objectName_input.value;
     
         if (name in this.projectData.objects) {
@@ -191,6 +191,8 @@ export class CreateObjectOverlay extends OverlayEditMenu {
         this.ge.quickAnimationStart();
     
         this.markUnsavedChanges("high");
+
+        super.submit();
     }
 
     fillObjectNameOnCreateObjectOverlay() {
@@ -224,13 +226,16 @@ export class CreateObjectOverlay extends OverlayEditMenu {
     bindPermanantEvents() {
         super.bindPermanantEvents();
 
-        openMenu_button.addEventListener("pointerdown", this.show.bind(this));
-        hideMenu_button.addEventListener("pointerup", this.hide.bind(this));
+        openMenu_button.addEventListener("pointerup", this.show);
+        hideMenu_button.addEventListener("pointerup", this.hide);
+        overlayMenu.addEventListener("pointerup", (event) => {
+            if (event.target === overlayMenu) {
+                this.hide(); 
+            }
+        });
 
         objectType_group.addEventListener("input", this.configureObjectEntries);
-        createObject_button.addEventListener("pointerup", this.submit.bind(this));
-
-        this.bindSubmitCallback(this.createObjectFromCreateNewObjectEntries.bind(this));
+        createObject_button.addEventListener("pointerup", this.submit);
 
         for (const element of document.getElementsByClassName("create-input")) {
             element.addEventListener("input", () => {this.validateObjectBasedInputs("create-")});

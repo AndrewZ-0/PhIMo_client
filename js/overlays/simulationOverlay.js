@@ -6,6 +6,9 @@ const overlayMenu = document.getElementById("playSimulationMenu-overlay");
 const openMenu_button = document.getElementById("playButton");
 const hideMenu_button = document.getElementById("hide-playSimulationMenu-overlay-button");
 
+const phimoCloud_menu = document.getElementById("phimoCloud-menu");
+const phimoLive_menu = document.getElementById("phimoLive-menu");
+
 const simulationList = document.getElementById("simulationList");
     
 const openSimulationButton = document.getElementById("openSimulation");
@@ -67,6 +70,7 @@ export class SimulationOverlay extends OverlayEditMenu {
         errorMessageDiv.textContent = ""; //clear prev msgs
 
         overlayMenu.classList.add("hidden");
+
         document.removeEventListener("keydown", this.keyEvents);
     }
 
@@ -274,7 +278,7 @@ export class SimulationOverlay extends OverlayEditMenu {
         return true;
     }
 
-    async createAndComputeNewSimulation() {
+    async submit() {
         if (! this.validateSimilationConfigEntries()) {
             return;
         }
@@ -335,8 +339,14 @@ export class SimulationOverlay extends OverlayEditMenu {
     bindPermanantEvents() {
         super.bindPermanantEvents();
 
-        openMenu_button.addEventListener("pointerdown", this.show.bind(this));
-        hideMenu_button.addEventListener("pointerup", this.hide.bind(this));
+        openMenu_button.addEventListener("pointerup", this.show);
+        hideMenu_button.addEventListener("pointerup", this.hide);
+        overlayMenu.addEventListener("pointerup", (event) => {
+            if (event.target === overlayMenu) {
+                this.hide(); 
+            }
+        });
+
         simulationList.addEventListener("change", this.updateSimulationButtons.bind(this));
         stopComputing_button.addEventListener("pointerdown", this.stopComputingSimulation.bind(this));
 
@@ -344,7 +354,7 @@ export class SimulationOverlay extends OverlayEditMenu {
         noOfFrames_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
         stepsPerFrame_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
 
-        computeNewSimulation_button.addEventListener("pointerdown", this.createAndComputeNewSimulation.bind(this));
+        computeNewSimulation_button.addEventListener("pointerdown", this.submit);
     }
 }
 

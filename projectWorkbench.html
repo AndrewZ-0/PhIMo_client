@@ -609,48 +609,67 @@
             <button id = "hide-playSimulationMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
             <div class = "overlay-content" style = "width: 40%; min-width: 400px; max-width: 800px;">
                 <h2>Simulations</h2>
-                <select id = "simulationList" name = "simulations" size = "5"></select>
-                <div id = "simulationListActions" style = "justify-content: center;">
-                    <button id = "openSimulation" style = "width: 80px; font-size: 15px;">Open</button>
-                    <button id = "deleteSimulation" style = "width: 80px; font-size: 15px;">Delete</button>
-                    <button id = "renameSimulation" style = "width: 80px; font-size: 15px;">Rename</button>
-                </div>
-                <div id = "simulationComputingActions" style = "justify-content: center;">
-                    <button id = "computeNewSimulationButton" style = "width: 150px; font-size: 15px;">Compute New</button>
-                    <button id = "stopComputingButton" style = "width: 150px; font-size: 15px;" class = "hidden">Stop Computing</button>
-                </div>
-                <div id = "computeProgress" style = "align-items: center; flex-direction: column;" class = "hidden">
-                    <div id = "computeProgressBar">
-                        <div id = "computeProgressBar-progress"></div>
-                    </div>
 
-                    <div id = "computeProgress-labels" style = "gap: 5px;">
-                        <label id = "computingInProgress-label" style = "align-self: left;">Computing...</label>
-                        <label id = "computeProgressText" style = "align-self: left;"></label>
-                        
-                        <label id = "compute-approximateWaitTime" style = "align-self: right;"></label>
-                    </div>
+                <div class = "form-container" style = "display: flex; flex-direction: column; padding: 0px 5px 15px 5px; width: calc(100% - 5px);">
+                    <form onsubmit = "return false;">
+                        <div class = "input-group" id = "selectPhysicsEngine-group">
+                            <label for = "selectPhysicsEngine" style = "height: 20px; width: 150px; text-align: left;">Physics Engine</label>
+                            <select name = "selectPhysicsEngine" id = "selectPhysicsEngine" style = "width: 55%;" required>
+                                <option value = "phimoCloud">PhIMo Cloud</option>
+                                <option value = "phimoLive">PhIMo Live</option>
+                            </select>
+                        </div>
+                    </form>
                 </div>
 
-                <div id = "simulationConfigs" style = "justify-content: center;">
-                    <div class = "form-container" style = "padding-top: 0; padding-bottom: 15px; flex-grow: 1; width: 100%;">
-                        <form onsubmit = "return false;">
-                            <div class = "input-group">
-                                <label style = "height: 20px; width: 100%; text-align: left;">Delta Time</label>
-                                <input type = "number" id = "deltaT" name = "deltaT" class = "numInpBox" value = "0.01" step = "0.01" required>
-                            </div>
-
-                            <div class = "input-group">
-                                <label style = "height: 20px; width: 100%; text-align: left;">Number of Frames</label>
-                                <input type = "number" id = "noOfFrames" name = "noOfFrames" class = "numInpBox" value = "1000" step = "1" required>
-                            </div>
-
-                            <div class = "input-group">
-                                <label style = "height: 20px; width: 100%; text-align: left;">Steps Per Frame</label>
-                                <input type = "number" id = "stepsPerFrame" name = "stepsPerFrame" class = "numInpBox" value = "1000" step = "1" required>
-                            </div>
-                        </form>
+                <div id = "phimoCloud-menu" style = "display: flex; flex-direction: column; margin-top: 20px; width: calc(100% - 5px); border: solid 1px #aaa; padding: 5px;">
+                    <select id = "simulationList" name = "simulations" size = "5"></select>
+                    <div id = "simulationListActions" style = "justify-content: center;">
+                        <button id = "openSimulation" style = "width: 80px; font-size: 15px;">Open</button>
+                        <button id = "deleteSimulation" style = "width: 80px; font-size: 15px;">Delete</button>
+                        <button id = "renameSimulation" style = "width: 80px; font-size: 15px;">Rename</button>
                     </div>
+                    <div id = "simulationComputingActions" style = "justify-content: center;">
+                        <button id = "computeNewSimulationButton" style = "width: 150px; font-size: 15px;">Compute New</button>
+                        <button id = "stopComputingButton" style = "width: 150px; font-size: 15px;" class = "hidden">Stop Computing</button>
+                    </div>
+                    <div id = "computeProgress" style = "align-items: center; flex-direction: column;" class = "hidden">
+                        <div id = "computeProgressBar">
+                            <div id = "computeProgressBar-progress"></div>
+                        </div>
+
+                        <div id = "computeProgress-labels" style = "gap: 5px;">
+                            <label id = "computingInProgress-label" style = "align-self: left;">Computing...</label>
+                            <label id = "computeProgressText" style = "align-self: left;"></label>
+                            
+                            <label id = "compute-approximateWaitTime" style = "align-self: right;"></label>
+                        </div>
+                    </div>
+
+                    <div id = "simulationConfigs" style = "justify-content: center;">
+                        <div class = "form-container" style = "padding-top: 0; padding-bottom: 15px; flex-grow: 1; width: 100%;">
+                            <form onsubmit = "return false;">
+                                <div class = "input-group">
+                                    <label style = "height: 20px; width: 100%; text-align: left;">Delta Time</label>
+                                    <input type = "number" id = "deltaT" name = "deltaT" class = "numInpBox" value = "0.01" step = "0.01" required>
+                                </div>
+
+                                <div class = "input-group">
+                                    <label style = "height: 20px; width: 100%; text-align: left;">Number of Frames</label>
+                                    <input type = "number" id = "noOfFrames" name = "noOfFrames" class = "numInpBox" value = "1000" step = "1" required>
+                                </div>
+
+                                <div class = "input-group">
+                                    <label style = "height: 20px; width: 100%; text-align: left;">Steps Per Frame</label>
+                                    <input type = "number" id = "stepsPerFrame" name = "stepsPerFrame" class = "numInpBox" value = "1000" step = "1" required>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div id = "phimoLive-menu" class = "hidden">
+                    <button id = "startPhimoLive" style = "width: 100%;">Start</button>
                 </div>
 
                 <div id = "simulationMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>

@@ -105,8 +105,13 @@ export class ElectricForceEditOverlay extends OverlayEditMenu {
     bindPermanantEvents() {
         super.bindPermanantEvents();
 
-        openMenuButton.addEventListener("pointerdown", this.show);
+        openMenuButton.addEventListener("pointerup", this.show);
         hideMenuButton.addEventListener("pointerup", this.hide);
+        overlayMenu.addEventListener("pointerup", (event) => {
+            if (event.target === overlayMenu) {
+                this.hide(); 
+            }
+        });
         
         this.submitButton.addEventListener("pointerup", this.submit);
 
@@ -158,7 +163,12 @@ export class ElectricForceViewOverlay extends OverlayViewMenu {
     bindPermanantEvents() {
         super.bindPermanantEvents();
 
-        openMenuButton.addEventListener("pointerdown", this.show);
+        openMenuButton.addEventListener("pointerup", this.show);
         hideMenuButton.addEventListener("pointerup", this.hide);
+        overlayMenu.addEventListener("pointerup", (event) => {
+            if (event.target === overlayMenu) {
+                this.hide(); 
+            }
+        });
     }
 }

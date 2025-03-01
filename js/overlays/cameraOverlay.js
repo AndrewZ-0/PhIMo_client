@@ -335,9 +335,14 @@ export class CameraOverlay extends OverlayEditMenu {
     bindPermanantEvents() {
         super.bindPermanantEvents();
 
-        openMenu_button.addEventListener("pointerdown", this.show.bind(this));
-        hideMenu_button.addEventListener("pointerdown", this.hide.bind(this));
-        configCamera_button.addEventListener("pointerup", this.submit.bind(this));
+        openMenu_button.addEventListener("pointerup", this.show);
+        hideMenu_button.addEventListener("pointerdown", this.hide);
+        overlayMenu.addEventListener("pointerup", (event) => {
+            if (event.target === overlayMenu) {
+                this.hide(); 
+            }
+        });
+        configCamera_button.addEventListener("pointerup", this.submit);
 
         for (const element of document.getElementsByClassName("cam-input")) {
             element.addEventListener("input", this.validateCameraConfigMenu.bind(this));
