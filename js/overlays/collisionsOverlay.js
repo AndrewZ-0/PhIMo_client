@@ -82,7 +82,7 @@ export class CollisionsEditOverlay extends OverlayEditMenu {
         
         this.submitButton.addEventListener("pointerup", this.submit);
 
-        coefficientOfRestitution_element.addEventListener("input", this.validateCoefficientOfRestitution);
+        coefficientOfRestitution_element.addEventListener("input", this.validateCoefficientOfRestitution.bind(this));
     }
 }
 

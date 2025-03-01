@@ -11,7 +11,7 @@ const gravitationalFieldStrength_elements = {
     x: document.getElementById("global-gravitationalFieldStrength-x"), 
     y: document.getElementById("global-gravitationalFieldStrength-y"), 
     z: document.getElementById("global-gravitationalFieldStrength-z")
-}
+};
 
 
 export class GravityEditOverlay extends OverlayEditMenu {
@@ -111,7 +111,7 @@ export class GravityEditOverlay extends OverlayEditMenu {
         this.submitButton.addEventListener("pointerup", this.submit);
 
         for (const element of document.getElementsByClassName("grav-input")) {
-            element.addEventListener("input", this.validateInputs);
+            element.addEventListener("input", this.validateInputs.bind(this));
         }
     }
 }

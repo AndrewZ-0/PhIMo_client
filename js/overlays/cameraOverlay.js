@@ -8,6 +8,52 @@ import {
 } from "../../AGRE/src/core/camera.js";
 import {updateSensitivityOverlays, updateCameraPerspectiveOverlays} from "../../AGRE/src/core/overlays.js";
 
+const overlayMenu = document.getElementById("cameraConfigMenu-overlay");
+
+const posGroup = document.getElementById("camera-position-group");
+const orientGroup = document.getElementById("camera-orientation-group");
+const polarOrientGroup = document.getElementById("camera-polarOrientation-group");
+const radiusGroup = document.getElementById("camera-radius-group");
+const altGroup = document.getElementById("camera-alt-group");
+const aziGroup = document.getElementById("camera-azi-group");
+
+const draggingSensitivity_input = document.getElementById("camera-draggingSensitivity");
+const movementSpeed_input = document.getElementById("camera-movementSpeed");
+const near_input = document.getElementById("camera-near");
+const far_input = document.getElementById("camera-far");
+const fov_input = document.getElementById("camera-fov");
+
+const radius_input = document.getElementById("camera-radius");
+const alt_input = document.getElementById("camera-alt");
+const azi_input = document.getElementById("camera-azi");
+
+const altOrient_input = document.getElementById("camera-orient-alt");
+const aziOrient_input = document.getElementById("camera-orient-azi");
+
+const position_input = {
+    x: document.getElementById("camera-position-x"), 
+    y: document.getElementById("camera-position-y"), 
+    z: document.getElementById("camera-position-z")
+};
+
+const eulerOrient_input = {
+    pitch: document.getElementById("camera-orientation-pitch"), 
+    yaw: document.getElementById("camera-orientation-yaw"), 
+    roll: document.getElementById("camera-orientation-roll")
+};
+
+const errorMessageDiv = document.getElementById("cameraConfigMenu-error-message");
+
+const openMenu_button = document.getElementById("cameraConfig-menuButton");
+const hideMenu_button = document.getElementById("hide-cameraConfigMenu-overlay-button");
+const configCamera_button = document.getElementById("cameraConfig-configure-button");
+
+const yPolar_radio = document.getElementById("Y-Polar-radio");
+const yCartPolar_radio = document.getElementById("Y-CartesianPolar-radio");
+const cartQuat_radio = document.getElementById("CartesianQuaternion-radio");
+
+const axes = ["x", "y", "z"];
+
 export class CameraOverlay extends OverlayEditMenu {
     constructor(ge, settingsData, markUnsavedChanges) {
         super();
@@ -22,7 +68,7 @@ export class CameraOverlay extends OverlayEditMenu {
     show() {
         super.show();
 
-        document.getElementById("cameraConfigMenu-overlay").classList.remove("hidden");
+        overlayMenu.classList.remove("hidden");
 
         document.addEventListener("keydown", this.keyEvents);
 
@@ -32,21 +78,13 @@ export class CameraOverlay extends OverlayEditMenu {
     hide() {
         super.hide();
         
-        const errorMessageDiv = document.getElementById("cameraConfigMenu-error-message");
         errorMessageDiv.textContent = ""; //clear prev msgs
 
-        document.getElementById("cameraConfigMenu-overlay").classList.add("hidden");
+        overlayMenu.classList.add("hidden");
         document.removeEventListener("keydown", this.keyEvents);
     }
 
     fillCameraConfigMenu() {
-        const posGroup = document.getElementById("camera-position-group");
-        const orientGroup = document.getElementById("camera-orientation-group");
-        const polarOrientGroup = document.getElementById("camera-polarOrientation-group");
-        const radiusGroup = document.getElementById("camera-radius-group");
-        const altGroup = document.getElementById("camera-alt-group");
-        const aziGroup = document.getElementById("camera-azi-group");
-    
         const cameraData = this.settingsData.camera;
         if (cameraData.mode === "Y-Polar") {
             posGroup.classList.add("hidden");
@@ -56,9 +94,9 @@ export class CameraOverlay extends OverlayEditMenu {
             altGroup.classList.remove("hidden");
             aziGroup.classList.remove("hidden");
     
-            document.getElementById("camera-radius").value = cameraData.pose.r;
-            document.getElementById("camera-alt").value = linearAlgebra.toDegree(cameraData.pose.alt);
-            document.getElementById("camera-azi").value = linearAlgebra.toDegree(cameraData.pose.azi);
+            radius_input.value = cameraData.pose.r;
+            alt_input.value = linearAlgebra.toDegree(cameraData.pose.alt);
+            azi_input.value = linearAlgebra.toDegree(cameraData.pose.azi);
         }
         else {
             posGroup.classList.remove("hidden");
@@ -66,17 +104,16 @@ export class CameraOverlay extends OverlayEditMenu {
             altGroup.classList.add("hidden");
             aziGroup.classList.add("hidden");
     
-            const axes = ["x", "y", "z"];
             for (const axis of axes) {
-                document.getElementById(`camera-position-${axis}`).value = cameraData.pose.coords[axis];
+                position_input[axis].value = cameraData.pose.coords[axis];
             }
     
             if (cameraData.mode === "Y-CartesianPolar") {
                 polarOrientGroup.classList.remove("hidden");
                 orientGroup.classList.add("hidden");
     
-                document.getElementById("camera-orient-alt").value = linearAlgebra.toDegree(cameraData.pose.orientation.alt);
-                document.getElementById("camera-orient-azi").value = linearAlgebra.toDegree(cameraData.pose.orientation.azi);
+                altOrient_input.value = linearAlgebra.toDegree(cameraData.pose.orientation.alt);
+                aziOrient_input.value = linearAlgebra.toDegree(cameraData.pose.orientation.azi);
             }
             else {
                 polarOrientGroup.classList.add("hidden");
@@ -90,16 +127,16 @@ export class CameraOverlay extends OverlayEditMenu {
     
                 const orientations = ["pitch", "yaw", "roll"];
                 for (const orient of orientations) {
-                    document.getElementById(`camera-orientation-${orient}`).value = poseEuler[orient];
+                    eulerOrient_input[orient].value = poseEuler[orient];
                 }
             }
         }
     
-        document.getElementById("camera-draggingSensitivity").value = this.settingsData.camera.sensitivity.draggingSensitivity;
-        document.getElementById("camera-movementSpeed").value = this.settingsData.camera.sensitivity.movementSpeed;
-        document.getElementById("camera-near").value = this.settingsData.camera.projection.near;
-        document.getElementById("camera-far").value = this.settingsData.camera.projection.far;
-        document.getElementById("camera-fov").value = this.settingsData.camera.projection.fov;
+        draggingSensitivity_input.value = this.settingsData.camera.sensitivity.draggingSensitivity;
+        movementSpeed_input.value = this.settingsData.camera.sensitivity.movementSpeed;
+        near_input.value = this.settingsData.camera.projection.near;
+        far_input.value = this.settingsData.camera.projection.far;
+        fov_input.value = this.settingsData.camera.projection.fov;
     }
 
     submit() {
@@ -111,36 +148,36 @@ export class CameraOverlay extends OverlayEditMenu {
     
         if (this.settingsData.camera.mode === "Y-Polar") {
             this.settingsData.camera.pose = {
-                r: parseFloat(document.getElementById("camera-radius").value), 
+                r: parseFloat(radius_input.value), 
                 alt: linearAlgebra.clamp(
-                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-alt").value)), 
+                    linearAlgebra.toRadian(parseFloat(alt_input.value)), 
                     -linearAlgebra.halfPi, linearAlgebra.halfPi
                 ),
                 azi: linearAlgebra.wrapPositive(
-                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-azi").value)), 
+                    linearAlgebra.toRadian(parseFloat(azi_input.value)), 
                     linearAlgebra.twoPi
                 )
             };
         }
         else {
             const newCoords = {
-                x: parseFloat(document.getElementById("camera-position-x").value), 
-                y: parseFloat(document.getElementById("camera-position-y").value), 
-                z: parseFloat(document.getElementById("camera-position-z").value)
+                x: parseFloat(position_input.x.value), 
+                y: parseFloat(position_input.y.value), 
+                z: parseFloat(position_input.z.value)
             };
     
             let newOrientation;
             if (this.settingsData.camera.mode === "Y-CartesianPolar") {
                 newOrientation = {
-                    alt: linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orient-alt").value)), 
-                    azi: linearAlgebra.wrapPositive(linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orient-azi").value)), linearAlgebra.twoPi)
+                    alt: linearAlgebra.toRadian(parseFloat(altOrient_input.value)), 
+                    azi: linearAlgebra.wrapPositive(linearAlgebra.toRadian(parseFloat(aziOrient_input.value)), linearAlgebra.twoPi)
                 };
             }
             else {
                 newOrientation = linearAlgebra.quatFromEuler(
-                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-pitch").value)), 
-                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-yaw").value)),
-                    linearAlgebra.toRadian(parseFloat(document.getElementById("camera-orientation-roll").value))
+                    linearAlgebra.toRadian(parseFloat(eulerOrient_input.pitch.value)), 
+                    linearAlgebra.toRadian(parseFloat(eulerOrient_input.yaw.value)),
+                    linearAlgebra.toRadian(parseFloat(eulerOrient_input.roll.value))
                 );
             }
     
@@ -152,23 +189,23 @@ export class CameraOverlay extends OverlayEditMenu {
     
         camera.setPose(this.settingsData.camera.pose);
     
-        const newCameraSensitivity = parseFloat(document.getElementById("camera-draggingSensitivity").value);
+        const newCameraSensitivity = parseFloat(draggingSensitivity_input.value);
         setDraggingSensitivity(newCameraSensitivity);
         this.settingsData.camera.sensitivity.draggingSensitivity = newCameraSensitivity;
     
-        const newCameraMovementSpeed = parseFloat(document.getElementById("camera-movementSpeed").value);
+        const newCameraMovementSpeed = parseFloat(movementSpeed_input.value);
         setCameraMovementSpeed(newCameraMovementSpeed);
         this.settingsData.camera.sensitivity.movementSpeed = newCameraMovementSpeed;
     
-        const newCameraNear = parseFloat(document.getElementById("camera-near").value);
+        const newCameraNear = parseFloat(near_input.value);
         setCameraNear(newCameraNear);
         this.settingsData.camera.projection.near = newCameraNear;
     
-        const newCameraFar = parseFloat(document.getElementById("camera-far").value);
+        const newCameraFar = parseFloat(far_input.value);
         setCameraFar(newCameraFar);
         this.settingsData.camera.projection.far = newCameraFar;
     
-        const newCameraFov = parseFloat(document.getElementById("camera-fov").value);
+        const newCameraFov = parseFloat(fov_input.value);
         setCameraFov(newCameraFov);
         this.settingsData.camera.projection.fov = newCameraFov;
     
@@ -188,36 +225,30 @@ export class CameraOverlay extends OverlayEditMenu {
     }
 
     validateCameraConfigMenu() {
-        const errorMessageDiv = document.getElementById("cameraConfigMenu-error-message");
         errorMessageDiv.textContent = ""; //clear prev msgs
     
         if (this.settingsData.camera.mode === "Y-Polar") {
-            const radiusInp = document.getElementById("camera-radius");
-            const radius = parseFloat(radiusInp.value);
+            const radius = parseFloat(radius_input.value);
             if (isNaN(radius)) {
                 errorMessageDiv.textContent = "Radius must be a float";
                 return false;
             }
     
-            const altInp = document.getElementById("camera-alt");
-            const alt = parseFloat(altInp.value);
+            const alt = parseFloat(alt_input.value);
             if (isNaN(alt) || alt < -90 || alt > 90) {
                 errorMessageDiv.textContent = "Altitude must be a float between -90 and 90 degrees";
                 return false;
             }
     
-            const aziInp = document.getElementById("camera-azi");
-            const azi = parseFloat(aziInp.value);
+            const azi = parseFloat(azi_input.value);
             if (isNaN(azi)) {
                 errorMessageDiv.textContent = "Azimuth must be a float";
                 return false;
             }
         }
         else {
-            const axes = ["x", "y", "z"];
             for (const axis of axes) {
-                const posInp = document.getElementById(`camera-position-${axis}`);
-                const pos = parseFloat(posInp.value);
+                const pos = parseFloat(position_input[axis].value);
                 if (isNaN(pos)) {
                     errorMessageDiv.textContent = `Position (${axis}) must be a float`;
                     return false;
@@ -225,15 +256,13 @@ export class CameraOverlay extends OverlayEditMenu {
             }
     
             if (this.settingsData.camera.mode === "Y-CartesianPolar") {
-                const altInp = document.getElementById("camera-orient-alt");
-                const alt = parseFloat(altInp.value);
+                const alt = parseFloat(altOrient_input.value);
                 if (isNaN(alt) || alt < -90 || alt > 90) {
                     errorMessageDiv.textContent = "Orientation Altitude must be a float between -90 and 90 degrees";
                     return false;
                 }
     
-                const aziInp = document.getElementById("camera-orient-azi");
-                const azi = parseFloat(aziInp.value);
+                const azi = parseFloat(aziOrient_input.value);
                 if (isNaN(azi)) {
                     errorMessageDiv.textContent = "Orientation Azimuth must be a float";
                     return false;
@@ -242,8 +271,7 @@ export class CameraOverlay extends OverlayEditMenu {
             else {
                 const orientations = ["pitch", "yaw", "roll"];
                 for (const orient of orientations) {
-                    const inp = document.getElementById(`camera-orientation-${orient}`);
-                    const val = parseFloat(inp.value);
+                    const val = parseFloat(eulerOrient_input[orient].value);
                     if (isNaN(val)) {
                         errorMessageDiv.textContent = `${orient} must be a float`;
                         return false;
@@ -252,36 +280,31 @@ export class CameraOverlay extends OverlayEditMenu {
             }
         }
     
-        const dragSenseInp = document.getElementById("camera-draggingSensitivity");
-        const dragSense = parseFloat(dragSenseInp.value);
+        const dragSense = parseFloat(draggingSensitivity_input.value);
         if (isNaN(dragSense) || dragSense <= 0) {
             errorMessageDiv.textContent = "Dragging Sensitivity must be a non-zero positive float";
             return false;
         }
     
-        const movSpeedInp = document.getElementById("camera-movementSpeed");
-        const movSpeed = parseFloat(movSpeedInp.value);
+        const movSpeed = parseFloat(movementSpeed_input.value);
         if (isNaN(movSpeed) || movSpeed <= 0) {
             errorMessageDiv.textContent = "Movement Speed must be a non-zero positive float";
             return false;
         }
     
-        const nearInp = document.getElementById("camera-near");
-        const near = parseFloat(nearInp.value);
+        const near = parseFloat(near_input.value);
         if (isNaN(near) || near <= 0) {
             errorMessageDiv.textContent = "Near must be a non-zero positive float";
             return false;
         }
     
-        const farInp = document.getElementById("camera-far");
-        const far = parseFloat(farInp.value);
+        const far = parseFloat(far_input.value);
         if (isNaN(far) || far <= 0) {
             errorMessageDiv.textContent = "Far must be a non-zero positive float";
             return false;
         }
     
-        const fovInp = document.getElementById("camera-fov");
-        const fov = parseFloat(fovInp.value);
+        const fov = parseFloat(fov_input.value);
         if (isNaN(fov) || fov <= 0) {
             errorMessageDiv.textContent = "Field Of View must be a non-zero positive float";
             return false;
@@ -312,16 +335,16 @@ export class CameraOverlay extends OverlayEditMenu {
     bindPermanantEvents() {
         super.bindPermanantEvents();
 
-        document.getElementById("cameraConfig-menuButton").addEventListener("pointerdown", this.show.bind(this));
-        document.getElementById("hide-cameraConfigMenu-overlay-button").addEventListener("pointerdown", this.hide.bind(this));
-        document.getElementById("cameraConfig-configure-button").addEventListener("pointerup", this.submit.bind(this));
+        openMenu_button.addEventListener("pointerdown", this.show.bind(this));
+        hideMenu_button.addEventListener("pointerdown", this.hide.bind(this));
+        configCamera_button.addEventListener("pointerup", this.submit.bind(this));
 
         for (const element of document.getElementsByClassName("cam-input")) {
             element.addEventListener("input", this.validateCameraConfigMenu.bind(this));
         }
 
-        document.getElementById("Y-Polar-radio").addEventListener("change", this.updateCameraMode.bind(this));
-        document.getElementById("Y-CartesianPolar-radio").addEventListener("change", this.updateCameraMode.bind(this));
-        document.getElementById("CartesianQuaternion-radio").addEventListener("change", this.updateCameraMode.bind(this));
+        yPolar_radio.addEventListener("change", this.updateCameraMode.bind(this));
+        yCartPolar_radio.addEventListener("change", this.updateCameraMode.bind(this));
+        cartQuat_radio.addEventListener("change", this.updateCameraMode.bind(this));
     }
 }

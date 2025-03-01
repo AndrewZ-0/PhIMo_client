@@ -4,6 +4,58 @@ import {Sphere, Plane} from "../../AGRE/src/objects/objects.js";
 import * as linearAlgebra from "../../AGRE/src/utils/linearAlgebra.js";
 import {calculateScaledFidelity} from "../../AGRE/src/utils/renderProperties.js";
 
+const overlayMenu = document.getElementById("createObject-overlay");
+
+const objectName_input = document.getElementById("create-objectName");
+
+const createNewObject_form = document.getElementById("createNewObject-form");
+
+const objectType_group = document.getElementById("create-objectType-group");
+const position_group = document.getElementById("create-position-group");
+const velocity_group = document.getElementById("create-velocity-group");
+const radius_group = document.getElementById("create-radius-group");
+const mass_group = document.getElementById("create-mass-group");
+const charge_group = document.getElementById("create-charge-group");
+const colour_group = document.getElementById("create-colour-group");
+const dragCoefficient_group = document.getElementById("create-dragCoefficient-group");
+const dimentions_group = document.getElementById("create-dimentions-group");
+const orientation_group = document.getElementById("create-orientation-group");
+
+const objectType_input = document.getElementById("create-objectType");
+
+const position_input = {
+    x: document.getElementById("create-position-x"), 
+    y: document.getElementById("create-position-y"), 
+    z: document.getElementById("create-position-z")
+};
+
+const velocity_input = {
+    x: document.getElementById("create-velocity-x"), 
+    y: document.getElementById("create-velocity-y"), 
+    z: document.getElementById("create-velocity-z")
+};
+
+const eulerOrient_input = {
+    pitch: document.getElementById("create-pitch"), 
+    yaw: document.getElementById("create-yaw"), 
+    roll: document.getElementById("create-roll")
+};
+
+const radius_input = document.getElementById("create-radius");
+const mass_input = document.getElementById("create-mass");
+const dragCoefficient_input = document.getElementById("create-dragCoefficient");
+const charge_input = document.getElementById("create-charge");
+const colour_input = document.getElementById("create-colour");
+
+const length_input = document.getElementById("create-length");
+const width_input = document.getElementById("create-width");
+
+const openMenu_button = document.getElementById("openCreateObjectMenu-button");
+const hideMenu_button = document.getElementById("hide-createObject-overlay-button");
+const createObject_button = document.getElementById("createObject-button");
+
+const errorMessageDiv = document.getElementById("create-object-error-message");
+
 
 export class CreateObjectOverlay extends OverlayEditMenu {
     constructor(ge, projectData, settingsData, markUnsavedChanges, validateObjectBasedInputs) {
@@ -21,7 +73,7 @@ export class CreateObjectOverlay extends OverlayEditMenu {
     show() {
         super.show();
 
-        document.getElementById("createObject-overlay").classList.remove("hidden");
+        overlayMenu.classList.remove("hidden");
         document.addEventListener("keydown", this.keyEvents); 
 
         this.fillObjectNameOnCreateObjectOverlay();
@@ -30,46 +82,43 @@ export class CreateObjectOverlay extends OverlayEditMenu {
     hide() {
         super.hide();
 
-        const errorMessageDiv = document.getElementById("create-object-error-message");
         errorMessageDiv.textContent = ""; //clear prev msgs
     
-        document.getElementById("create-objectName").value = "";
+        objectName_input.value = "";
     
-        document.getElementById("createObject-overlay").classList.add("hidden");
+        overlayMenu.classList.add("hidden");
         document.removeEventListener("keydown", this.keyEvents);
     }
 
     configureObjectEntries() {
-        const inputGroups = document.getElementById("createNewObject-form").querySelectorAll(".input-group");
+        const inputGroups = createNewObject_form.querySelectorAll(".input-group");
         for (const inputGroup of inputGroups) {
             inputGroup.classList.add("hidden");
         }
     
-        const objectType = document.getElementById("create-objectType").value;
-    
+        const objectType = objectType_input.value;
         if (objectType === "0") {
-            document.getElementById("create-position-group").classList.remove("hidden");
-            document.getElementById("create-velocity-group").classList.remove("hidden");
-            document.getElementById("create-radius-group").classList.remove("hidden");
-            document.getElementById("create-mass-group").classList.remove("hidden");
-            document.getElementById("create-charge-group").classList.remove("hidden");
-            document.getElementById("create-colour-group").classList.remove("hidden");
-            document.getElementById("create-dragCoefficient-group").classList.remove("hidden");
+            position_group.classList.remove("hidden");
+            velocity_group.classList.remove("hidden");
+            radius_group.classList.remove("hidden");
+            mass_group.classList.remove("hidden");
+            charge_group.classList.remove("hidden");
+            colour_group.classList.remove("hidden");
+            dragCoefficient_group.classList.remove("hidden");
         }
         else if (objectType === "1") {
-            document.getElementById("create-position-group").classList.remove("hidden");
-            document.getElementById("create-dimentions-group").classList.remove("hidden");
-            document.getElementById("create-orientation-group").classList.remove("hidden");
-            document.getElementById("create-charge-group").classList.remove("hidden");
-            document.getElementById("create-colour-group").classList.remove("hidden");
+            position_group.classList.remove("hidden");
+            dimentions_group.classList.remove("hidden");
+            orientation_group.classList.remove("hidden");
+            charge_group.classList.remove("hidden");
+            colour_group.classList.remove("hidden");
         }
     }
 
     createObjectFromCreateNewObjectEntries() {
-        const name = document.getElementById("create-objectName").value;
+        const name = objectName_input.value;
     
         if (name in this.projectData.objects) {
-            const errorMessageDiv = document.getElementById("create-object-error-message");
             errorMessageDiv.textContent = "Object name is taken.";
             return;
         }
@@ -79,24 +128,24 @@ export class CreateObjectOverlay extends OverlayEditMenu {
         }
     
         let newObject;
-        const objectType = document.getElementById("create-objectType").value;
+        const objectType = objectType_input.value;
         if (objectType === "0") {
             const position = [
-                parseFloat(document.getElementById("create-position-x").value),
-                parseFloat(document.getElementById("create-position-y").value),
-                parseFloat(document.getElementById("create-position-z").value)
+                parseFloat(position_input.x.value),
+                parseFloat(position_input.y.value),
+                parseFloat(position_input.z.value)
             ];
             const velocity = [
-                parseFloat(document.getElementById("create-velocity-x").value),
-                parseFloat(document.getElementById("create-velocity-y").value),
-                parseFloat(document.getElementById("create-velocity-z").value)
+                parseFloat(velocity_input.x.value),
+                parseFloat(velocity_input.y.value),
+                parseFloat(velocity_input.z.value)
             ];
     
-            const radius = parseFloat(document.getElementById("create-radius").value);
-            const mass = parseFloat(document.getElementById("create-mass").value);
-            const charge = parseFloat(document.getElementById("create-charge").value);
-            const dragCoef = parseFloat(document.getElementById("create-dragCoefficient").value);
-            const colour = linearAlgebra.hexToVec3(document.getElementById("create-colour").value);
+            const radius = parseFloat(radius_input.value);
+            const mass = parseFloat(mass_input.value);
+            const charge = parseFloat(charge_input.value);
+            const dragCoef = parseFloat(dragCoefficient_input.value);
+            const colour = linearAlgebra.hexToVec3(colour_input.value);
     
             const fidelity = calculateScaledFidelity(radius);
             newObject = new Sphere(name, ...position, radius, fidelity, colour);
@@ -109,24 +158,24 @@ export class CreateObjectOverlay extends OverlayEditMenu {
         }
         else if (objectType === "1") {
             const position = [
-                parseFloat(document.getElementById("create-position-x").value),
-                parseFloat(document.getElementById("create-position-y").value),
-                parseFloat(document.getElementById("create-position-z").value)
+                parseFloat(position_input.x.value),
+                parseFloat(position_input.y.value),
+                parseFloat(position_input.z.value)
             ];
     
             const dimentions = [
-                parseFloat(document.getElementById("create-length").value), 
-                parseFloat(document.getElementById("create-width").value)
+                parseFloat(length_input.value), 
+                parseFloat(width_input.value)
             ]
     
             const orientation = [
-                linearAlgebra.toRadian(parseFloat(document.getElementById("create-pitch").value)), 
-                linearAlgebra.toRadian(parseFloat(document.getElementById("create-yaw").value)), 
-                linearAlgebra.toRadian(parseFloat(document.getElementById("create-roll").value))
+                linearAlgebra.toRadian(parseFloat(eulerOrient_input.pitch.value)), 
+                linearAlgebra.toRadian(parseFloat(eulerOrient_input.yaw.value)), 
+                linearAlgebra.toRadian(parseFloat(eulerOrient_input.roll.value))
             ]
     
-            const charge = parseFloat(document.getElementById("create-charge").value);
-            const colour = linearAlgebra.hexToVec3(document.getElementById("create-colour").value);
+            const charge = parseFloat(charge_input.value);
+            const colour = linearAlgebra.hexToVec3(colour_input.value);
     
             newObject = new Plane(name, ...position, ...dimentions, ...orientation, colour);
     
@@ -145,7 +194,7 @@ export class CreateObjectOverlay extends OverlayEditMenu {
     }
 
     fillObjectNameOnCreateObjectOverlay() {
-        const currName = document.getElementById("create-objectName").value;
+        const currName = objectName_input.value;
     
         if (currName === "") {
             let newName = "Unnamed";
@@ -159,7 +208,7 @@ export class CreateObjectOverlay extends OverlayEditMenu {
                 newName += i;
             }
     
-            document.getElementById("create-objectName").value = newName;
+            objectName_input.value = newName;
         }
     }
 
@@ -175,11 +224,11 @@ export class CreateObjectOverlay extends OverlayEditMenu {
     bindPermanantEvents() {
         super.bindPermanantEvents();
 
-        document.getElementById("openCreateObjectMenu-button").addEventListener("pointerdown", this.show.bind(this));
-        document.getElementById("hide-createObject-overlay-button").addEventListener("pointerup", this.hide.bind(this));
+        openMenu_button.addEventListener("pointerdown", this.show.bind(this));
+        hideMenu_button.addEventListener("pointerup", this.hide.bind(this));
 
-        document.getElementById("create-objectType-group").addEventListener("input", this.configureObjectEntries);
-        document.getElementById("createObject-button").addEventListener("pointerup", this.submit.bind(this));
+        objectType_group.addEventListener("input", this.configureObjectEntries);
+        createObject_button.addEventListener("pointerup", this.submit.bind(this));
 
         this.bindSubmitCallback(this.createObjectFromCreateNewObjectEntries.bind(this));
 

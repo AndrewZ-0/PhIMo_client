@@ -11,7 +11,7 @@ const electricFieldStrength_elements = {
     x: document.getElementById("global-electricFieldStrength-x"), 
     y: document.getElementById("global-electricFieldStrength-y"), 
     z: document.getElementById("global-electricFieldStrength-z")
-}
+};
 
 export class ElectricForceEditOverlay extends OverlayEditMenu {
     constructor(projectData, markUnsavedChanges) {
@@ -111,7 +111,7 @@ export class ElectricForceEditOverlay extends OverlayEditMenu {
         this.submitButton.addEventListener("pointerup", this.submit);
 
         for (const element of document.getElementsByClassName("eForce-input")) {
-            element.addEventListener("input", this.validateInputs);
+            element.addEventListener("input", this.validateInputs.bind(this));
         }
     }
 }

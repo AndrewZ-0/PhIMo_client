@@ -82,7 +82,7 @@ export class DragEditOverlay extends OverlayEditMenu {
         
         this.submitButton.addEventListener("pointerup", this.submit);
 
-        airDensity_input.addEventListener("input", this.validateAirDensity);
+        airDensity_input.addEventListener("input", this.validateAirDensity.bind(this));
     }
 }
 

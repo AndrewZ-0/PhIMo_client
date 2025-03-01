@@ -1,6 +1,34 @@
 import {OverlayEditMenu} from "./overlay.js";
 import {communicator} from "../communicator.js";
 
+const overlayMenu = document.getElementById("playSimulationMenu-overlay");
+
+const openMenu_button = document.getElementById("playButton");
+const hideMenu_button = document.getElementById("hide-playSimulationMenu-overlay-button");
+
+const simulationList = document.getElementById("simulationList");
+    
+const openSimulationButton = document.getElementById("openSimulation");
+const deleteSimulationButton = document.getElementById("deleteSimulation");
+const renameSimulationButton = document.getElementById("renameSimulation");
+
+const computeProgress_group = document.getElementById("computeProgress");
+
+const compute_progressBar = document.getElementById("computeProgressBar-progress");
+const approximateWaitTime_label = document.getElementById("compute-approximateWaitTime");
+const computeProgress_text = document.getElementById("computeProgressText");
+
+const stopComputing_button = document.getElementById("stopComputingButton");
+const computeNewSimulation_button = document.getElementById("computeNewSimulationButton");
+
+const simulationConfigs_group = document.getElementById("simulationConfigs");
+const deltaT_input = document.getElementById("deltaT");
+const noOfFrames_input = document.getElementById("noOfFrames");
+const stepsPerFrame_input = document.getElementById("stepsPerFrame");
+
+const errorMessageDiv = document.getElementById("simulationMenu-error-message");
+
+
 export class SimulationOverlay extends OverlayEditMenu {
     constructor(projectData, saveProjectData) {
         super();
@@ -27,7 +55,7 @@ export class SimulationOverlay extends OverlayEditMenu {
     show() {
         super.show();
 
-        document.getElementById("playSimulationMenu-overlay").classList.remove("hidden");
+        overlayMenu.classList.remove("hidden");
         this.loadSimulations();
         document.addEventListener("keydown", this.keyEvents);
         this.validateSimilationConfigEntries();
@@ -36,20 +64,13 @@ export class SimulationOverlay extends OverlayEditMenu {
     hide() {
         super.hide();
 
-        const errorMessageDiv = document.getElementById("simulationMenu-error-message");
         errorMessageDiv.textContent = ""; //clear prev msgs
 
-        document.getElementById("playSimulationMenu-overlay").classList.add("hidden");
+        overlayMenu.classList.add("hidden");
         document.removeEventListener("keydown", this.keyEvents);
     }
 
     updateSimulationButtons() {
-        const simulationList = document.getElementById("simulationList");
-    
-        const openSimulationButton = document.getElementById("openSimulation");
-        const deleteSimulationButton = document.getElementById("deleteSimulation");
-        const renameSimulationButton = document.getElementById("renameSimulation");
-    
         if (simulationList.value !== "") {
             openSimulationButton.disabled = false;
             deleteSimulationButton.disabled = false;
@@ -71,7 +92,6 @@ export class SimulationOverlay extends OverlayEditMenu {
     }
 
     async openSimulation() {
-        const simulationList = document.getElementById("simulationList");
         const selectedSimulation = simulationList.value;
         const projectName = communicator.getProjNameFromUrl();
     
@@ -92,12 +112,10 @@ export class SimulationOverlay extends OverlayEditMenu {
         const response = await communicator.list_project_simulations(projectName);
     
         if (response.status !== "OK") {
-            const errorMessageDiv = document.getElementById("simulationMenu-error-message");
             errorMessageDiv.textContent = `Failed to load simulations: ${response.message}`;
             return;
         }
     
-        const simulationList = document.getElementById("simulationList");
         simulationList.replaceChildren();
     
         for (const simulation of response.data) {
@@ -111,14 +129,12 @@ export class SimulationOverlay extends OverlayEditMenu {
     }
 
     async deleteSimulation() {
-        const simulationList = document.getElementById("simulationList");
         const selectedSimulation = simulationList.value;
         const projectName = communicator.getProjNameFromUrl();
     
         const response = await communicator.deleteSimulation(projectName, selectedSimulation);
     
         if (response.status !== "OK") {
-            const errorMessageDiv = document.getElementById("simulationMenu-error-message");
             errorMessageDiv.textContent = `Failed to delete simulation: ${response.message}`;
             return;
         }
@@ -127,7 +143,6 @@ export class SimulationOverlay extends OverlayEditMenu {
     }
 
     async renameSimulation() {
-        const simulationList = document.getElementById("simulationList");
         const selectedSimulation = simulationList.value;
         const newSimulationName = prompt("Enter new simulation name:");
         const projectName = communicator.getProjNameFromUrl();
@@ -135,7 +150,6 @@ export class SimulationOverlay extends OverlayEditMenu {
         const response = await communicator.renameSimulation(projectName, selectedSimulation, newSimulationName);
     
         if (response.status !== "OK") {
-            const errorMessageDiv = document.getElementById("simulationMenu-error-message");
             errorMessageDiv.textContent = `Failed to rename simulation: ${response.message}`;
             return;
         }
@@ -147,7 +161,6 @@ export class SimulationOverlay extends OverlayEditMenu {
         const response = await communicator.getComputingProgress(this.currentActiveWorkerId);
     
         if (response.status !== "OK") {
-            const errorMessageDiv = document.getElementById("simulationMenu-error-message");
             errorMessageDiv.textContent = `Failed to get simulation computing progress: ${response.message}`;
             return;
         }
@@ -155,20 +168,18 @@ export class SimulationOverlay extends OverlayEditMenu {
         const progress = response.progress;
     
         if (progress === "COMPUTATION COMPLETE") {
-            document.getElementById("computeProgress").classList.add("hidden");
-            document.getElementById("stopComputingButton").classList.add("hidden");
-            document.getElementById("computeNewSimulationButton").classList.remove("hidden");
-            document.getElementById("simulationConfigs").classList.remove("hidden");
+            computeProgress_group.classList.add("hidden");
+            stopComputing_button.classList.add("hidden");
+            computeNewSimulation_button.classList.remove("hidden");
+            simulationConfigs_group.classList.remove("hidden");
             this.currentActiveWorkerId = null;
             this.currentComputingSimulationName = null;
     
-            document.getElementById("computeProgressBar-progress").style.width = "0%";
+            compute_progressBar.style.width = "0%";
     
             this.loadSimulations();   
         } 
-        else {
-            const progressBar = document.getElementById("computeProgressBar-progress");
-            
+        else {            
             const deltaProgress = progress - this.lastProgress;
     
             this.lastProgress = progress;
@@ -193,26 +204,24 @@ export class SimulationOverlay extends OverlayEditMenu {
             }
             waitTimeText += `${seconds}s`;
     
-            document.getElementById("compute-approximateWaitTime").textContent = waitTimeText;
-    
+            approximateWaitTime_label.textContent = waitTimeText;
     
             this.progressUpdateInterval = totalTimeEstimate / Math.cbrt(totalTimeEstimate);
             this.progressUpdateInterval = Math.round(this.progressUpdateInterval);
     
-            progressBar.style.transitionDuration = `${this.progressUpdateInterval}ms`;
+            compute_progressBar.style.transitionDuration = `${this.progressUpdateInterval}ms`;
     
             const progressPercentage = progress * 100;
     
-            document.getElementById("computeProgressText").textContent = `${progressPercentage.toFixed(2)}%`;
+            computeProgress_text.textContent = `${progressPercentage.toFixed(2)}%`;
     
-            progressBar.style.width = `${progressPercentage}%`;
+            compute_progressBar.style.width = `${progressPercentage}%`;
     
             this.currentProgressTimeout = setTimeout(this.updateComputingProgress, this.progressUpdateInterval);
         }
     }
     
     async stopComputingSimulation() {
-        const errorMessageDiv = document.getElementById("simulationMenu-error-message");
         errorMessageDiv.textContent = ""; //clear prev msgs
     
         const projectName = communicator.getProjNameFromUrl();
@@ -230,10 +239,10 @@ export class SimulationOverlay extends OverlayEditMenu {
     
         clearTimeout(this.currentProgressTimeout);
     
-        document.getElementById("computeProgress").classList.add("hidden");
-        document.getElementById("stopComputingButton").classList.add("hidden");
-        document.getElementById("computeNewSimulationButton").classList.remove("hidden");
-        document.getElementById("simulationConfigs").classList.remove("hidden");
+        computeProgress_group.classList.add("hidden");
+        stopComputing_button.classList.add("hidden");
+        computeNewSimulation_button.classList.remove("hidden");
+        simulationConfigs_group.classList.remove("hidden");
     
         if (this.currentActiveWorkerId) {
             this.currentActiveWorkerId = null;
@@ -242,25 +251,21 @@ export class SimulationOverlay extends OverlayEditMenu {
     }
 
     validateSimilationConfigEntries() {
-        const errorMessageDiv = document.getElementById("simulationMenu-error-message");
         errorMessageDiv.textContent = ""; //clear prev msgs
     
-        const deltaT_inp = document.getElementById("deltaT");
-        const deltaT = parseFloat(deltaT_inp.value);
+        const deltaT = parseFloat(deltaT_input.value);
         if (isNaN(deltaT) || deltaT <= 0) {
             errorMessageDiv.textContent = "Delta time must be a positive non-zero float";
             return false;
         }
     
-        const noOfFrames_inp = document.getElementById("noOfFrames");
-        const noOfFrames = parseInt(noOfFrames_inp.value);
+        const noOfFrames = parseInt(noOfFrames_input.value);
         if (isNaN(noOfFrames) || noOfFrames <= 0) {
             errorMessageDiv.textContent = "Number of frames must be a positive non-zero integer";
             return false;
         }
     
-        const stepsPerFrame_inp = document.getElementById("stepsPerFrame");
-        const stepsPerFrame = parseInt(stepsPerFrame_inp.value);
+        const stepsPerFrame = parseInt(stepsPerFrame_input.value);
         if (isNaN(stepsPerFrame) || stepsPerFrame <= 0) {
             errorMessageDiv.textContent = "Number of steps per frame must be a positive non-zero integer";
             return false;
@@ -270,16 +275,15 @@ export class SimulationOverlay extends OverlayEditMenu {
     }
 
     async createAndComputeNewSimulation() {
-        const errorMessageDiv = document.getElementById("simulationMenu-error-message");
         if (! this.validateSimilationConfigEntries()) {
             return;
         }
     
         const projectName = communicator.getProjNameFromUrl();
     
-        this.projectData.deltaT = parseFloat(document.getElementById("deltaT").value);
-        this.projectData.noOfFrames = parseInt(document.getElementById("noOfFrames").value);
-        this.projectData.stepsPerFrame = parseInt(document.getElementById("stepsPerFrame").value);
+        this.projectData.deltaT = parseFloat(deltaT_input.value);
+        this.projectData.noOfFrames = parseInt(noOfFrames_input.value);
+        this.projectData.stepsPerFrame = parseInt(stepsPerFrame_input.value);
     
         this.saveProjectData();
     
@@ -303,12 +307,12 @@ export class SimulationOverlay extends OverlayEditMenu {
         this.currentComputingSimulationName = newSimulationName;
         this.currentActiveWorkerId = response.workerId;
     
-        document.getElementById("computeProgressBar-progress").style.width = "0%";
+        compute_progressBar.style.width = "0%";
     
-        document.getElementById("computeProgress").classList.remove("hidden");
-        document.getElementById("stopComputingButton").classList.remove("hidden");
-        document.getElementById("computeNewSimulationButton").classList.add("hidden");
-        document.getElementById("simulationConfigs").classList.add("hidden");
+        computeProgress_group.classList.remove("hidden");
+        stopComputing_button.classList.remove("hidden");
+        computeNewSimulation_button.classList.add("hidden");
+        simulationConfigs_group.classList.add("hidden");
         
         this.progressUpdateInterval = 150;
         this.lastProgress = 0;
@@ -318,7 +322,6 @@ export class SimulationOverlay extends OverlayEditMenu {
 
     keyEvents(event) {
         if (event.key === "Escape") {
-            const simulationList = document.getElementById("simulationList");
             if (simulationList.value !== "") {
                 simulationList.value = "";
                 this.updateSimulationButtons();
@@ -332,16 +335,16 @@ export class SimulationOverlay extends OverlayEditMenu {
     bindPermanantEvents() {
         super.bindPermanantEvents();
 
-        document.getElementById("playButton").addEventListener("pointerdown", this.show.bind(this));
-        document.getElementById("hide-playSimulationMenu-overlay-button").addEventListener("pointerup", this.hide.bind(this));
-        document.getElementById("simulationList").addEventListener("change", this.updateSimulationButtons.bind(this));
-        document.getElementById("stopComputingButton").addEventListener("pointerdown", this.stopComputingSimulation.bind(this));
+        openMenu_button.addEventListener("pointerdown", this.show.bind(this));
+        hideMenu_button.addEventListener("pointerup", this.hide.bind(this));
+        simulationList.addEventListener("change", this.updateSimulationButtons.bind(this));
+        stopComputing_button.addEventListener("pointerdown", this.stopComputingSimulation.bind(this));
 
-        document.getElementById("deltaT").addEventListener("input", this.validateSimilationConfigEntries.bind(this));
-        document.getElementById("noOfFrames").addEventListener("input", this.validateSimilationConfigEntries.bind(this));
-        document.getElementById("stepsPerFrame").addEventListener("input", this.validateSimilationConfigEntries.bind(this));
+        deltaT_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
+        noOfFrames_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
+        stepsPerFrame_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
 
-        document.getElementById("computeNewSimulationButton").addEventListener("pointerdown", this.createAndComputeNewSimulation.bind(this));
+        computeNewSimulation_button.addEventListener("pointerdown", this.createAndComputeNewSimulation.bind(this));
     }
 }
 

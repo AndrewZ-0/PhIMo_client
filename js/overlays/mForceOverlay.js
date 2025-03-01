@@ -11,7 +11,7 @@ const magneticFieldStrength_elements = {
     x: document.getElementById("global-magneticFieldStrength-x"), 
     y: document.getElementById("global-magneticFieldStrength-y"), 
     z: document.getElementById("global-magneticFieldStrength-z")
-}
+};
 
 export class MagneticForceEditOverlay extends OverlayEditMenu {
     constructor(projectData, markUnsavedChanges) {
@@ -111,7 +111,7 @@ export class MagneticForceEditOverlay extends OverlayEditMenu {
         this.submitButton.addEventListener("pointerup", this.submit);
 
         for (const element of document.getElementsByClassName("mForce-input")) {
-            element.addEventListener("input", this.validateInputs);
+            element.addEventListener("input", this.validateInputs.bind(this));
         }
     }
 }
