@@ -1,11 +1,11 @@
-import {OverlayMenu} from "./overlay.js";
+import {OverlayEditMenu} from "./overlay.js";
 import {masterRenderer} from "../../AGRE/src/core/renderer.js";
 import {Sphere, Plane} from "../../AGRE/src/objects/objects.js";
 import * as linearAlgebra from "../../AGRE/src/utils/linearAlgebra.js";
 import {calculateScaledFidelity} from "../../AGRE/src/utils/renderProperties.js";
 
 
-export class CreateObjectOverlay extends OverlayMenu {
+export class CreateObjectOverlay extends OverlayEditMenu {
     constructor(ge, projectData, settingsData, markUnsavedChanges, validateObjectBasedInputs) {
         super();
 

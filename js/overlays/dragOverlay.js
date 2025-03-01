@@ -1,18 +1,19 @@
-import {OverlayMenu} from "./overlay.js";
-
-const errorMessageDiv = document.getElementById("dragMenu-error-message");
-const airDensity_input = document.getElementById("airDensity-input");
-
-const openMenuButton = document.getElementById("openDragMenu-button");
-const hideMenuButton = document.getElementById("hide-dragMenu-overlay-button");
-const submitButton = document.getElementById("configureDrag-button");
+import {OverlayEditMenu, OverlayViewMenu} from "./overlay.js";
 
 const overlayMenu = document.getElementById("dragMenu-overlay");
 
-export class DragOverlay extends OverlayMenu {
+const openMenuButton = document.getElementById("openDragMenu-button");
+const hideMenuButton = document.getElementById("hide-dragMenu-overlay-button");
+
+const airDensity_input = document.getElementById("airDensity-input");
+
+export class DragEditOverlay extends OverlayEditMenu {
     constructor(projectData, markUnsavedChanges) {
         super();
 
+        this.errorMessageDiv = document.getElementById("dragMenu-error-message");
+        this.submitButton = document.getElementById("configureDrag-button");
+        
         this.projectData = projectData;
         this.markUnsavedChanges = markUnsavedChanges.bind(this);
 
@@ -31,19 +32,19 @@ export class DragOverlay extends OverlayMenu {
     hide() {
         super.hide();
 
-        errorMessageDiv.textContent = ""; //clear prev msgs
+        this.errorMessageDiv.textContent = ""; //clear prev msgs
 
         overlayMenu.classList.add("hidden");
         document.removeEventListener("keydown", this.keyEvents);
     }
 
     validateAirDensity() {
-        errorMessageDiv.textContent = ""; //clear prev msgs
+        this.errorMessageDiv.textContent = ""; //clear prev msgs
     
         const rho = parseFloat(airDensity_input.value);
     
         if (isNaN(rho) || rho < 0) {
-            errorMessageDiv.textContent = "Air Density must be a positive float";
+            this.errorMessageDiv.textContent = "Air Density must be a positive float";
             return false;
         }
         return true;
@@ -59,7 +60,6 @@ export class DragOverlay extends OverlayMenu {
         const rho = parseFloat(airDensity_input.value);
     
         this.projectData.models.drag.rho = rho;
-        console.log(this.projectData.models)
         this.markUnsavedChanges("high");
     
         this.hide();
@@ -80,8 +80,48 @@ export class DragOverlay extends OverlayMenu {
         openMenuButton.addEventListener("pointerdown", this.show);
         hideMenuButton.addEventListener("pointerup", this.hide);
         
-        submitButton.addEventListener("pointerup", this.submit);
+        this.submitButton.addEventListener("pointerup", this.submit);
 
         airDensity_input.addEventListener("input", this.validateAirDensity);
+    }
+}
+
+
+export class DragViewOverlay extends OverlayViewMenu {
+    constructor(projectData) {
+        super();
+
+        this.projectData = projectData;
+
+        this.bindPermanantEvents();
+    }
+
+    show() {
+        super.show();
+
+        airDensity_input.value = this.projectData.models.drag.rho;
+
+        overlayMenu.classList.remove("hidden");
+        document.addEventListener("keydown", this.keyEvents);
+    }
+
+    hide() {
+        super.hide();
+
+        overlayMenu.classList.add("hidden");
+        document.removeEventListener("keydown", this.keyEvents);
+    }
+
+    keyEvents(event) {
+        if (event.key === "Escape") {
+            this.hide();
+        }
+    }
+
+    bindPermanantEvents() {
+        super.bindPermanantEvents();
+
+        openMenuButton.addEventListener("pointerdown", this.show);
+        hideMenuButton.addEventListener("pointerup", this.hide);
     }
 }

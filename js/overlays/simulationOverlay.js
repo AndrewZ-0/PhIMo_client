@@ -1,7 +1,7 @@
-import {OverlayMenu} from "./overlay.js";
+import {OverlayEditMenu} from "./overlay.js";
 import {communicator} from "../communicator.js";
 
-export class SimulationOverlay extends OverlayMenu {
+export class SimulationOverlay extends OverlayEditMenu {
     constructor(projectData, saveProjectData) {
         super();
 

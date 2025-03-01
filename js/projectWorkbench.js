@@ -15,11 +15,12 @@ import {CreateObjectOverlay} from "./overlays/createObjectOverlay.js";
 import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
 import {SimulationOverlay} from "./overlays/simulationOverlay.js";
 import {CameraOverlay} from "./overlays/cameraOverlay.js";
-import {GravityOverlay} from "./overlays/gravityOverlay.js";
-import {ElectricForceOverlay} from "./overlays/eForceOverlay.js";
-import {MagneticForceOverlay} from "./overlays/mForceOverlay.js";
-import {CollisionsOverlay} from "./overlays/collisionsOverlay.js";
-import {DragOverlay} from "./overlays/dragOverlay.js";
+
+import {GravityEditOverlay} from "./overlays/gravityOverlay.js";
+import {ElectricForceEditOverlay} from "./overlays/eForceOverlay.js";
+import {MagneticForceEditOverlay} from "./overlays/mForceOverlay.js";
+import {CollisionsEditOverlay} from "./overlays/collisionsOverlay.js";
+import {DragEditOverlay} from "./overlays/dragOverlay.js";
 
 
 let ge;
@@ -57,6 +58,7 @@ let cameraOverlay;
 let createObjectOverlay;
 let findObjectOverlay;
 let simulationOverlay;
+
 let gravityOverlay;
 let eForceOverlay;
 let mForceOverlay;
@@ -147,23 +149,23 @@ async function loadData() {
     simulationOverlay.bindShowCallback(showPlaySimulationMenu);
     simulationOverlay.bindHideCallback(hidePlaySimulationMenu);
 
-    gravityOverlay = new GravityOverlay(projectData, markUnsavedChanges);
+    gravityOverlay = new GravityEditOverlay(projectData, markUnsavedChanges);
     gravityOverlay.bindShowCallback(showGravityMenuOverlay);
     gravityOverlay.bindHideCallback(hideGravityMenuOverlay);
 
-    eForceOverlay = new ElectricForceOverlay(projectData, markUnsavedChanges);
+    eForceOverlay = new ElectricForceEditOverlay(projectData, markUnsavedChanges);
     eForceOverlay.bindShowCallback(showEForceMenuOverlay);
     eForceOverlay.bindHideCallback(hideEForceMenuOverlay);
 
-    mForceOverlay = new MagneticForceOverlay(projectData, markUnsavedChanges);
+    mForceOverlay = new MagneticForceEditOverlay(projectData, markUnsavedChanges);
     mForceOverlay.bindShowCallback(showMForceMenuOverlay);
     mForceOverlay.bindHideCallback(hideMForceMenuOverlay);
 
-    collisionsOverlay = new CollisionsOverlay(projectData, markUnsavedChanges);
+    collisionsOverlay = new CollisionsEditOverlay(projectData, markUnsavedChanges);
     collisionsOverlay.bindShowCallback(showCollisionsMenuOverlay);
     collisionsOverlay.bindHideCallback(hideCollisionsMenuOverlay);
 
-    dragOverlay = new DragOverlay(projectData, markUnsavedChanges);
+    dragOverlay = new DragEditOverlay(projectData, markUnsavedChanges);
     dragOverlay.bindShowCallback(showDragMenuOverlay);
     dragOverlay.bindHideCallback(hideDragMenuOverlay);
 

@@ -1,17 +1,18 @@
-import {OverlayMenu} from "./overlay.js";
-
-const errorMessageDiv = document.getElementById("collisionsMenu-error-message");
-const coefficientOfRestitution_input = document.getElementById("coefficientOfRestitution-input");
-
-const openMenuButton = document.getElementById("openCollisionsMenu-button");
-const hideMenuButton = document.getElementById("hide-collisionsMenu-overlay-button");
-const submitButton = document.getElementById("configureCollisions-button");
+import {OverlayEditMenu, OverlayViewMenu} from "./overlay.js";
 
 const overlayMenu = document.getElementById("collisionsMenu-overlay");
 
-export class CollisionsOverlay extends OverlayMenu {
+const openMenuButton = document.getElementById("openCollisionsMenu-button");
+const hideMenuButton = document.getElementById("hide-collisionsMenu-overlay-button");
+
+const coefficientOfRestitution_element = document.getElementById("coefficientOfRestitution-input");
+
+export class CollisionsEditOverlay extends OverlayEditMenu {
     constructor(projectData, markUnsavedChanges) {
         super();
+
+        this.errorMessageDiv = document.getElementById("collisionsMenu-error-message");
+        this.submitButton = document.getElementById("configureCollisions-button");
 
         this.projectData = projectData;
         this.markUnsavedChanges = markUnsavedChanges.bind(this);
@@ -22,7 +23,7 @@ export class CollisionsOverlay extends OverlayMenu {
     show() {
         super.show();
 
-        coefficientOfRestitution_input.value = this.projectData.models.collisions.e;
+        coefficientOfRestitution_element.value = this.projectData.models.collisions.e;
 
         overlayMenu.classList.remove("hidden");
         document.addEventListener("keydown", this.keyEvents);
@@ -31,19 +32,19 @@ export class CollisionsOverlay extends OverlayMenu {
     hide() {
         super.hide();
 
-        errorMessageDiv.textContent = ""; //clear prev msgs
+        this.errorMessageDiv.textContent = ""; //clear prev msgs
 
         overlayMenu.classList.add("hidden");
         document.removeEventListener("keydown", this.keyEvents);
     }
 
     validateCoefficientOfRestitution() {
-        errorMessageDiv.textContent = ""; //clear prev msgs
+        this.errorMessageDiv.textContent = ""; //clear prev msgs
     
-        const e = parseFloat(coefficientOfRestitution_input.value);
+        const e = parseFloat(coefficientOfRestitution_element.value);
     
         if (isNaN(e)) {
-            errorMessageDiv.textContent = "Coefficient of Restitution constant must be a float";
+            this.errorMessageDiv.textContent = "Coefficient of Restitution constant must be a float";
             return false;
         }
         return true;
@@ -56,7 +57,7 @@ export class CollisionsOverlay extends OverlayMenu {
             return;
         }
     
-        const e = parseFloat(coefficientOfRestitution_input.value);
+        const e = parseFloat(coefficientOfRestitution_element.value);
     
         this.projectData.models.collisions.e = e;
         this.markUnsavedChanges("high");
@@ -79,8 +80,48 @@ export class CollisionsOverlay extends OverlayMenu {
         openMenuButton.addEventListener("pointerdown", this.show);
         hideMenuButton.addEventListener("pointerup", this.hide);
         
-        submitButton.addEventListener("pointerup", this.submit);
+        this.submitButton.addEventListener("pointerup", this.submit);
 
-        coefficientOfRestitution_input.addEventListener("input", this.validateCoefficientOfRestitution);
+        coefficientOfRestitution_element.addEventListener("input", this.validateCoefficientOfRestitution);
+    }
+}
+
+
+export class CollisionsViewOverlay extends OverlayViewMenu {
+    constructor(projectData) {
+        super();
+
+        this.projectData = projectData;
+
+        this.bindPermanantEvents();
+    }
+
+    show() {
+        super.show();
+
+        coefficientOfRestitution_element.value = this.projectData.models.collisions.e;
+
+        overlayMenu.classList.remove("hidden");
+        document.addEventListener("keydown", this.keyEvents);
+    }
+
+    hide() {
+        super.hide();
+
+        overlayMenu.classList.add("hidden");
+        document.removeEventListener("keydown", this.keyEvents);
+    }
+
+    keyEvents(event) {
+        if (event.key === "Escape") {
+            this.hide();
+        }
+    }
+
+    bindPermanantEvents() {
+        super.bindPermanantEvents();
+
+        openMenuButton.addEventListener("pointerdown", this.show);
+        hideMenuButton.addEventListener("pointerup", this.hide);
     }
 }

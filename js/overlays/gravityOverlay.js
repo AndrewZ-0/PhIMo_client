@@ -1,23 +1,25 @@
-import {OverlayMenu} from "./overlay.js";
+import {OverlayEditMenu, OverlayViewMenu} from "./overlay.js";
 
-const errorMessageDiv = document.getElementById("gravityMenu-error-message");
-const gravitationalConstant_input = document.getElementById("gravitationalConstant-input");
-const gravitationalFieldStrength_input = {
+const overlayMenu = document.getElementById("gravityMenu-overlay");
+
+const openMenuButton = document.getElementById("openGravityMenu-button");
+const hideMenuButton = document.getElementById("hide-gravityMenu-overlay-button");
+
+const gravitationalConstant_element = document.getElementById("gravitationalConstant-input");
+
+const gravitationalFieldStrength_elements = {
     x: document.getElementById("global-gravitationalFieldStrength-x"), 
     y: document.getElementById("global-gravitationalFieldStrength-y"), 
     z: document.getElementById("global-gravitationalFieldStrength-z")
 }
 
-const openMenuButton = document.getElementById("openGravityMenu-button");
-const hideMenuButton = document.getElementById("hide-gravityMenu-overlay-button");
-const submitButton = document.getElementById("configureGravity-button");
 
-const overlayMenu = document.getElementById("gravityMenu-overlay");
-
-
-export class GravityOverlay extends OverlayMenu {
+export class GravityEditOverlay extends OverlayEditMenu {
     constructor(projectData, markUnsavedChanges) {
         super();
+        
+        this.errorMessageDiv = document.getElementById("gravityMenu-error-message");
+        this.submitButton = document.getElementById("configureGravity-button");
 
         this.projectData = projectData;
         this.markUnsavedChanges = markUnsavedChanges.bind(this);
@@ -25,13 +27,17 @@ export class GravityOverlay extends OverlayMenu {
         this.bindPermanantEvents();
     }
 
+    fill() {
+        gravitationalConstant_element.value = this.projectData.models.gravity.G;
+        gravitationalFieldStrength_elements.x.value = this.projectData.models.gravity.g.x;
+        gravitationalFieldStrength_elements.y.value = this.projectData.models.gravity.g.y;
+        gravitationalFieldStrength_elements.z.value = this.projectData.models.gravity.g.z;
+    }
+
     show() {
         super.show();
 
-        gravitationalConstant_input.value = this.projectData.models.gravity.G;
-        gravitationalFieldStrength_input.x.value = this.projectData.models.gravity.g.x;
-        gravitationalFieldStrength_input.y.value = this.projectData.models.gravity.g.y;
-        gravitationalFieldStrength_input.z.value = this.projectData.models.gravity.g.z;
+        this.fill();
 
         overlayMenu.classList.remove("hidden");
         document.addEventListener("keydown", this.keyEvents);
@@ -40,26 +46,26 @@ export class GravityOverlay extends OverlayMenu {
     hide() {
         super.hide();
 
-        errorMessageDiv.textContent = ""; //clear prev msgs
+        this.errorMessageDiv.textContent = ""; //clear prev msgs
 
         overlayMenu.classList.add("hidden");
         document.removeEventListener("keydown", this.keyEvents);
     }
 
     validateInputs() {
-        errorMessageDiv.textContent = ""; //clear prev msgs
+        this.errorMessageDiv.textContent = ""; //clear prev msgs
     
-        const G = parseFloat(gravitationalConstant_input.value);
+        const G = parseFloat(gravitationalConstant_element.value);
         if (isNaN(G)) {
-            errorMessageDiv.textContent = "Gravitational constant must be a float";
+            this.errorMessageDiv.textContent = "Gravitational constant must be a float";
             return false;
         }
 
         const axes = ["x", "y", "z"];
         for (const axis of axes) {
-            const g_axis = parseFloat(gravitationalFieldStrength_input[axis].value);
+            const g_axis = parseFloat(gravitationalFieldStrength_elements[axis].value);
             if (isNaN(g_axis)) {
-                errorMessageDiv.textContent = `Gravitational Field Strength (${axis}) must be a float`;
+                this.errorMessageDiv.textContent = `Gravitational Field Strength (${axis}) must be a float`;
                 return false;
             }
         }
@@ -74,12 +80,12 @@ export class GravityOverlay extends OverlayMenu {
             return;
         }
     
-        const G = parseFloat(gravitationalConstant_input.value);
+        const G = parseFloat(gravitationalConstant_element.value);
         this.projectData.models.gravity.G = G;
 
         const axes = ["x", "y", "z"];
         for (const axis of axes) {
-            this.projectData.models.gravity.g[axis] = parseFloat(gravitationalFieldStrength_input[axis].value);
+            this.projectData.models.gravity.g[axis] = parseFloat(gravitationalFieldStrength_elements[axis].value);
         }
 
         this.markUnsavedChanges("high");
@@ -102,10 +108,57 @@ export class GravityOverlay extends OverlayMenu {
         openMenuButton.addEventListener("pointerdown", this.show);
         hideMenuButton.addEventListener("pointerup", this.hide);
         
-        submitButton.addEventListener("pointerup", this.submit);
+        this.submitButton.addEventListener("pointerup", this.submit);
 
         for (const element of document.getElementsByClassName("grav-input")) {
             element.addEventListener("input", this.validateInputs);
         }
+    }
+}
+
+
+export class GravityViewOverlay extends OverlayViewMenu {
+    constructor(projectData) {
+        super();
+
+        this.projectData = projectData;
+
+        this.bindPermanantEvents();
+    }
+
+    fill() {
+        gravitationalConstant_element.value = this.projectData.models.gravity.G;
+        gravitationalFieldStrength_elements.x.value = this.projectData.models.gravity.g.x;
+        gravitationalFieldStrength_elements.y.value = this.projectData.models.gravity.g.y;
+        gravitationalFieldStrength_elements.z.value = this.projectData.models.gravity.g.z;
+    }
+
+    show() {
+        super.show();
+
+        this.fill();
+
+        overlayMenu.classList.remove("hidden");
+        document.addEventListener("keydown", this.keyEvents);
+    }
+
+    hide() {
+        super.hide();
+
+        overlayMenu.classList.add("hidden");
+        document.removeEventListener("keydown", this.keyEvents);
+    }
+
+    keyEvents(event) {
+        if (event.key === "Escape") {
+            this.hide();
+        }
+    }
+
+    bindPermanantEvents() {
+        super.bindPermanantEvents();
+
+        openMenuButton.addEventListener("pointerdown", this.show);
+        hideMenuButton.addEventListener("pointerup", this.hide);
     }
 }

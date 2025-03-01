@@ -14,6 +14,12 @@ import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
 import {CameraOverlay} from "./overlays/cameraOverlay.js";
 import {camera, setDraggingSensitivity, setCameraMovementSpeed, setCameraMode} from "../AGRE/src/core/camera.js";
 
+import {GravityViewOverlay} from "./overlays/gravityOverlay.js";
+import {ElectricForceViewOverlay} from "./overlays/eForceOverlay.js";
+import {MagneticForceViewOverlay} from "./overlays/mForceOverlay.js";
+import {CollisionsViewOverlay} from "./overlays/collisionsOverlay.js";
+import {DragViewOverlay} from "./overlays/dragOverlay.js";
+
 
 function returnToWorkbench() {
     let serverQuery = communicator.getServerQuery();
@@ -37,6 +43,12 @@ let frames = [];
 let objectLookup = {};
 let cameraOverlay;
 let findObjectOverlay;
+
+let gravityOverlay;
+let eForceOverlay;
+let mForceOverlay;
+let collisionsOverlay;
+let dragOverlay;
 
 let delta_t;
 
@@ -105,12 +117,6 @@ async function loadData() {
     objectHeaders = response.headers;
     frames = response.frames;
 
-    console.log(simConfig);
-    //console.log(frames);
-
-    //frames = projectData.data.frames;
-
-    //console.log(frames);
     let objects = [];
     for (let objectName in simConfig.objects) {
         if (simConfig.objects[objectName].dtype === 0) {
@@ -169,7 +175,101 @@ async function loadData() {
     findObjectOverlay.bindShowCallback(showFindObjectCallback);
     findObjectOverlay.bindHideCallback(hideFindObjectCallback);
 
+    if (simConfig.models.gravity.compute) {
+        document.getElementById("openGravityMenu-button").classList.remove("hidden");
+        gravityOverlay = new GravityViewOverlay(simConfig);
+        gravityOverlay.bindShowCallback(showGravityMenuOverlay);
+        gravityOverlay.bindHideCallback(hideGravityMenuOverlay);
+    }
+    if (simConfig.models.eForce.compute) {
+        document.getElementById("openEForceMenu-button").classList.remove("hidden");
+        eForceOverlay = new ElectricForceViewOverlay(simConfig);
+        eForceOverlay.bindShowCallback(showEForceMenuOverlay);
+        eForceOverlay.bindHideCallback(hideEForceMenuOverlay);
+    }
+    if (simConfig.models.mForce.compute) {
+        document.getElementById("openMForceMenu-button").classList.remove("hidden");
+        mForceOverlay = new MagneticForceViewOverlay(simConfig);
+        mForceOverlay.bindShowCallback(showMForceMenuOverlay);
+        mForceOverlay.bindHideCallback(hideMForceMenuOverlay);
+    }
+    if (simConfig.models.collisions.compute) {
+        document.getElementById("openCollisionsMenu-button").classList.remove("hidden");
+        collisionsOverlay = new CollisionsViewOverlay(simConfig);
+        collisionsOverlay.bindShowCallback(showCollisionsMenuOverlay);
+        collisionsOverlay.bindHideCallback(hideCollisionsMenuOverlay);
+    }
+    if (simConfig.models.drag.compute) {
+        document.getElementById("openDragMenu-button").classList.remove("hidden");
+        dragOverlay = new DragViewOverlay(simConfig);
+        dragOverlay.bindShowCallback(showDragMenuOverlay);
+        dragOverlay.bindHideCallback(hideDragMenuOverlay);
+    }
+
     ge.start();
+}
+
+function showGravityMenuOverlay() {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+}
+
+function hideGravityMenuOverlay() {
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workspaceKeyEvents);
+}
+
+
+
+function showEForceMenuOverlay() {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+}
+
+function hideEForceMenuOverlay() {
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workspaceKeyEvents);
+}
+
+
+
+function showMForceMenuOverlay() {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+}
+
+function hideMForceMenuOverlay() {
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workspaceKeyEvents);
+}
+
+
+
+function showCollisionsMenuOverlay() {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+}
+
+function hideCollisionsMenuOverlay() {
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workspaceKeyEvents);
+}
+
+
+
+function showDragMenuOverlay() {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+}
+
+function hideDragMenuOverlay() {
+    bindAllControls(ge.canvas);
+
+    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
 
@@ -658,6 +758,7 @@ async function setupPlayer() {
     loadData();
 
     document.getElementById("toolsTab").addEventListener("pointerup", () => toggleTab("tools"));
+    document.getElementById("modelsTab").addEventListener("pointerup", () => toggleTab("models"));
     document.getElementById("cameraTab").addEventListener("pointerup", () => toggleTab("camera"));
     document.getElementById("shadersTab").addEventListener("pointerup", () => toggleTab("shaders"));
 }

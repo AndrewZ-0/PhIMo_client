@@ -87,6 +87,7 @@
         <div id = "workspaceLevelMenu">
             <div id = "tabIsle">
                 <button class = "tab" id = "toolsTab">Tools</button>
+                <button class = "tab" id = "modelsTab">Models</button>
                 <button class = "tab" id = "cameraTab">Camera</button>
                 <button class = "tab" id = "shadersTab">Shaders</button>
             </div>
@@ -116,6 +117,15 @@
             </fieldset>
 
             <button id = "cameraConfig-menuButton">Configuration</button>
+        </div>
+        <div id = "modelsMenu" class = "tab-content hidden">
+            <button id = "algorithmsMenu-button">Algorithms</button>
+
+            <button id = "openGravityMenu-button" class = "hidden">Gravity</button>
+            <button id = "openEForceMenu-button" class = "hidden">Electric Force</button>
+            <button id = "openMForceMenu-button" class = "hidden">Magnetic Force</button>
+            <button id = "openCollisionsMenu-button" class = "hidden">Collisions</button>
+            <button id = "openDragMenu-button" class = "hidden">Drag</button>
         </div>
         <div id = "shadersMenu" class = "tab-content hidden">
             <fieldset style = "padding: 5px 2px; margin: 5px; display: flex; flex-direction: column;">
@@ -269,6 +279,145 @@
                         <div id = "cameraConfigMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
 
                         <button id = "cameraConfig-configure-button" type = "button">Configure</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <div id = "gravityMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-gravityMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 30%; min-width: 350px; max-width: 500px;">
+                <h2>Gravity</h2>
+                <div class = "form-container">
+                    <form onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "gravitationalConstant-input-group" style = "margin-top: 0px; align-items: center;">
+                            <label for = "gravitationalConstant-input" style = "height: 20px; width: 95px; text-align: left; line-height: 20px;">G</label>
+                            <input id = "gravitationalConstant-input" type = "number" min = "0.1" step = "0.1" style = "width: 65%" class = "grav-input numInpBox" disabled>
+                        </div>
+
+                        <div class = "input-group" id = "global-gravitationalFieldStrength-group" style = "width: 100%; margin-top: 12px;">
+                            <label style = "height: 20px; width: 120px; text-align: left;">g (global)</label>
+
+                            <div style = "width: 100%; flex-direction: column; gap: 5px;">
+                                <div class = "input-subgroup">
+                                    <label for = "global-gravitationalFieldStrength-x" class = "numInpLabel">X</label>
+                                    <input style = "width: 90%" type = "number" id = "global-gravitationalFieldStrength-x" name = "global-gravitationalFieldStrength-x" class = "grav-input numInpBox" disabled>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "global-gravitationalFieldStrength-y" class = "numInpLabel">Y</label>
+                                    <input style = "width: 90%" type = "number" id = "global-gravitationalFieldStrength-y" name = "global-gravitationalFieldStrength-y" class = "grav-input numInpBox" disabled>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "global-gravitationalFieldStrength-z" class = "numInpLabel">Z</label>
+                                    <input style = "width: 90%" type = "number" id = "global-gravitationalFieldStrength-z" name = "global-gravitationalFieldStrength-z" class = "grav-input numInpBox" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "eForceMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-eForceMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 30%; min-width: 350px; max-width: 500px;">
+                <h2>Electic Force</h2>
+                <div class = "form-container">
+                    <form onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "vacuumPermittivity-input-group" style = "margin-top: 0px; align-items: center;">
+                            <label for = "vacuumPermittivity-input" style = "height: 20px; width: 95px; text-align: left; line-height: 20px;">ε0</label>
+                            <input id = "vacuumPermittivity-input" type = "number" min = "0.1" step = "0.1" style = "width: 65%" class = "eForce-input numInpBox" disabled>
+                        </div>
+
+                        <div class = "input-group" id = "global-electricFieldStrength-group" style = "width: 100%; margin-top: 12px;">
+                            <label style = "height: 20px; width: 120px; text-align: left;">E (global)</label>
+
+                            <div style = "width: 100%; flex-direction: column; gap: 5px;">
+                                <div class = "input-subgroup">
+                                    <label for = "global-electricFieldStrength-x" class = "numInpLabel">X</label>
+                                    <input style = "width: 90%" type = "number" id = "global-electricFieldStrength-x" name = "global-electricFieldStrength-x" class = "eForce-input numInpBox" disabled>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "global-electricFieldStrength-y" class = "numInpLabel">Y</label>
+                                    <input style = "width: 90%" type = "number" id = "global-electricFieldStrength-y" name = "global-electricFieldStrength-y" class = "eForce-input numInpBox" disabled>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "global-electricFieldStrength-z" class = "numInpLabel">Z</label>
+                                    <input style = "width: 90%" type = "number" id = "global-electricFieldStrength-z" name = "global-electricFieldStrength-z" class = "eForce-input numInpBox" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "mForceMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-mForceMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 30%; min-width: 350px; max-width: 500px;">
+                <h2>Electic Force</h2>
+                <div class = "form-container">
+                    <form onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "vacuumPermeability-input-group" style = "margin-top: 0px; align-items: center;">
+                            <label for = "vacuumPermeability-input" style = "height: 20px; width: 95px; text-align: left; line-height: 20px;">μ0</label>
+                            <input id = "vacuumPermeability-input" type = "number" style = "width: 65%;" class = "mForce-input numInpBox" disabled>
+                        </div>
+
+                        <div class = "input-group" id = "global-magneticFieldStrength-group" style = "width: 100%; margin-top: 12px;">
+                            <label style = "height: 20px; width: 120px; text-align: left;">B (global)</label>
+
+                            <div style = "width: 100%; flex-direction: column; gap: 5px;">
+                                <div class = "input-subgroup">
+                                    <label for = "global-magneticFieldStrength-x" class = "numInpLabel">X</label>
+                                    <input style = "width: 90%" type = "number" id = "global-magneticFieldStrength-x" name = "global-magneticFieldStrength-x" class = "mForce-input numInpBox" disabled>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "global-magneticFieldStrength-y" class = "numInpLabel">Y</label>
+                                    <input style = "width: 90%" type = "number" id = "global-magneticFieldStrength-y" name = "global-magneticFieldStrength-y" class = "mForce-input numInpBox" disabled>
+                                </div>
+
+                                <div class = "input-subgroup">
+                                    <label for = "global-magneticFieldStrength-z" class = "numInpLabel">Z</label>
+                                    <input style = "width: 90%" type = "number" id = "global-magneticFieldStrength-z" name = "global-magneticFieldStrength-z" class = "mForce-input numInpBox" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "collisionsMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-collisionsMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 45%; min-width: 450px; max-width: 500px;">
+                <h2>Collisions</h2>
+                <div class = "form-container">
+                    <form onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "coefficientOfRestitution-input-group" style = "margin-top: 0px; align-items: center;">
+                            <label for = "coefficientOfRestitution-input" style = "height: 20px; width: 85px; text-align: left; line-height: 20px;">e</label>
+                            <input id = "coefficientOfRestitution-input" class = "collisions-input numInpBox" type = "number" min = "0.0" step = "0.1" style = "width: 65%;" disabled>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "dragMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-dragMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 45%; min-width: 450px; max-width: 500px;">
+                <h2>Drag</h2>
+                <div class = "form-container">
+                    <form onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "airDensity-input-group" style = "margin-top: 0px; align-items: center;">
+                            <label for = "airDensity-input" style = "height: 20px; width: 85px; text-align: left; line-height: 20px;">ρ</label>
+                            <input id = "airDensity-input" class = "drag-input numInpBox" type = "number" min = "0.0" step = "0.1" style = "width: 65%;" disabled>
+                        </div>
                     </form>
                 </div>
             </div>

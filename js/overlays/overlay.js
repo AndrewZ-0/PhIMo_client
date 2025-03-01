@@ -5,12 +5,10 @@ export class OverlayMenu {
         this.fillCallback = null;
         this.showCallback = null;
         this.hideCallback = null;
-        this.submitCallback = null;
 
         this.fill = this.fill.bind(this);
         this.show = this.show.bind(this);
         this.hide = this.hide.bind(this);
-        this.submit = this.submit.bind(this);
 
         this.keyEvents = this.keyEvents.bind(this);
 
@@ -47,16 +45,6 @@ export class OverlayMenu {
         this.hideCallback = hideCallback;
     }
 
-    submit() {
-        if (!! this.submitCallback) {
-            this.submitCallback();
-        }
-        this.hide();
-    }
-    bindSubmitCallback(submitCallback) {
-        this.submitCallback = submitCallback;
-    }
-
     keyEvents() {
 
     }
@@ -67,5 +55,41 @@ export class OverlayMenu {
 
     bindActiveEvents() {
 
+    }
+}
+
+
+
+export class OverlayEditMenu extends OverlayMenu {
+    constructor() {
+        super();
+
+        this.submitCallback = null;
+        this.submit = this.submit.bind(this);
+    }
+
+    fill() {
+        if (!! this.fillCallback) {
+            this.fillCallback();
+        }
+    }
+    bindFillCallback(fillCallback) {
+        this.fillCallback = fillCallback;
+    }
+
+    submit() {
+        if (!! this.submitCallback) {
+            this.submitCallback();
+        }
+        this.hide();
+    }
+    bindSubmitCallback(submitCallback) {
+        this.submitCallback = submitCallback;
+    }
+}
+
+export class OverlayViewMenu extends OverlayMenu {
+    constructor() {
+        super();
     }
 }

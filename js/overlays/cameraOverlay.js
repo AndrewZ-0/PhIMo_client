@@ -1,4 +1,4 @@
-import {OverlayMenu} from "./overlay.js";
+import {OverlayEditMenu} from "./overlay.js";
 import {axisRenderer, masterRenderer} from "../../AGRE/src/core/renderer.js";
 import * as linearAlgebra from "../../AGRE/src/utils/linearAlgebra.js";
 import {
@@ -8,7 +8,7 @@ import {
 } from "../../AGRE/src/core/camera.js";
 import {updateSensitivityOverlays, updateCameraPerspectiveOverlays} from "../../AGRE/src/core/overlays.js";
 
-export class CameraOverlay extends OverlayMenu {
+export class CameraOverlay extends OverlayEditMenu {
     constructor(ge, settingsData, markUnsavedChanges) {
         super();
 
