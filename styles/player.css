@@ -23,7 +23,7 @@
     width: 100%;
     height: 40px;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-    z-index: 10;
+    z-index: 12;
     flex-direction: column;
     align-items: center;
 }

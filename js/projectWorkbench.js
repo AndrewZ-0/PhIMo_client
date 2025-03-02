@@ -23,6 +23,7 @@ import {CollisionsEditOverlay} from "./overlays/collisionsOverlay.js";
 import {DragEditOverlay} from "./overlays/dragOverlay.js";
 
 import {Player} from "./player.js";
+import {computeFrame} from "../PhimoLive/physicsEngine.js";
 
 let ge;
 let projectData = {
@@ -138,10 +139,6 @@ async function loadData() {
     setShaderModeRadio(settingsData.shaders.mode);
     masterRenderer.setShaderMode(settingsData.shaders.mode);
 
-
-    //player = new Player(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, updateFinderListObjects);
-
-
     cameraOverlay = new CameraOverlay(ge, settingsData, markUnsavedChanges);
 
     cameraOverlay.bindShowCallback(showCameraConfigMenuOverlay);
@@ -186,11 +183,17 @@ async function loadData() {
 function startPhimoLive() {
     document.getElementById("orientationViewport-surface").style.bottom = "40px";
     document.getElementById("simulationProgressBarContainer").classList.remove("hidden");
+
+    computeFrame(projectData, frames);
+
+    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects);
 }
 
 function stopPhimoLive() {
     document.getElementById("orientationViewport-surface").style.bottom = "0px";
     document.getElementById("simulationProgressBarContainer").classList.add("hidden");
+
+    player = null;
 }
 
 
@@ -362,51 +365,11 @@ function workspaceKeyEvents(event) {
 function showFindObjectCallback() {
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
-
-    loadObjectsToFinderList();
 }
 
 function hideFindObjectCallback() {
     document.addEventListener("keydown", workspaceKeyEvents);
     bindAllControls(ge.canvas);
-}
-
-
-function loadObjectsToFinderList() {
-    const objectList = document.getElementById("objectsList");
-    objectList.replaceChildren();
-
-    for (const [name, value] of Object.entries(projectData.objects)) {
-        const option = document.createElement("option");
-
-        let typeName;
-        if (value.dtype == 0) {
-            typeName = "particle";
-        }
-        else if (value.dtype == 1) {
-            typeName = "plane";
-        }
-
-        let pos = {
-            x: Math.round(value.position[0] * 1000) / 1000,
-            y: Math.round(value.position[1] * 1000) / 1000,
-            z: Math.round(value.position[2] * 1000) / 1000, 
-        }
-
-        if (pos.x !== value.position[0]) {
-            pos.x += "...";
-        }
-        if (pos.y !== value.position[1]) {
-            pos.y += "...";
-        }
-        if (pos.z !== value.position[2]) {
-            pos.z += "...";
-        }
-
-        option.value = name;
-        option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
-        objectList.appendChild(option);
-    }
 }
 
 

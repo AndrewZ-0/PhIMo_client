@@ -693,13 +693,13 @@
                         <div class = "form-container" style = "padding-top: 0; padding-bottom: 15px; flex-grow: 1; width: 100%;">
                             <form onsubmit = "return false;">
                                 <div class = "input-group">
-                                    <label for = "phimoLive-deltaT" style = "height: 20px; width: 100%; text-align: left;">Delta Time</label>
-                                    <input type = "number" id = "phimoLive-deltaT" name = "phimoLive-deltaT" class = "numInpBox" value = "0.01" step = "0.01" required>
+                                    <label for = "noOfFrames-inBuffer" style = "height: 20px; width: 100%; text-align: left;">Frame Buffer Size</label>
+                                    <input type = "number" id = "noOfFrames-inBuffer" name = "noOfFrames-inBuffer" class = "numInpBox" value = "1000" step = "1" required>
                                 </div>
 
                                 <div class = "input-group">
-                                    <label for = "noOfFrames-inBuffer" style = "height: 20px; width: 100%; text-align: left;">Frame Buffer Size</label>
-                                    <input type = "number" id = "noOfFrames-inBuffer" name = "noOfFrames-inBuffer" class = "numInpBox" value = "1000" step = "1" required>
+                                    <label for = "stepsPerFrame-live" style = "height: 20px; width: 100%; text-align: left;">Steps Per Frame</label>
+                                    <input type = "number" id = "stepsPerFrame-live" name = "stepsPerFrame-live" class = "numInpBox" value = "1000" step = "1" required>
                                 </div>
                             </form>
                         </div>

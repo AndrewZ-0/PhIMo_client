@@ -1,6 +1,7 @@
 import {OverlayEditMenu} from "./overlay.js";
 import {selectObject} from "../../AGRE/src/core/listeners.js";
 import {masterRenderer} from "../../AGRE/src/core/renderer.js";
+import {Sphere, Plane} from "../../AGRE/src/objects/objects.js";
 
 const overlayMenu = document.getElementById("findObject-overlay");
 
@@ -19,11 +20,94 @@ export class FindObjectOverlay extends OverlayEditMenu {
         this.bindPermanantEvents();
     }
 
+    async updateFinderListObjects(objectLookup) {
+        if (this.hidden) {
+            return;
+        }
+
+        for (const option of objectsList) {
+            const name = option.value;
+            const object = objectLookup[name];
+    
+            let typeName;
+            if (object instanceof Sphere) {
+                typeName = "particle";
+            }
+            else if (object instanceof Plane) {
+                typeName = "plane";
+            }
+    
+            const pos = {
+                x: Math.round(object.x * 1000) / 1000,
+                y: Math.round(object.y * 1000) / 1000,
+                z: Math.round(object.z * 1000) / 1000, 
+            }
+    
+            if (pos.x !== object.x) {
+                pos.x += "...";
+            }
+            if (pos.y !== object.y) {
+                pos.y += "...";
+            }
+            if (pos.z !== object.z) {
+                pos.z += "...";
+            }
+    
+            option.value = name;
+            option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
+        }
+    }
+
+    loadObjectsToFinderList(objectHeaders) {
+        const objectList = objectsList;
+        objectList.replaceChildren();
+    
+        const noOfObject = objectHeaders.length;
+    
+        for (let i = 0; i < noOfObject; i++) {
+            const name = objectHeaders[i];
+    
+            const object = objectLookup[name];
+        
+            const option = document.createElement("option");
+    
+            let typeName;
+            if (object instanceof Sphere) {
+                typeName = "particle";
+            }
+            else if (object instanceof Plane) {
+                typeName = "plane";
+            }
+    
+            let pos = {
+                x: Math.round(object.x * 1000) / 1000,
+                y: Math.round(object.y * 1000) / 1000,
+                z: Math.round(object.z * 1000) / 1000, 
+            }
+    
+            if (pos.x !== object.x) {
+                pos.x += "...";
+            }
+            if (pos.y !== object.y) {
+                pos.y += "...";
+            }
+            if (pos.z !== object.z) {
+                pos.z += "...";
+            }
+    
+            option.value = name;
+            option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
+            objectList.appendChild(option);
+        }
+    }
+
     show() {
         super.show();
 
         overlayMenu.classList.remove("hidden");
         document.addEventListener("keydown", this.keyEvents);
+
+        this.loadObjectsToFinderList();
     }
 
     hide() {
@@ -46,7 +130,7 @@ export class FindObjectOverlay extends OverlayEditMenu {
         for (let i = 0; i < noOfObjects; i++) {
             if (masterRenderer.objects[i].name === selectedObject) {
                 if (masterRenderer.currentSelection !== i) {
-                    selectObject(i);
+                    selectObject(i, true);
                 }
                 break;
             }

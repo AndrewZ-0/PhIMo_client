@@ -42,7 +42,7 @@ export class Player {
         this.bindEvents();
     }
 
-    displayFrame(frameIndex) {
+    async updateRender(frameIndex) {
         const noOfObject = this.objectHeaders.length;
         const frame = this.frames[frameIndex];
     
@@ -55,12 +55,22 @@ export class Player {
             object.y = objectData[1];
             object.z = objectData[2];
         }
-    
-        this.updateProgressBar(frameIndex / (this.frames.length - 1) * 100, screenRefreshInterval);
-        this.updateTiming(frameIndex * this.simConfig.deltaT, (this.frames.length - 1) * this.simConfig.deltaT);
-    
+
         masterRenderer.quickInitialise(masterRenderer.objects);
         this.ge.quickAnimationStart();
+    }
+
+    async displayFrame(frameIndex, displayNow = false) {
+        this.updateRender(frameIndex);
+
+        if (displayNow) {
+            this.updateProgressBar(frameIndex / (this.frames.length - 1) * 100, 0);
+        }
+        else {
+            this.updateProgressBar(frameIndex / (this.frames.length - 1) * 100, screenRefreshInterval);
+        }
+
+        this.updateTiming(frameIndex * this.simConfig.deltaT, (this.frames.length - 1) * this.simConfig.deltaT);
     }
 
     playSimulationFrame() {
@@ -89,7 +99,7 @@ export class Player {
     
             this.displayFrame(this.currentFrame);
     
-            this.updateFinderListObjects();
+            this.updateFinderListObjects(this.objectLookup);
         }
     
         requestAnimationFrame(this.playSimulationFrame.bind(this));
@@ -135,7 +145,7 @@ export class Player {
     
     handleScrubbingMotion(event) {
         if (this.isScrubbing) {
-            handleScrubbing(event);
+            this.handleScrubbing(event);
         }
     }
     
@@ -157,7 +167,7 @@ export class Player {
         return progress; 
     }
 
-    handleScrubbing(event) {
+    async handleScrubbing(event) {
         const barWidth = simulationProgressBar.offsetWidth;
         const clickX = event.clientX - simulationProgressBar.offsetLeft;
     
@@ -166,7 +176,7 @@ export class Player {
     
         this.currentFrame = Math.floor(progress * (this.frames.length - 1));
         this.cumlitiveTime = this.currentFrame * this.simConfig.deltaT;
-        this.displayFrame(this.currentFrame);
+        this.displayFrame(this.currentFrame, true);
     }
 
     updateProgressBar(progress, progressUpdateInterval) {

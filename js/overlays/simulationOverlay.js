@@ -34,6 +34,9 @@ const deltaT_input = document.getElementById("deltaT");
 const noOfFrames_input = document.getElementById("noOfFrames");
 const stepsPerFrame_input = document.getElementById("stepsPerFrame");
 
+const noOfFrames_live_input = document.getElementById("noOfFrames-inBuffer");
+const stepsPerFrame_live_input = document.getElementById("stepsPerFrame-live");
+
 const errorMessageDiv = document.getElementById("simulationMenu-error-message");
 
 
@@ -72,7 +75,13 @@ export class SimulationOverlay extends OverlayEditMenu {
         overlayMenu.classList.remove("hidden");
         this.loadSimulations();
         document.addEventListener("keydown", this.keyEvents);
-        this.validateSimilationConfigEntries();
+
+        if (this.phimoLive_running) {
+            this.validateLiveSimConfigEntries();
+        }
+        else {
+            this.validateCloudSimConfigEntries();
+        }
     }
 
     hide() {
@@ -85,10 +94,37 @@ export class SimulationOverlay extends OverlayEditMenu {
         document.removeEventListener("keydown", this.keyEvents);
     }
 
+    validateLiveSimConfigEntries() {
+        errorMessageDiv.textContent = ""; //clear prev msgs
+    
+        const noOfFrames = parseInt(noOfFrames_live_input.value);
+        if (isNaN(noOfFrames) || noOfFrames <= 0) {
+            errorMessageDiv.textContent = "Number of frames must be a positive non-zero integer";
+            return false;
+        }
+    
+        const stepsPerFrame = parseInt(stepsPerFrame_live_input.value);
+        if (isNaN(stepsPerFrame) || stepsPerFrame <= 0) {
+            errorMessageDiv.textContent = "Number of steps per frame must be a positive non-zero integer";
+            return false;
+        }
+    
+        return true;
+    }
+
     startPhimoLive() {
+        if (! this.validateLiveSimConfigEntries()) {
+            return;
+        }
+
+        this.projectData.noOfFrames = parseInt(noOfFrames_live_input.value);
+        this.projectData.stepsPerFrame = parseInt(stepsPerFrame_live_input.value);
+
         startPhimoLive_button.classList.add("hidden");
         stopPhimoLive_button.classList.remove("hidden");
         this.phimoLive_running = true;
+
+        this.hide();
         this.startPhimoLiveCallback();
     }
 
@@ -304,7 +340,7 @@ export class SimulationOverlay extends OverlayEditMenu {
         }
     }
 
-    validateSimilationConfigEntries() {
+    validateCloudSimConfigEntries() {
         errorMessageDiv.textContent = ""; //clear prev msgs
     
         const deltaT = parseFloat(deltaT_input.value);
@@ -329,7 +365,7 @@ export class SimulationOverlay extends OverlayEditMenu {
     }
 
     async computeNewSimulation() {
-        if (! this.validateSimilationConfigEntries()) {
+        if (! this.validateCloudSimConfigEntries()) {
             return;
         }
     
@@ -400,9 +436,20 @@ export class SimulationOverlay extends OverlayEditMenu {
         simulationList.addEventListener("change", this.updateSimulationButtons.bind(this));
         stopComputing_button.addEventListener("pointerdown", this.stopComputingSimulation.bind(this));
 
-        deltaT_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
-        noOfFrames_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
-        stepsPerFrame_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
+        deltaT_input.addEventListener("input", this.validateCloudSimConfigEntries.bind(this));
+        noOfFrames_input.addEventListener("input", this.validateCloudSimConfigEntries.bind(this));
+        stepsPerFrame_input.addEventListener("input", this.validateCloudSimConfigEntries.bind(this));
+
+        noOfFrames_live_input.addEventListener("input", () => {
+            if (this.validateLiveSimConfigEntries()) {
+                this.projectData.noOfFrames = parseInt(noOfFrames_live_input.value);
+            }
+        });
+        stepsPerFrame_live_input.addEventListener("input", () => {
+            if (this.validateLiveSimConfigEntries()) {
+                this.projectData.noOfFrames = parseInt(stepsPerFrame_live_input.value);
+            }
+        });
 
         computeNewSimulation_button.addEventListener("pointerdown", this.computeNewSimulation.bind(this));
 

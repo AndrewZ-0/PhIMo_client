@@ -192,10 +192,11 @@ function handleMouseButtonDown(event) {
     }
 }
 
-export function selectObject(selectedObject) {
-    masterRenderer.handleSelection(selectedObject);
+export function selectObject(selectedObject, forceSelection = false) {
+    masterRenderer.handleSelection(selectedObject, forceSelection, selectionMovementAxis);
 
     toggleSelectionMovement(null);
+
     updateSelectedOverlay();
 
     const objSelectedEvent = new CustomEvent("objectSelected", {detail: masterRenderer.objects[selectedObject]});

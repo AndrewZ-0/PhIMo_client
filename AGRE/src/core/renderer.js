@@ -337,7 +337,7 @@ class AdvancedRenderer extends Renderer {
         this.objects[i].setMode(this.gl.LINES);
     }
 
-    handleSelection(i) {
+    handleSelection(i, forceSelection, selectionMovementAxis) {
         this.updateFlag = true;
         if (i === null) {
             if (this.currentSelection !== null) {
@@ -346,7 +346,7 @@ class AdvancedRenderer extends Renderer {
             }
             else {
                 this.updateFlag = false;
-                return null; //if nothing had been selected and nothing is selected, then nothing needs to be updated
+                return null; //if nothing is currently selected and nothing is selected, then nothing needs to be updated
             }
         }
         else {
@@ -358,8 +358,14 @@ class AdvancedRenderer extends Renderer {
                 if (this.currentSelection !== null && this.currentSelection !== i) {
                     this.deselectObject(this.currentSelection);
                 }
-                this.selectObject(i);
-                this.currentSelection = i;
+
+                if (selectionMovementAxis === null || forceSelection) {
+                    this.selectObject(i);
+                    this.currentSelection = i;
+                }
+                else {
+                    this.currentSelection = null; 
+                }
             }
         } 
 

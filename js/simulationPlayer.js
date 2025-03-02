@@ -162,8 +162,6 @@ async function loadData() {
     setShaderModeRadio(settingsData.shaders.mode);
     masterRenderer.setShaderMode(settingsData.shaders.mode);
 
-    player = new Player(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, updateFinderListObjects);
-
 
     cameraOverlay = new CameraOverlay(ge, settingsData, markUnsavedChanges);
     cameraOverlay.bindShowCallback(showCameraConfigMenuOverlay);
@@ -176,6 +174,8 @@ async function loadData() {
     speedOverlay = new SpeedEditOverlay(settingsData, markUnsavedChanges);
     speedOverlay.bindShowCallback(showSpeedMenuCallback);
     speedOverlay.bindHideCallback(hideSpeedMenuCallback);
+
+    player = new Player(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects);
 
     if (simConfig.models.gravity.compute) {
         document.getElementById("openGravityMenu-button").classList.remove("hidden");
@@ -400,8 +400,6 @@ function showFindObjectCallback() {
 
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
-
-    loadObjectsToFinderList();
 }
 
 function hideFindObjectCallback() {
@@ -421,91 +419,6 @@ function hideCameraConfigMenuOverlay() {
     bindAllControls(ge.canvas);
 
     document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-function updateFinderListObjects() {
-    if (findObjectOverlay.hidden) {
-        return;
-    }
-
-    const objectList = document.getElementById("objectsList");
-
-    for (const option of objectList) {
-        const name = option.value;
-        const object = objectLookup[name];
-
-
-        let typeName;
-        if (object instanceof Sphere) {
-            typeName = "particle";
-        }
-        else if (object instanceof Plane) {
-            typeName = "plane";
-        }
-
-        let pos = {
-            x: Math.round(object.x * 1000) / 1000,
-            y: Math.round(object.y * 1000) / 1000,
-            z: Math.round(object.z * 1000) / 1000, 
-        }
-
-        if (pos.x !== object.x) {
-            pos.x += "...";
-        }
-        if (pos.y !== object.y) {
-            pos.y += "...";
-        }
-        if (pos.z !== object.z) {
-            pos.z += "...";
-        }
-
-        option.value = name;
-        option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
-    }
-}
-
-function loadObjectsToFinderList() {
-    const objectList = document.getElementById("objectsList");
-    objectList.replaceChildren();
-
-    const noOfObject = objectHeaders.length;
-
-    for (let i = 0; i < noOfObject; i++) {
-        const name = objectHeaders[i];
-
-        const object = objectLookup[name];
-    
-        const option = document.createElement("option");
-
-        let typeName;
-        if (object instanceof Sphere) {
-            typeName = "particle";
-        }
-        else if (object instanceof Plane) {
-            typeName = "plane";
-        }
-
-        let pos = {
-            x: Math.round(object.x * 1000) / 1000,
-            y: Math.round(object.y * 1000) / 1000,
-            z: Math.round(object.z * 1000) / 1000, 
-        }
-
-        if (pos.x !== object.x) {
-            pos.x += "...";
-        }
-        if (pos.y !== object.y) {
-            pos.y += "...";
-        }
-        if (pos.z !== object.z) {
-            pos.z += "...";
-        }
-
-        option.value = name;
-        option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
-        objectList.appendChild(option);
-    }
 }
 
 
