@@ -6,6 +6,11 @@ const overlayMenu = document.getElementById("playSimulationMenu-overlay");
 const openMenu_button = document.getElementById("playButton");
 const hideMenu_button = document.getElementById("hide-playSimulationMenu-overlay-button");
 
+const physicsEngine_select = document.getElementById("selectPhysicsEngine");
+
+const startPhimoLive_button = document.getElementById("startPhimoLive");
+const stopPhimoLive_button = document.getElementById("stopPhimoLive");
+
 const phimoCloud_menu = document.getElementById("phimoCloud-menu");
 const phimoLive_menu = document.getElementById("phimoLive-menu");
 
@@ -24,7 +29,7 @@ const computeProgress_text = document.getElementById("computeProgressText");
 const stopComputing_button = document.getElementById("stopComputingButton");
 const computeNewSimulation_button = document.getElementById("computeNewSimulationButton");
 
-const simulationConfigs_group = document.getElementById("simulationConfigs");
+const simulationConfigs_group = document.getElementById("phimoCloud-simulationConfigs");
 const deltaT_input = document.getElementById("deltaT");
 const noOfFrames_input = document.getElementById("noOfFrames");
 const stepsPerFrame_input = document.getElementById("stepsPerFrame");
@@ -33,11 +38,15 @@ const errorMessageDiv = document.getElementById("simulationMenu-error-message");
 
 
 export class SimulationOverlay extends OverlayEditMenu {
-    constructor(projectData, saveProjectData) {
+    constructor(projectData, saveProjectData, startPhimoLiveCallback, stopPhimoLiveCallback) {
         super();
 
         this.projectData = projectData;
         this.saveProjectData = saveProjectData.bind(this);
+        this.startPhimoLiveCallback = startPhimoLiveCallback.bind(this);
+        this.stopPhimoLiveCallback = stopPhimoLiveCallback.bind(this);
+
+        this.phimoLive_running = false;
 
         this.currentActiveWorkerId = null;
         this.currentComputingSimulationName = null;
@@ -53,6 +62,8 @@ export class SimulationOverlay extends OverlayEditMenu {
         this.renameSimulation = this.renameSimulation.bind(this);
 
         this.bindPermanantEvents();
+
+        this.configurePhysicsEngineMenu();
     }
 
     show() {
@@ -72,6 +83,45 @@ export class SimulationOverlay extends OverlayEditMenu {
         overlayMenu.classList.add("hidden");
 
         document.removeEventListener("keydown", this.keyEvents);
+    }
+
+    startPhimoLive() {
+        startPhimoLive_button.classList.add("hidden");
+        stopPhimoLive_button.classList.remove("hidden");
+        this.phimoLive_running = true;
+        this.startPhimoLiveCallback();
+    }
+
+    stopPhimoLive() {
+        stopPhimoLive_button.classList.add("hidden");
+        startPhimoLive_button.classList.remove("hidden");
+        this.phimoLive_running = false;
+        this.stopPhimoLiveCallback();
+    }
+
+    configurePhysicsEngineMenu() {
+        if (physicsEngine_select.value === "phimoCloud") {
+            phimoLive_menu.classList.add("hidden");
+            phimoCloud_menu.classList.remove("hidden");
+
+            if (this.phimoLive_running) {
+                this.stopPhimoLive();
+            }
+        }
+        else {
+            if (this.currentActiveWorkerId !== null) {
+                const response = confirm("You have a simulating being computed. If you leave now, the simulation currently being computed will be terminated. Are you sure you want to switch engines?");
+
+                if (! response) {
+                    return;
+                }
+
+                this.stopComputingSimulation();
+            }
+
+            phimoCloud_menu.classList.add("hidden");
+            phimoLive_menu.classList.remove("hidden");
+        }
     }
 
     updateSimulationButtons() {
@@ -278,7 +328,7 @@ export class SimulationOverlay extends OverlayEditMenu {
         return true;
     }
 
-    async submit() {
+    async computeNewSimulation() {
         if (! this.validateSimilationConfigEntries()) {
             return;
         }
@@ -354,7 +404,12 @@ export class SimulationOverlay extends OverlayEditMenu {
         noOfFrames_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
         stepsPerFrame_input.addEventListener("input", this.validateSimilationConfigEntries.bind(this));
 
-        computeNewSimulation_button.addEventListener("pointerdown", this.submit);
+        computeNewSimulation_button.addEventListener("pointerdown", this.computeNewSimulation.bind(this));
+
+        startPhimoLive_button.addEventListener("pointerup", this.startPhimoLive.bind(this));
+        stopPhimoLive_button.addEventListener("pointerup", this.stopPhimoLive.bind(this));
+
+        physicsEngine_select.addEventListener("change", this.configurePhysicsEngineMenu.bind(this));
     }
 }
 

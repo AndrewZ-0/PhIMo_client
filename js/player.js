@@ -1,0 +1,244 @@
+import {masterRenderer} from "../AGRE/src/core/renderer.js";
+import {bindCameraCallbacks, unbindCameraCallbacks, unbindAllKeyControls} from "../AGRE/src/core/listeners.js";
+import {FPS} from "../AGRE/src/core/clock.js";
+import {bindAllControls} from "../AGRE/src/core/listeners.js";
+
+
+const pauseButton = document.getElementById("player-pauseButton");
+const playButton = document.getElementById("player-playButton");
+
+const simulationProgressBar = document.getElementById("simulationProgressBar");
+const simulationProgressBar_progress = document.getElementById("simulationProgressBar-progress");
+
+const timeEntry = document.getElementById("time-entry");
+const totalTimeEntry = document.getElementById("total-time");
+
+const screenRefreshInterval = 1 / FPS;
+
+export class Player {
+    constructor(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, updateFinderListObjects) {
+        this.objectHeaders = objectHeaders;
+        this.frames = frames;
+        this.objectLookup = objectLookup;
+
+        this.ge = ge;
+        this.simConfig = simConfig;
+        this.settingsData = settingsData;
+
+        this.currentFrame = 0;
+        this.isPaused = true;
+        this.isScrubbing = false;
+
+        this.speedFactor = 1;
+        this.cumlitiveTime = 0;
+
+        this.lastTime;
+
+        this.updateFinderListObjects = updateFinderListObjects.bind(this);
+
+        this.updateProgressBar(0, 0); 
+        this.updateTiming(0, (this.frames.length - 1) * this.simConfig.deltaT);
+
+        this.bindEvents();
+    }
+
+    displayFrame(frameIndex) {
+        const noOfObject = this.objectHeaders.length;
+        const frame = this.frames[frameIndex];
+    
+        for (let i = 0; i < noOfObject; i++) {
+            const objectData = frame[i];
+            const objectName = this.objectHeaders[i];
+    
+            const object = this.objectLookup[objectName];
+            object.x = objectData[0];
+            object.y = objectData[1];
+            object.z = objectData[2];
+        }
+    
+        this.updateProgressBar(frameIndex / (this.frames.length - 1) * 100, screenRefreshInterval);
+        this.updateTiming(frameIndex * this.simConfig.deltaT, (this.frames.length - 1) * this.simConfig.deltaT);
+    
+        masterRenderer.quickInitialise(masterRenderer.objects);
+        this.ge.quickAnimationStart();
+    }
+
+    playSimulationFrame() {
+        if (this.isPaused) {
+            this.togglePause();
+            return;
+        }
+    
+        const currentTime = performance.now();
+        const true_deltaTime = (currentTime - this.lastTime) / 1000 * this.settingsData.speed;
+        this.lastTime = currentTime;
+    
+        if (! this.isScrubbing) {
+            this.cumlitiveTime += true_deltaTime;
+    
+            this.currentFrame = Math.floor(this.cumlitiveTime / this.simConfig.deltaT);
+    
+            if (this.currentFrame >= this.frames.length) {
+                this.displayFrame(this.frames.length - 1);
+    
+                this.currentFrame = this.frames.length;
+    
+                this.pauseSimulation();
+                return;
+            }
+    
+            this.displayFrame(this.currentFrame);
+    
+            this.updateFinderListObjects();
+        }
+    
+        requestAnimationFrame(this.playSimulationFrame.bind(this));
+    }
+
+    async startSimulation() {
+        if (this.isPaused) {
+            if (this.currentFrame == this.frames.length) {
+                this.currentFrame = 0;
+                this.cumlitiveTime = 0;
+            }
+
+            this.isPaused = false;
+            this.togglePause();
+            this.lastTime = performance.now();
+            requestAnimationFrame(this.playSimulationFrame.bind(this));
+        }
+    }
+
+    pauseSimulation(event) {
+        this.isPaused = true;
+        this.togglePause();
+    }
+
+    togglePause() {
+        if (this.isPaused) {
+            pauseButton.classList.add("hidden");
+            playButton.classList.remove("hidden");
+        } 
+        else {
+            pauseButton.classList.remove("hidden");
+            playButton.classList.add("hidden");
+        }
+    }
+
+    handleStartScrubbing(event) {
+        this.isScrubbing = true;
+    
+        unbindCameraCallbacks(this.ge.canvas);
+    
+        this.handleScrubbing(event);
+    }
+    
+    handleScrubbingMotion(event) {
+        if (this.isScrubbing) {
+            handleScrubbing(event);
+        }
+    }
+    
+    handleStopScrubbing(event) {
+        this.isScrubbing = false;
+    
+        bindCameraCallbacks(this.ge.canvas);
+    }
+
+    //ensure progress does not go beyold width of progress bar
+    clampProgress(progress) {
+        if (progress < 0) {
+            return 0;
+        }
+        if (progress > 1) {
+            return 1;
+        }
+
+        return progress; 
+    }
+
+    handleScrubbing(event) {
+        const barWidth = simulationProgressBar.offsetWidth;
+        const clickX = event.clientX - simulationProgressBar.offsetLeft;
+    
+        //ensure progress does not go beyold width of progress bar
+        const progress = this.clampProgress(clickX / barWidth); 
+    
+        this.currentFrame = Math.floor(progress * (this.frames.length - 1));
+        this.cumlitiveTime = this.currentFrame * this.simConfig.deltaT;
+        this.displayFrame(this.currentFrame);
+    }
+
+    updateProgressBar(progress, progressUpdateInterval) {
+        simulationProgressBar_progress.style.transitionDuration = `${progressUpdateInterval}ms`;
+        simulationProgressBar_progress.style.width = `${progress}%`;
+    }
+    
+    updateTiming(currentTime, totalTime) {
+        timeEntry.textContent = `${this.formatTime(currentTime)}`;
+        totalTimeEntry.textContent = ` / ${this.formatTime(totalTime)}`;
+    }
+
+    updateTimeEntry() {
+        const userInput = timeEntry.textContent.split(":");
+    
+        let inputTime_inSecs;
+        if (userInput.length === 1) {
+            inputTime_inSecs = parseFloat(userInput[0]);
+        }
+        else if (userInput.length === 2) {
+            const [minutes, seconds] = userInput;
+    
+            inputTime_inSecs = parseFloat(minutes) * 60 + parseFloat(seconds);
+        }
+        else {
+            displayFrame(this.currentFrame);
+            return;
+        }
+    
+        if (isNaN(inputTime_inSecs) || inputTime_inSecs > (frames.length - 1) * this.simConfig.deltaT) {
+            displayFrame(this.currentFrame);
+            return;
+        }
+    
+        this.currentFrame = inputTime_inSecs / this.simConfig.deltaT;
+        displayFrame(this.currentFrame);
+    }
+    
+    handleTimeEntry(event) {
+        if (event.key === "Enter") {
+            this.updateTimeEntry();
+        }
+    }
+
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = (seconds % 60).toFixed(2);
+        
+        let formattedSeconds = secs.toString();
+        if (secs < 10) {
+            formattedSeconds = "0" + formattedSeconds;
+        }
+    
+        return minutes + ":" + formattedSeconds;
+    }
+
+    bindEvents() {
+        playButton.addEventListener("pointerdown", this.startSimulation.bind(this));
+        pauseButton.addEventListener("pointerdown", this.pauseSimulation.bind(this));
+
+        simulationProgressBar.addEventListener("pointerdown", this.handleStartScrubbing.bind(this));
+
+        document.addEventListener("pointermove", this.handleScrubbingMotion.bind(this));
+        document.addEventListener("pointerup", this.handleStopScrubbing.bind(this));
+
+        timeEntry.addEventListener("keypress", this.handleTimeEntry.bind(this));
+        timeEntry.addEventListener("focus", unbindAllKeyControls);
+        timeEntry.addEventListener(
+            "focusout", () => {
+                this.updateTimeEntry(); 
+                bindAllControls(this.ge.canvas);
+            }
+        );
+    }
+};

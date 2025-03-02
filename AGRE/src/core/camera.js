@@ -10,6 +10,7 @@ import {keys, mouseDragging} from "./listeners.js";
 export let cameraMode = "Y-Polar";
 
 export let cameraMovementSpeed = 6;
+export let cameraRotationSpeed = 6;
 export let draggingSensitivity = 0.001;
 export let fov = 45;
 export let near = 0.01;
@@ -79,17 +80,17 @@ class CartesianQuaternionCamera extends Camera {
 
             linearAlgebra.applyQuat(
                 this.orientation, linearAlgebra.getAxisAngle(
-                    this.right, cameraMovementSpeed * clock.deltaT * (keys.up - keys.down) * carteisanOrientKeyMultiplier
+                    this.right, cameraRotationSpeed * clock.deltaT * (keys.up - keys.down) * carteisanOrientKeyMultiplier
                 )
             ); //pitch
             linearAlgebra.applyQuat(
                 this.orientation, linearAlgebra.getAxisAngle(
-                    this.up, cameraMovementSpeed * clock.deltaT * (keys.left - keys.right) * carteisanOrientKeyMultiplier
+                    this.up, cameraRotationSpeed * clock.deltaT * (keys.left - keys.right) * carteisanOrientKeyMultiplier
                 )
             ); //yaw
             linearAlgebra.applyQuat(
                 this.orientation, linearAlgebra.getAxisAngle(
-                    this.front, cameraMovementSpeed * clock.deltaT * (keys.period - keys.comma) * carteisanOrientKeyMultiplier
+                    this.front, cameraRotationSpeed * clock.deltaT * (keys.period - keys.comma) * carteisanOrientKeyMultiplier
                 )
             ); //roll
             linearAlgebra.normaliseQuat(this.orientation);
@@ -218,8 +219,8 @@ class CartesianPolarCamera extends Camera {
             );
             updateCartesianCameraCoordsOverlays();
 
-            this.orientation.azi += cameraMovementSpeed * clock.deltaT * (keys.left - keys.right) * carteisanOrientKeyMultiplier;
-            this.orientation.alt += cameraMovementSpeed * clock.deltaT * (keys.up - keys.down) * carteisanOrientKeyMultiplier;
+            this.orientation.azi += cameraRotationSpeed * clock.deltaT * (keys.left - keys.right) * carteisanOrientKeyMultiplier;
+            this.orientation.alt += cameraRotationSpeed * clock.deltaT * (keys.up - keys.down) * carteisanOrientKeyMultiplier;
             this.readjustAngles();
 
             this.setDirectionVects();
@@ -347,8 +348,8 @@ class PolarCamera extends Camera {
 
     handleMovements() {
         const deltaR = cameraMovementSpeed * clock.deltaT * (keys.s - keys.w) * this.r * 0.1;
-        const deltaAzi = cameraMovementSpeed * clock.deltaT / 2 * (keys.d - keys.a);
-        const deltaAlt = cameraMovementSpeed * clock.deltaT / 4 * (keys.space - keys.shift);
+        const deltaAzi = cameraRotationSpeed * clock.deltaT / 2 * (keys.d - keys.a);
+        const deltaAlt = cameraRotationSpeed * clock.deltaT / 4 * (keys.space - keys.shift);
 
         if (deltaR || deltaAzi || deltaAlt) {
             this.r += deltaR;
@@ -505,6 +506,9 @@ export function setDraggingSensitivity(newSensitivity) {
 }
 export function setCameraMovementSpeed(newSpeed) {
     cameraMovementSpeed = newSpeed;
+}
+export function setCameraRotationSpeed(newRotSpeed) {
+    cameraRotationSpeed = newRotSpeed;
 }
 
 export function setCameraNear(newNear) {

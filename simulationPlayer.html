@@ -8,6 +8,7 @@
         <link rel = "stylesheet" href = "./styles/forms.css">
         <link rel = "stylesheet" href = "./styles/workspaceLevelMenu.css">
         <link rel = "stylesheet" href = "./styles/overlayMenu.css">
+        <link rel = "stylesheet" href = "./styles/player.css">
         <link rel = "stylesheet" href = "./styles/simulationPlayer.css">
         <script src = "js/simulationPlayer.js" type = "module"></script>
     </head>
@@ -65,8 +66,8 @@
                 </div>
     
                 <div id = "playback-controls" style = "display: flex; align-items: center;">
-                    <button id = "playButton"><img id = "playButton_img" src = "assets/playButton.svg"/></button>
-                    <button id = "pauseButton" class = "hidden"><img id = "playButton_img" src = "assets/pauseButton.svg"/></button>
+                    <button id = "player-playButton" class = "player-button"><img id = "playButton-img" src = "assets/playButton.svg"/></button>
+                    <button id = "player-pauseButton" class = "player-button hidden"><img id = "playButton-img" src = "assets/pauseButton.svg"/></button>
                     <div id = "time-entry" contenteditable = "true">0:00</div>
                     <pre id = "total-time"> / 0:00</pre>
     

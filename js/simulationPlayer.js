@@ -3,15 +3,12 @@ import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
-import {
-    bindAllControls, bindCameraCallbacks, 
-    unbindAllKeyControls, unbindCameraCallbacks, 
-    quickReleaseKeys
-} from "../AGRE/src/core/listeners.js";
-import {FPS} from "../AGRE/src/core/clock.js";
+import {bindAllControls, unbindAllKeyControls, quickReleaseKeys} from "../AGRE/src/core/listeners.js";
 import {toggleTab} from "./tabMenu.js";
 import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
 import {CameraOverlay} from "./overlays/cameraOverlay.js";
+import {SpeedEditOverlay} from "./overlays/speedOverlay.js";
+import {cameraMode} from "../AGRE/src/core/camera.js";
 import {camera, setDraggingSensitivity, setCameraMovementSpeed, setCameraMode} from "../AGRE/src/core/camera.js";
 
 import {GravityViewOverlay} from "./overlays/gravityOverlay.js";
@@ -19,6 +16,8 @@ import {ElectricForceViewOverlay} from "./overlays/eForceOverlay.js";
 import {MagneticForceViewOverlay} from "./overlays/mForceOverlay.js";
 import {CollisionsViewOverlay} from "./overlays/collisionsOverlay.js";
 import {DragViewOverlay} from "./overlays/dragOverlay.js";
+
+import {Player} from "./player.js";
 
 
 function returnToWorkbench() {
@@ -38,19 +37,21 @@ document.getElementById("titleBarReturnButton").addEventListener("pointerdown", 
 let ge;
 let simConfig = {};
 let settingsData = {};
+
+let player;
 let objectHeaders;
 let frames = [];
 let objectLookup = {};
+
 let cameraOverlay;
 let findObjectOverlay;
+let speedOverlay;
 
 let gravityOverlay;
 let eForceOverlay;
 let mForceOverlay;
 let collisionsOverlay;
 let dragOverlay;
-
-let delta_t;
 
 function parseFramesString(framesString) {
     const lines = framesString.split("\n");
@@ -102,7 +103,6 @@ async function loadData() {
     simConfig = projectData.data.simConfig;
     settingsData = projectData.data.settings;
 
-
     //const projectData = await communicator.getSimulationFrames(projectName, simulationName);
     const frameFileStreamResponse = await communicator.streamSimulationFramesFile(projectName, simulationName);
 
@@ -113,7 +113,6 @@ async function loadData() {
 
 
     const response = parseFramesString(frameFileStreamResponse.frames);
-
     objectHeaders = response.headers;
     frames = response.frames;
 
@@ -138,6 +137,10 @@ async function loadData() {
         }
     }
 
+    if (! Object.hasOwn(settingsData, "speed")) {
+        settingsData.speed = 1;
+    }
+
     //to prevent setting camera mode from overwriting intial one in setting data
     const initialCameraPose = settingsData.camera.pose;
 
@@ -147,12 +150,6 @@ async function loadData() {
     for (const obj of masterRenderer.objects) {
         objectLookup[obj.name] = obj;
     }
-
-    delta_t = simConfig.deltaT;
-
-    updateProgressBar(0, 0); 
-    updateTiming(0, (frames.length - 1) * delta_t);
-
 
     setDraggingSensitivity(settingsData.camera.sensitivity.draggingSensitivity);
     setCameraMovementSpeed(settingsData.camera.sensitivity.movementSpeed);
@@ -165,15 +162,20 @@ async function loadData() {
     setShaderModeRadio(settingsData.shaders.mode);
     masterRenderer.setShaderMode(settingsData.shaders.mode);
 
+    player = new Player(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, updateFinderListObjects);
+
 
     cameraOverlay = new CameraOverlay(ge, settingsData, markUnsavedChanges);
-    
     cameraOverlay.bindShowCallback(showCameraConfigMenuOverlay);
     cameraOverlay.bindHideCallback(hideCameraConfigMenuOverlay);
 
     findObjectOverlay = new FindObjectOverlay();
     findObjectOverlay.bindShowCallback(showFindObjectCallback);
     findObjectOverlay.bindHideCallback(hideFindObjectCallback);
+
+    speedOverlay = new SpeedEditOverlay(settingsData, markUnsavedChanges);
+    speedOverlay.bindShowCallback(showSpeedMenuCallback);
+    speedOverlay.bindHideCallback(hideSpeedMenuCallback);
 
     if (simConfig.models.gravity.compute) {
         document.getElementById("openGravityMenu-button").classList.remove("hidden");
@@ -273,258 +275,15 @@ function hideDragMenuOverlay() {
 }
 
 
-let currentFrame = 0;
-let isPaused = true;
-let isScrubbing = false;
-
-function displayFrame(frameIndex) {
-    const noOfObject = objectHeaders.length;
-    const frame = frames[frameIndex];
-
-    for (let i = 0; i < noOfObject; i++) {
-        const objectData = frame[i];
-        const objectName = objectHeaders[i];
-
-        const object = objectLookup[objectName];
-        object.x = objectData[0];
-        object.y = objectData[1];
-        object.z = objectData[2];
-    }
-
-    updateProgressBar(frameIndex / (frames.length - 1) * 100, screenRefreshInterval);
-    updateTiming(frameIndex * delta_t, (frames.length - 1) * delta_t);
-
-    masterRenderer.quickInitialise(masterRenderer.objects);
-    ge.quickAnimationStart();
+function showSpeedMenuCallback() {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
 }
 
-let speedFactor = 1;
-const screenRefreshInterval = 1 / FPS;
-let cumlitiveTime = 0;
-function playSimulationFrame() {
-    if (isPaused) {
-        togglePause();
-        return;
-    }
-
-    const currentTime = performance.now();
-    const true_deltaTime = (currentTime - lastTime) / 1000 * speedFactor;
-    lastTime = currentTime;
-
-    if (! isScrubbing) {
-        cumlitiveTime += true_deltaTime;
-
-        currentFrame = Math.floor(cumlitiveTime / delta_t);
-
-        if (currentFrame >= frames.length) {
-            displayFrame(frames.length - 1);
-
-            currentFrame = frames.length;
-
-            pauseSimulation();
-            return;
-        }
-
-        displayFrame(currentFrame);
-
-        if (! findObjectOverlay.hidden) {
-            updateFinderListObjects();
-        }
-    }
-
-    requestAnimationFrame(playSimulationFrame);
+function hideSpeedMenuCallback() {
+    bindAllControls(ge.canvas);
+    document.addEventListener("keydown", workspaceKeyEvents);
 }
-
-let lastTime;
-async function startSimulation() {
-    if (isPaused) {
-        if (currentFrame == frames.length) {
-            currentFrame = 0;
-            cumlitiveTime = 0;
-        }
-
-        isPaused = false;
-        togglePause();
-        lastTime = performance.now();
-        requestAnimationFrame(playSimulationFrame);
-    }
-}
-
-function pauseSimulation(event) {
-    isPaused = true;
-    togglePause();
-}
-
-function togglePause() {
-    if (isPaused) {
-        document.getElementById("pauseButton").classList.add("hidden");
-        document.getElementById("playButton").classList.remove("hidden");
-    } 
-    else {
-        document.getElementById("pauseButton").classList.remove("hidden");
-        document.getElementById("playButton").classList.add("hidden");
-    }
-}
-
-document.getElementById("playButton").addEventListener("pointerdown", startSimulation);
-document.getElementById("pauseButton").addEventListener("pointerdown", pauseSimulation);
-
-
-function handleStartScrubbing(event) {
-    isScrubbing = true;
-
-    unbindCameraCallbacks(ge.canvas);
-
-    handleScrubbing(event);
-}
-document.getElementById("simulationProgressBar").addEventListener("pointerdown", handleStartScrubbing);
-
-function handleScrubbingMotion(event) {
-    if (isScrubbing) {
-        handleScrubbing(event);
-    }
-}
-document.addEventListener("pointermove", handleScrubbingMotion);
-
-function handleStopScrubbing(event) {
-    isScrubbing = false;
-
-    bindCameraCallbacks(ge.canvas);
-}
-document.addEventListener("pointerup", handleStopScrubbing);
-
-
-//ensure progress does not go beyold width of progress bar
-function clampProgress(progress) {
-    if (progress < 0) {
-        return 0;
-    }
-    if (progress > 1) {
-        return 1;
-    }
-
-    return progress; 
-}
-
-function handleScrubbing(event) {
-    const progressBar = document.getElementById("simulationProgressBar");
-    const barWidth = progressBar.offsetWidth;
-    const clickX = event.clientX - progressBar.offsetLeft;
-
-    //ensure progress does not go beyold width of progress bar
-    const progress = clampProgress(clickX / barWidth); 
-
-    currentFrame = Math.floor(progress * (frames.length - 1));
-    cumlitiveTime = currentFrame * delta_t;
-    displayFrame(currentFrame);
-}
-
-
-function updateProgressBar(progress, progressUpdateInterval) {
-    const progressBar = document.getElementById("simulationProgressBar-progress");
-    
-    progressBar.style.transitionDuration = `${progressUpdateInterval}ms`;
-    progressBar.style.width = `${progress}%`;
-}
-
-function updateTiming(currentTime, totalTime) {
-    const timeEntry = document.getElementById("time-entry");
-    const totalTimeEntry = document.getElementById("total-time");
-    timeEntry.textContent = `${formatTime(currentTime)}`;
-    totalTimeEntry.textContent = ` / ${formatTime(totalTime)}`;
-}
-
-
-function updateTimeEntry() {
-    const timeEntry = document.getElementById("time-entry");
-    const userInput = timeEntry.textContent.split(":");
-
-    let inputTime_inSecs;
-    if (userInput.length === 1) {
-        inputTime_inSecs = parseFloat(userInput[0]);
-    }
-    else if (userInput.length === 2) {
-        const [minutes, seconds] = userInput;
-
-        inputTime_inSecs = parseFloat(minutes) * 60 + parseFloat(seconds);
-    }
-    else {
-        displayFrame(currentFrame);
-        return;
-    }
-
-    if (isNaN(inputTime_inSecs) || inputTime_inSecs > (frames.length - 1) * delta_t) {
-        displayFrame(currentFrame);
-        return;
-    }
-
-    currentFrame = inputTime_inSecs / delta_t;
-    displayFrame(currentFrame);
-}
-
-function handleTimeEntry(event) {
-    if (event.key === "Enter") {
-        updateTimeEntry();
-    }
-}
-
-document.getElementById("time-entry").addEventListener("keypress", handleTimeEntry);
-document.getElementById("time-entry").addEventListener("focus", unbindAllKeyControls);
-document.getElementById("time-entry").addEventListener(
-    "focusout", () => {
-        updateTimeEntry(); 
-        bindAllControls(ge.canvas);
-    }
-);
-
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const secs = (seconds % 60).toFixed(2);
-    
-    let formattedSeconds = secs.toString();
-    if (secs < 10) {
-        formattedSeconds = "0" + formattedSeconds;
-    }
-
-    return minutes + ":" + formattedSeconds;
-}
-
-function showSpeedMenu() {
-    const speedMenu = document.getElementById("speedMenu-overlay");
-    const speedButton = document.getElementById("speedButton");
-    speedMenu.classList.remove("hidden");
-    speedButton.removeEventListener("pointerdown", showSpeedMenu);
-    speedButton.addEventListener("pointerdown", hideSpeedMenu);
-}
-
-function hideSpeedMenu() {
-    const speedMenu = document.getElementById("speedMenu-overlay");
-    const speedButton = document.getElementById("speedButton");
-    speedMenu.classList.add("hidden");
-    speedButton.addEventListener("pointerdown", showSpeedMenu);
-    speedButton.removeEventListener("pointerdown", hideSpeedMenu);
-}
-
-document.getElementById("speedButton").addEventListener("pointerdown", showSpeedMenu);
-document.getElementById("hide-speedMenu-overlay-button").addEventListener("pointerup", hideSpeedMenu);
-
-
-function validateSpeedInput() {
-    const errorMessageDiv = document.getElementById("speedMenu-error-message");
-    errorMessageDiv.textContent = ""; //clear prev msgs
-
-    const speed_inp = document.getElementById("speedInput");
-    const speed = parseFloat(speed_inp.value);
-    if (isNaN(speed) || speed <= 0) {
-        errorMessageDiv.textContent = "Speed must be a positive non-zero float";
-        return false;
-    }
-
-    speedFactor = speed;
-    return true;
-}
-
-document.getElementById("speedInput").addEventListener("input", validateSpeedInput);
 
 async function saveSimulationSettings() {
     const projectName = communicator.getProjNameFromUrl();
@@ -666,6 +425,10 @@ function hideCameraConfigMenuOverlay() {
 
 
 function updateFinderListObjects() {
+    if (findObjectOverlay.hidden) {
+        return;
+    }
+
     const objectList = document.getElementById("objectsList");
 
     for (const option of objectList) {

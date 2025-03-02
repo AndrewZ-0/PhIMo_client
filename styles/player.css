@@ -1,0 +1,62 @@
+.player-button {
+    position: absolute;
+    left: 6px;
+    top: 10px;
+    width: 22px;
+    height: 22px;
+    margin: 0px;
+    background: transparent;
+    user-select: none;
+}
+.player-button:hover {
+    background: transparent;
+    outline: none;
+}
+.player-button #playButton-img:hover {
+    filter: invert(15%);
+}
+
+
+#simulationProgressBarContainer {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    z-index: 10;
+    flex-direction: column;
+    align-items: center;
+}
+
+#simulationProgressBar {
+    position: absolute;
+    top: 2px;
+    transform: translateY(-50%);
+    align-self: center;
+    height: 5px;
+    width: calc(100% - 15px);
+    border: solid 0.2px #999;
+    background-color: #fff;
+}
+#simulationProgressBar-progress {
+    height: 100%;
+    background-color: #780606; 
+    transition: width 0.2s ease forwards;
+}
+#simulationProgressBar:hover {
+    height: 8px;
+}
+
+#time-entry {
+    font-family: Arial, sans-serif;
+    font-size: 14px ;
+    color: #fff;
+    border: none; 
+}
+
+
+#total-time {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #fff;
+}

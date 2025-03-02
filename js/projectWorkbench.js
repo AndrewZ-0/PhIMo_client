@@ -8,7 +8,7 @@ import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
 import * as linearAlgebra from "../AGRE/src/utils/linearAlgebra.js";
 import {
     camera, cameraMode, setCameraMode, 
-    setDraggingSensitivity, setCameraMovementSpeed
+    setDraggingSensitivity, setCameraMovementSpeed, setCameraRotationSpeed
 } from "../AGRE/src/core/camera.js";
 import {toggleTab} from "./tabMenu.js";
 import {CreateObjectOverlay} from "./overlays/createObjectOverlay.js";
@@ -22,6 +22,7 @@ import {MagneticForceEditOverlay} from "./overlays/mForceOverlay.js";
 import {CollisionsEditOverlay} from "./overlays/collisionsOverlay.js";
 import {DragEditOverlay} from "./overlays/dragOverlay.js";
 
+import {Player} from "./player.js";
 
 let ge;
 let projectData = {
@@ -47,7 +48,8 @@ let settingsData = {
         },
         sensitivity: {
             draggingSensitivity: 0.001, 
-            movementSpeed: 6
+            movementSpeed: 6, 
+            rotationSpeed: 6
         }
     }, 
     shaders: {
@@ -64,6 +66,11 @@ let eForceOverlay;
 let mForceOverlay;
 let collisionsOverlay;
 let dragOverlay;
+
+let player;
+let objectHeaders;
+let frames = [];
+let objectLookup = {};
 
 function returnToDashboard(event) {
     const serverQuery = communicator.getServerQuery();
@@ -121,6 +128,7 @@ async function loadData() {
 
     setDraggingSensitivity(settingsData.camera.sensitivity.draggingSensitivity);
     setCameraMovementSpeed(settingsData.camera.sensitivity.movementSpeed);
+    setCameraRotationSpeed(settingsData.camera.sensitivity.rotationSpeed);
 
     setCameraModeRadio(settingsData.camera.mode);
     
@@ -129,6 +137,9 @@ async function loadData() {
 
     setShaderModeRadio(settingsData.shaders.mode);
     masterRenderer.setShaderMode(settingsData.shaders.mode);
+
+
+    //player = new Player(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, updateFinderListObjects);
 
 
     cameraOverlay = new CameraOverlay(ge, settingsData, markUnsavedChanges);
@@ -145,7 +156,7 @@ async function loadData() {
     findObjectOverlay.bindShowCallback(showFindObjectCallback);
     findObjectOverlay.bindHideCallback(hideFindObjectCallback);
 
-    simulationOverlay = new SimulationOverlay(projectData, saveProjectData);
+    simulationOverlay = new SimulationOverlay(projectData, saveProjectData, startPhimoLive, stopPhimoLive);
     simulationOverlay.bindShowCallback(showPlaySimulationMenu);
     simulationOverlay.bindHideCallback(hidePlaySimulationMenu);
 
@@ -170,6 +181,16 @@ async function loadData() {
     dragOverlay.bindHideCallback(hideDragMenuOverlay);
 
     ge.start();
+}
+
+function startPhimoLive() {
+    document.getElementById("orientationViewport-surface").style.bottom = "40px";
+    document.getElementById("simulationProgressBarContainer").classList.remove("hidden");
+}
+
+function stopPhimoLive() {
+    document.getElementById("orientationViewport-surface").style.bottom = "0px";
+    document.getElementById("simulationProgressBarContainer").classList.add("hidden");
 }
 
 
@@ -213,8 +234,8 @@ function setShaderModeRadio(mode) {
 
 document.addEventListener(
     "shaderModeToggled", () => {
-        settingsData.shaders.mode = masterRenderer.shader.mode;
-        setShaderModeRadio(masterRenderer.shader.mode);
+        settingsData.shaders.mode = masterRenderer.shader.name;
+        setShaderModeRadio(masterRenderer.shader.name);
     }
 );
 

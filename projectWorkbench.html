@@ -8,6 +8,7 @@
         <link rel = "stylesheet" href = "./styles/forms.css">
         <link rel = "stylesheet" href = "./styles/workspaceLevelMenu.css">
         <link rel = "stylesheet" href = "./styles/overlayMenu.css">
+        <link rel = "stylesheet" href = "./styles/player.css">
         <link rel = "stylesheet" href = "./styles/projectWorkbench.css">
         <script src = "js/projectWorkbench.js" type = "module"></script>
     </head>
@@ -63,6 +64,20 @@
                 <p id = "selectionMovement-overlay" class = "overlay-element"></p>
                 <p id = "mouseX-overlay" class = "overlay-element"></p>
                 <p id = "mouseY-overlay" class = "overlay-element"></p>
+            </div>
+        </div>
+
+        <div id = "simulationProgressBarContainer" class = "hidden">
+            <div id = "simulationProgressBar">
+                <div id = "simulationProgressBar-progress">
+                </div>
+            </div>
+
+            <div id = "playback-controls" style = "display: flex; align-items: center;">
+                <button id = "player-playButton" class = "player-button"><img id = "playButton-img" src = "assets/playButton.svg"/></button>
+                <button id = "player-pauseButton" class = "player-button hidden"><img id = "playButton-img" src = "assets/pauseButton.svg"/></button>
+                <div id = "time-entry" contenteditable = "true">0:00</div>
+                <pre id = "total-time"> / 0:00</pre>
             </div>
         </div>
 
@@ -265,6 +280,11 @@
                                 <div class = "input-group" id = "camera-movementSpeed-group" style = "margin-top: 12px;">
                                     <label for = "camera-movementSpeed" class = "numInpLabel" style = "text-align: left; width: 160px; height: 20px;">Movement Speed</label>
                                     <input style = "width: 120px;" type = "number" id = "camera-movementSpeed" name = "camera-movementSpeed" class = "cam-input numInpBox" value = "0" min = "0" required>
+                                </div>
+
+                                <div class = "input-group" id = "camera-rotationSpeed-group" style = "margin-top: 12px;">
+                                    <label for = "camera-rotationSpeed" class = "numInpLabel" style = "text-align: left; width: 160px; height: 20px;">Rotation Speed</label>
+                                    <input style = "width: 120px;" type = "number" id = "camera-rotationSpeed" name = "camera-rotationSpeed" class = "cam-input numInpBox" value = "0" min = "0" required>
                                 </div>
                             </div>
                         </div>
@@ -622,7 +642,7 @@
                     </form>
                 </div>
 
-                <div id = "phimoCloud-menu" style = "display: flex; flex-direction: column; margin-top: 20px; width: calc(100% - 5px); border: solid 1px #aaa; padding: 5px;">
+                <div id = "phimoCloud-menu" style = "flex-direction: column; margin-top: 20px; width: calc(100% - 5px); border: solid 1px #aaa; padding: 5px;" class = "hidden">
                     <select id = "simulationList" name = "simulations" size = "5"></select>
                     <div id = "simulationListActions" style = "justify-content: center;">
                         <button id = "openSimulation" style = "width: 80px; font-size: 15px;">Open</button>
@@ -646,21 +666,21 @@
                         </div>
                     </div>
 
-                    <div id = "simulationConfigs" style = "justify-content: center;">
+                    <div id = "phimoCloud-simulationConfigs" style = "justify-content: center;">
                         <div class = "form-container" style = "padding-top: 0; padding-bottom: 15px; flex-grow: 1; width: 100%;">
                             <form onsubmit = "return false;">
                                 <div class = "input-group">
-                                    <label style = "height: 20px; width: 100%; text-align: left;">Delta Time</label>
+                                    <label for = "deltaT" style = "height: 20px; width: 100%; text-align: left;">Delta Time</label>
                                     <input type = "number" id = "deltaT" name = "deltaT" class = "numInpBox" value = "0.01" step = "0.01" required>
                                 </div>
 
                                 <div class = "input-group">
-                                    <label style = "height: 20px; width: 100%; text-align: left;">Number of Frames</label>
+                                    <label for = "noOfFrames" style = "height: 20px; width: 100%; text-align: left;">Number of Frames</label>
                                     <input type = "number" id = "noOfFrames" name = "noOfFrames" class = "numInpBox" value = "1000" step = "1" required>
                                 </div>
 
                                 <div class = "input-group">
-                                    <label style = "height: 20px; width: 100%; text-align: left;">Steps Per Frame</label>
+                                    <label for = "stepsPerFrame" style = "height: 20px; width: 100%; text-align: left;">Steps Per Frame</label>
                                     <input type = "number" id = "stepsPerFrame" name = "stepsPerFrame" class = "numInpBox" value = "1000" step = "1" required>
                                 </div>
                             </form>
@@ -668,8 +688,27 @@
                     </div>
                 </div>
 
-                <div id = "phimoLive-menu" class = "hidden">
-                    <button id = "startPhimoLive" style = "width: 100%;">Start</button>
+                <div id = "phimoLive-menu" style = "flex-direction: column; margin-top: 20px; border: solid 1px #aaa; padding: 5px;" class = "hidden">
+                    <div id = "phimoLive-simulationConfigs" style = "justify-content: center;">
+                        <div class = "form-container" style = "padding-top: 0; padding-bottom: 15px; flex-grow: 1; width: 100%;">
+                            <form onsubmit = "return false;">
+                                <div class = "input-group">
+                                    <label for = "phimoLive-deltaT" style = "height: 20px; width: 100%; text-align: left;">Delta Time</label>
+                                    <input type = "number" id = "phimoLive-deltaT" name = "phimoLive-deltaT" class = "numInpBox" value = "0.01" step = "0.01" required>
+                                </div>
+
+                                <div class = "input-group">
+                                    <label for = "noOfFrames-inBuffer" style = "height: 20px; width: 100%; text-align: left;">Frame Buffer Size</label>
+                                    <input type = "number" id = "noOfFrames-inBuffer" name = "noOfFrames-inBuffer" class = "numInpBox" value = "1000" step = "1" required>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div style = "justify-content: center; margin-top: 15px;">
+                        <button id = "startPhimoLive" style = "width: 80%; height: 25px;">Start PhIMo Live!</button>
+                        <button id = "stopPhimoLive" style = "width: 80%; height: 25px;" class = "hidden">Stop PhIMo Live</button>
+                    </div>
                 </div>
 
                 <div id = "simulationMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>

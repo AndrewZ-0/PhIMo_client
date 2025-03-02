@@ -3,7 +3,7 @@ import {axisRenderer, masterRenderer} from "../../AGRE/src/core/renderer.js";
 import * as linearAlgebra from "../../AGRE/src/utils/linearAlgebra.js";
 import {
     camera, setCameraMode, 
-    setDraggingSensitivity, setCameraMovementSpeed, 
+    setDraggingSensitivity, setCameraMovementSpeed, setCameraRotationSpeed, 
     setCameraNear, setCameraFar, setCameraFov
 } from "../../AGRE/src/core/camera.js";
 import {updateSensitivityOverlays, updateCameraPerspectiveOverlays} from "../../AGRE/src/core/overlays.js";
@@ -19,6 +19,7 @@ const aziGroup = document.getElementById("camera-azi-group");
 
 const draggingSensitivity_input = document.getElementById("camera-draggingSensitivity");
 const movementSpeed_input = document.getElementById("camera-movementSpeed");
+const rotationSpeed_input = document.getElementById("camera-rotationSpeed");
 const near_input = document.getElementById("camera-near");
 const far_input = document.getElementById("camera-far");
 const fov_input = document.getElementById("camera-fov");
@@ -134,6 +135,7 @@ export class CameraOverlay extends OverlayEditMenu {
     
         draggingSensitivity_input.value = this.settingsData.camera.sensitivity.draggingSensitivity;
         movementSpeed_input.value = this.settingsData.camera.sensitivity.movementSpeed;
+        rotationSpeed_input.value = this.settingsData.camera.sensitivity.rotationSpeed;
         near_input.value = this.settingsData.camera.projection.near;
         far_input.value = this.settingsData.camera.projection.far;
         fov_input.value = this.settingsData.camera.projection.fov;
@@ -196,6 +198,10 @@ export class CameraOverlay extends OverlayEditMenu {
         const newCameraMovementSpeed = parseFloat(movementSpeed_input.value);
         setCameraMovementSpeed(newCameraMovementSpeed);
         this.settingsData.camera.sensitivity.movementSpeed = newCameraMovementSpeed;
+
+        const newCameraRotationSpeed = parseFloat(rotationSpeed_input.value);
+        setCameraRotationSpeed(newCameraRotationSpeed);
+        this.settingsData.camera.sensitivity.rotationSpeed = newCameraRotationSpeed;
     
         const newCameraNear = parseFloat(near_input.value);
         setCameraNear(newCameraNear);
@@ -282,31 +288,37 @@ export class CameraOverlay extends OverlayEditMenu {
     
         const dragSense = parseFloat(draggingSensitivity_input.value);
         if (isNaN(dragSense) || dragSense <= 0) {
-            errorMessageDiv.textContent = "Dragging Sensitivity must be a non-zero positive float";
+            errorMessageDiv.textContent = "Camera Dragging Sensitivity must be a non-zero positive float";
             return false;
         }
     
         const movSpeed = parseFloat(movementSpeed_input.value);
         if (isNaN(movSpeed) || movSpeed <= 0) {
-            errorMessageDiv.textContent = "Movement Speed must be a non-zero positive float";
+            errorMessageDiv.textContent = "Camera Movement Speed must be a non-zero positive float";
+            return false;
+        }
+
+        const rotSpeed = parseFloat(rotationSpeed_input.value);
+        if (isNaN(rotSpeed) || rotSpeed <= 0) {
+            errorMessageDiv.textContent = "Camera Rotation Speed must be a non-zero positive float";
             return false;
         }
     
         const near = parseFloat(near_input.value);
         if (isNaN(near) || near <= 0) {
-            errorMessageDiv.textContent = "Near must be a non-zero positive float";
+            errorMessageDiv.textContent = "Camera Projection Near must be a non-zero positive float";
             return false;
         }
     
         const far = parseFloat(far_input.value);
         if (isNaN(far) || far <= 0) {
-            errorMessageDiv.textContent = "Far must be a non-zero positive float";
+            errorMessageDiv.textContent = "Camera Projection Far must be a non-zero positive float";
             return false;
         }
     
         const fov = parseFloat(fov_input.value);
         if (isNaN(fov) || fov <= 0) {
-            errorMessageDiv.textContent = "Field Of View must be a non-zero positive float";
+            errorMessageDiv.textContent = "Camera Projection Field Of View must be a non-zero positive float";
             return false;
         }
     
