@@ -57,8 +57,6 @@ export class Player {
             object.x = objectData[0];
             object.y = objectData[1];
             object.z = objectData[2];
-
-            console.log(objectData[0])
         }
 
         masterRenderer.quickInitialise(masterRenderer.objects);
@@ -96,7 +94,7 @@ export class Player {
             this.currentFrame = Math.floor(this.cumlitiveTime / this.simConfig.deltaT);
 
             if (this.updateFrameCallback) {
-                for (let i = lastFrame; i < this.currentFrame; i++) {
+                for (let i = lastFrame; i < Math.min(this.currentFrame, this.settingsData.noOfFrames); i++) {
                     this.updateFrameCallback(i);
                 }
                 this.updateFrameCallback(this.currentFrame);
@@ -127,7 +125,7 @@ export class Player {
         this.updateFrameCallback = updateFrameCallback.bind(this);
     }
 
-    async startSimulation() {
+    startSimulation() {
         if (this.isPaused) {
             if (this.currentFrame == this.frames.length) {
                 this.currentFrame = 0;

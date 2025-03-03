@@ -67,6 +67,15 @@ export function computeFrame(configs, headers, frames, frameIndex = null) {
         linker.updateParticles(particles, planes, dt);
     }
 
+    let i = 0
+    for (const obj of Object.values(objects)) {
+        if (obj.dtype === 0) {
+            obj.position = particles[i].s;
+            obj.velocity = particles[i].v;
+            i++;
+        } 
+    }
+
     if (!frameIndex || frameIndex > frames.length - 1) {
         frames.push([]);
         for (const particle of particles) {
@@ -78,7 +87,7 @@ export function computeFrame(configs, headers, frames, frameIndex = null) {
         }
     }
     else {
-        frames[frameIndex] = [];
+        frames[frameIndex].length = 0;
         for (const particle of particles) {
             frames[frameIndex].push([...particle.s, ...particle.v]);
         }
