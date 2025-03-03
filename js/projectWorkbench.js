@@ -69,7 +69,7 @@ let collisionsOverlay;
 let dragOverlay;
 
 let player;
-let objectHeaders;
+let objectHeaders = [];
 let frames = [];
 let objectLookup = {};
 
@@ -184,9 +184,19 @@ function startPhimoLive() {
     document.getElementById("orientationViewport-surface").style.bottom = "40px";
     document.getElementById("simulationProgressBarContainer").classList.remove("hidden");
 
-    computeFrame(projectData, frames);
+    settingsData.speed = 1;
 
-    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects);
+    for (const obj of masterRenderer.objects) {
+        objectLookup[obj.name] = obj;
+    }
+
+    computeFrame(projectData, objectHeaders, frames);
+
+    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects, true);
+
+    player.bindUpdateFrame((frameIndex) => {
+        computeFrame(projectData, objectHeaders, frames, frameIndex);
+    });
 }
 
 function stopPhimoLive() {

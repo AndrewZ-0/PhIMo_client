@@ -16,7 +16,7 @@ const totalTimeEntry = document.getElementById("total-time");
 const screenRefreshInterval = 1 / FPS;
 
 export class Player {
-    constructor(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, updateFinderListObjects) {
+    constructor(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, updateFinderListObjects, live = false) {
         this.objectHeaders = objectHeaders;
         this.frames = frames;
         this.objectLookup = objectLookup;
@@ -40,9 +40,12 @@ export class Player {
         this.updateTiming(0, (this.frames.length - 1) * this.simConfig.deltaT);
 
         this.bindEvents();
+
+        this.live = live;
+        this.updateFrameCallback;
     }
 
-    async updateRender(frameIndex) {
+    updateRender(frameIndex) {
         const noOfObject = this.objectHeaders.length;
         const frame = this.frames[frameIndex];
     
@@ -54,13 +57,15 @@ export class Player {
             object.x = objectData[0];
             object.y = objectData[1];
             object.z = objectData[2];
+
+            console.log(objectData[0])
         }
 
         masterRenderer.quickInitialise(masterRenderer.objects);
         this.ge.quickAnimationStart();
     }
 
-    async displayFrame(frameIndex, displayNow = false) {
+    displayFrame(frameIndex, displayNow = false) {
         this.updateRender(frameIndex);
 
         if (displayNow) {
@@ -85,16 +90,29 @@ export class Player {
     
         if (! this.isScrubbing) {
             this.cumlitiveTime += true_deltaTime;
+
+            const lastFrame = this.currentFrame;
     
             this.currentFrame = Math.floor(this.cumlitiveTime / this.simConfig.deltaT);
+
+            if (this.updateFrameCallback) {
+                for (let i = lastFrame; i < this.currentFrame; i++) {
+                    this.updateFrameCallback(i);
+                }
+                this.updateFrameCallback(this.currentFrame);
+            }
     
             if (this.currentFrame >= this.frames.length) {
-                this.displayFrame(this.frames.length - 1);
+                this.currentFrame = this.frames.length - 1;
     
-                this.currentFrame = this.frames.length;
+                if (!this.live) {
+                    this.displayFrame(this.currentFrame);
     
-                this.pauseSimulation();
-                return;
+                    this.currentFrame = this.frames.length;
+
+                    this.pauseSimulation();
+                    return;
+                }
             }
     
             this.displayFrame(this.currentFrame);
@@ -103,6 +121,10 @@ export class Player {
         }
     
         requestAnimationFrame(this.playSimulationFrame.bind(this));
+    }
+
+    bindUpdateFrame(updateFrameCallback) {
+        this.updateFrameCallback = updateFrameCallback.bind(this);
     }
 
     async startSimulation() {

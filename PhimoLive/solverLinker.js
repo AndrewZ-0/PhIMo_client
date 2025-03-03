@@ -47,8 +47,8 @@ export class SolverLinker {
     }
 
     linkEForce(E0, E) {
-        this.activePOPSolvers.push(physics.applyElectricForce);
-        this.activePlaneSolvers.push(physics.applyElectricForce);
+        this.activePOPSolvers.push(physics.applyPOPElectricForce);
+        this.activePlaneSolvers.push(physics.applyPlaneElectricForce);
         this.phyConsts.setE0(E0);
 
         this.activeGlobalForces.push(physics.applyUniformElectricForce);
@@ -106,7 +106,9 @@ export class SolverLinker {
 
     computeForces(particles, planes) {
         for (const p of particles) {
-            p.a = [0, 0, 0];
+            p.a[0] = 0;
+            p.a[1] = 0;
+            p.a[2] = 0;
         }
 
         for (let i = 0; i < particles.length; i++) {

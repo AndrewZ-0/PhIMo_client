@@ -8,9 +8,10 @@ let planes = [];
 
 const linker = new SolverLinker();
 
-export function computeFrame(configs, frames) {
+export function computeFrame(configs, headers, frames, frameIndex = null) {
     const deltaT = clock.deltaT;
-    const stepsPerFrame = configs.noOfFrames
+    const stepsPerFrame = configs.stepsPerFrame;
+    const noOfFrames = configs.noOfFrames;
 
     const models = configs.models;
 
@@ -42,28 +43,44 @@ export function computeFrame(configs, frames) {
         linker.linkDrag(drag.rho);
     }
 
-    for (const obj in objects) {
+    for (const obj of Object.values(objects)) {
         if (obj.dtype === 0) {
-            particles.push(new Particle(mass, obj.position, obj.velocity, obj.radius, obj.charge, obj.dragCoef));
+            particles.push(new Particle(obj.mass, [...obj.position], [...obj.velocity], obj.radius, obj.charge, obj.dragCoef));
         } 
         else if (obj.dtype === 1) {
-            planes.push(new Plane(obj.dimentions[0], obj.dimentions[1], obj.charge, obj.position, obj.orientation));
+            planes.push(new Plane(...obj.dimentions, obj.charge, [...obj.position], [...obj.orientation]));
         }
     }
 
     const dt = deltaT / stepsPerFrame;
 
     linker.optimise(particles, planes);
+    
+    headers.length = 0;
+    for (const [objName, obj] of Object.entries(objects)) {
+        if (obj.dtype === 0) {
+            headers.push(objName);
+        }
+    }
 
     for (let i = 0; i < stepsPerFrame; i++) {
         linker.updateParticles(particles, planes, dt);
     }
 
-    let i = 0;
-    for (const objectName of configs.objects) {
-        configs.objects[objectName] = particles.position[i];
-        i++;
-    }
+    if (!frameIndex || frameIndex > frames.length - 1) {
+        frames.push([]);
+        for (const particle of particles) {
+            frames[frames.length - 1].push([...particle.s, ...particle.v]);
+        }
 
-    frames.push()
+        if (frames.length > noOfFrames) {
+            frames.shift();
+        }
+    }
+    else {
+        frames[frameIndex] = [];
+        for (const particle of particles) {
+            frames[frameIndex].push([...particle.s, ...particle.v]);
+        }
+    }
 }

@@ -35,7 +35,7 @@ export function handlePOPCollisions(particles, phyConsts) {
 export function handlePlaneCollisions(particles, planes, phyConsts) {
     for (const p of particles) {
         for (const plane of planes) {
-            const localPos = subtractVectors(p.s, plane.s);
+            const localPos = sub(p.s, plane.s);
             const h = dot(localPos, plane.normal);
 
             const abs_h = Math.abs(h);
