@@ -122,6 +122,13 @@ async function loadData() {
         }
     }
 
+    objectHeaders.length = 0;
+    for (const [objName, obj] of Object.entries(projectData.objects)) {
+        if (obj.dtype === 0) {
+            objectHeaders.push(objName);
+        }
+    }
+
     //to prevent setting camera mode from overwriting intial one in setting data
     const initialCameraPose = settingsData.camera.pose;
 
@@ -139,17 +146,21 @@ async function loadData() {
     setShaderModeRadio(settingsData.shaders.mode);
     masterRenderer.setShaderMode(settingsData.shaders.mode);
 
+    for (const obj of masterRenderer.objects) {
+        objectLookup[obj.name] = obj;
+    }
+
     cameraOverlay = new CameraOverlay(ge, settingsData, markUnsavedChanges);
 
     cameraOverlay.bindShowCallback(showCameraConfigMenuOverlay);
     cameraOverlay.bindHideCallback(hideCameraConfigMenuOverlay);
 
-    createObjectOverlay = new CreateObjectOverlay(ge, projectData, settingsData, markUnsavedChanges, validateObjectBasedInputs);
+    createObjectOverlay = new CreateObjectOverlay(ge, projectData, settingsData, objectHeaders, objectLookup, markUnsavedChanges, validateObjectBasedInputs);
     createObjectOverlay.bindShowCallback(showCreateObjectCallback);
     createObjectOverlay.bindHideCallback(hideCreateObjectCallback);
     createObjectOverlay.configureObjectEntries();
 
-    findObjectOverlay = new FindObjectOverlay();
+    findObjectOverlay = new FindObjectOverlay(objectHeaders, objectLookup);
     findObjectOverlay.bindShowCallback(showFindObjectCallback);
     findObjectOverlay.bindHideCallback(hideFindObjectCallback);
 
@@ -186,16 +197,20 @@ function startPhimoLive() {
 
     settingsData.speed = 1;
 
-    for (const obj of masterRenderer.objects) {
-        objectLookup[obj.name] = obj;
-    }
+    computeFrame(projectData, frames, null, true);
 
-    computeFrame(projectData, objectHeaders, frames);
+    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects, true, unsavedChanges);
 
-    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects, true);
+    player.bindUpdateFrame((frameIndex, unsavedChanges) => {
+        computeFrame(projectData, frames, frameIndex, unsavedChanges);
+        if (masterRenderer.currentSelection !== null) {
+            const renderObject = masterRenderer.objects[masterRenderer.currentSelection];
+            const obj = projectData.objects[renderObject.name];
 
-    player.bindUpdateFrame((frameIndex) => {
-        computeFrame(projectData, objectHeaders, frames, frameIndex);
+            if (obj.dtype === 0) {
+                populateObjectDataForm(renderObject);
+            }
+        }
     });
 }
 
@@ -298,6 +313,9 @@ function createObjectFromModelData(name, newObjectModel) {
         const radius = newObjectModel.radius;
         const fidelity = calculateScaledFidelity(radius);
         newObject = new Sphere(name, ...newObjectModel.position, radius, fidelity, newObjectModel.colour);
+
+        objectHeaders.push(name);
+        objectLookup[name] = newObject;
     }
     else if (newObjectModel.dtype === 1) {
         newObject = new Plane(
@@ -456,6 +474,10 @@ function markUnsavedChanges(priority) {
 
         if (priority === "high") {
             badge.classList.add("highPriority");
+
+            if (player) {
+                player.unsavedChanges = true;
+            }
         }
         else if (priority === "low") {
             badge.classList.add("lowPriority");
@@ -469,6 +491,10 @@ function markUnsavedChanges(priority) {
 
         badge.classList.add("highPriority");
         unsavedChanges = priority;
+
+        if (player) {
+            player.unsavedChanges = true;
+        }
     }
 }
 function clearUnsavedChanges() {
@@ -477,6 +503,10 @@ function clearUnsavedChanges() {
         badge.classList.remove("lowPriority", "highPriority");
         badge.classList.add("hidden");
         unsavedChanges = false;
+
+        if (player) {
+            player.unsavedChanges = false;
+        }
     }
 }
 
@@ -491,6 +521,8 @@ function deleteObject() {
     if (masterRenderer.currentSelection !== null) {
         const name = masterRenderer.objects[masterRenderer.currentSelection].name;
         delete projectData.objects[name];
+        objectHeaders.splice(name, 1);
+        delete objectLookup[name];
 
         masterRenderer.objects.splice(masterRenderer.currentSelection, 1);
         masterRenderer.currentSelection = null;
@@ -592,7 +624,7 @@ function validateObjectBasedInputs(prefix) {
     if (!nameRegex.test(name)) {
         errorMessageDiv.textContent = `Object name (${name}) is invalid. Only characters (A-Z, a-z, _ and 0-9) are allowed`;
         return false;
-    } 
+    }
 
     const axes = ["x", "y", "z"];
     const orientations = ["pitch", "yaw", "roll"];
@@ -697,6 +729,12 @@ function updateObjectData() {
 
     const name = document.getElementById("edit-objectName").value;
 
+    if (name !== oldObjectName && objectHeaders.includes(name)) {
+        const errorMessageDiv = document.getElementById("edit-object-error-message");
+        errorMessageDiv.textContent = `Object name is already in use.`;
+        return;
+    }
+
     if (dtype === 0) {
         const radius = parseFloat(document.getElementById("edit-radius").value);
         const fidelity = calculateScaledFidelity(radius);
@@ -727,7 +765,11 @@ function updateObjectData() {
         //update model data
         if (oldObjectName !== name) {
             delete projectData.objects[oldObjectName];
+            const i = objectHeaders.indexOf(oldObjectName);
+            objectHeaders[i] = name;
             projectData.objects[name] = {};
+            delete objectLookup[oldObjectName];
+            objectLookup[name] = masterRenderer.objects[i];
         }
         projectData.objects[name].position = [position.x, position.y, position.z];
         projectData.objects[name].velocity = [velocity.x, velocity.y, velocity.z];

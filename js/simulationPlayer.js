@@ -167,7 +167,7 @@ async function loadData() {
     cameraOverlay.bindShowCallback(showCameraConfigMenuOverlay);
     cameraOverlay.bindHideCallback(hideCameraConfigMenuOverlay);
 
-    findObjectOverlay = new FindObjectOverlay();
+    findObjectOverlay = new FindObjectOverlay(objectHeaders, objectLookup);
     findObjectOverlay.bindShowCallback(showFindObjectCallback);
     findObjectOverlay.bindHideCallback(hideFindObjectCallback);
 

@@ -15,88 +15,83 @@ const errorMessageDiv = document.getElementById("find-object-error-message");
 
 
 export class FindObjectOverlay extends OverlayEditMenu {
-    constructor() {
+    constructor(objectHeaders, objectLookup) {
         super();
+
+        this.objectHeaders = objectHeaders;
+        this.objectLookup = objectLookup;
+
         this.bindPermanantEvents();
     }
 
-    async updateFinderListObjects(objectLookup) {
+    async updateFinderListObjects() {
         if (this.hidden) {
             return;
         }
 
         for (const option of objectsList) {
             const name = option.value;
-            const object = objectLookup[name];
+            const object = this.objectLookup[name];
     
             let typeName;
             if (object instanceof Sphere) {
                 typeName = "particle";
+
+                const pos = {
+                    x: Math.round(object.x * 1000) / 1000,
+                    y: Math.round(object.y * 1000) / 1000,
+                    z: Math.round(object.z * 1000) / 1000, 
+                }
+        
+                if (pos.x !== object.x) {
+                    pos.x += "...";
+                }
+                if (pos.y !== object.y) {
+                    pos.y += "...";
+                }
+                if (pos.z !== object.z) {
+                    pos.z += "...";
+                }
+        
+                option.value = name;
+                option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
             }
-            else if (object instanceof Plane) {
-                typeName = "plane";
-            }
-    
-            const pos = {
-                x: Math.round(object.x * 1000) / 1000,
-                y: Math.round(object.y * 1000) / 1000,
-                z: Math.round(object.z * 1000) / 1000, 
-            }
-    
-            if (pos.x !== object.x) {
-                pos.x += "...";
-            }
-            if (pos.y !== object.y) {
-                pos.y += "...";
-            }
-            if (pos.z !== object.z) {
-                pos.z += "...";
-            }
-    
-            option.value = name;
-            option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
         }
     }
 
-    loadObjectsToFinderList(objectHeaders) {
+    loadObjectsToFinderList() {
         const objectList = objectsList;
         objectList.replaceChildren();
     
-        const noOfObject = objectHeaders.length;
-    
-        for (let i = 0; i < noOfObject; i++) {
-            const name = objectHeaders[i];
-    
-            const object = objectLookup[name];
-        
+        for (const obj of masterRenderer.objects) {
             const option = document.createElement("option");
     
             let typeName;
-            if (object instanceof Sphere) {
+            if (obj instanceof Sphere) {
                 typeName = "particle";
             }
-            else if (object instanceof Plane) {
+            else if (obj instanceof Plane) {
                 typeName = "plane";
             }
     
             let pos = {
-                x: Math.round(object.x * 1000) / 1000,
-                y: Math.round(object.y * 1000) / 1000,
-                z: Math.round(object.z * 1000) / 1000, 
+                x: Math.round(obj.x * 1000) / 1000,
+                y: Math.round(obj.y * 1000) / 1000,
+                z: Math.round(obj.z * 1000) / 1000, 
             }
     
-            if (pos.x !== object.x) {
+            if (pos.x !== obj.x) {
                 pos.x += "...";
             }
-            if (pos.y !== object.y) {
+            if (pos.y !== obj.y) {
                 pos.y += "...";
             }
-            if (pos.z !== object.z) {
+            if (pos.z !== obj.z) {
                 pos.z += "...";
             }
     
-            option.value = name;
-            option.textContent = `${typeName}: ${name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
+            option.value = obj.name;
+            option.textContent = `${typeName}: ${obj.name} {x: ${pos.x}, y: ${pos.y}, z: ${pos.z}}`;
             objectList.appendChild(option);
         }
     }

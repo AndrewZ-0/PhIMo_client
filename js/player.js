@@ -43,6 +43,7 @@ export class Player {
 
         this.live = live;
         this.updateFrameCallback;
+        this.unsavedChanges = false;
     }
 
     updateRender(frameIndex) {
@@ -95,9 +96,9 @@ export class Player {
 
             if (this.updateFrameCallback) {
                 for (let i = lastFrame; i < Math.min(this.currentFrame, this.settingsData.noOfFrames); i++) {
-                    this.updateFrameCallback(i);
+                    this.updateFrameCallback(i, this.unsavedChanges);
                 }
-                this.updateFrameCallback(this.currentFrame);
+                this.updateFrameCallback(this.currentFrame, this.unsavedChanges);
             }
     
             if (this.currentFrame >= this.frames.length) {
@@ -214,25 +215,25 @@ export class Player {
     
         let inputTime_inSecs;
         if (userInput.length === 1) {
-            inputTime_inSecs = parseFloat(userInput[0]);
+            inputTime_inSecs = userInput[0] * 1;
         }
         else if (userInput.length === 2) {
             const [minutes, seconds] = userInput;
     
-            inputTime_inSecs = parseFloat(minutes) * 60 + parseFloat(seconds);
+            inputTime_inSecs = minutes * 60 + seconds * 1;
         }
         else {
-            displayFrame(this.currentFrame);
+            this.displayFrame(this.currentFrame);
             return;
         }
     
-        if (isNaN(inputTime_inSecs) || inputTime_inSecs > (frames.length - 1) * this.simConfig.deltaT) {
-            displayFrame(this.currentFrame);
+        if (isNaN(inputTime_inSecs) || inputTime_inSecs > (this.frames.length - 1) * this.simConfig.deltaT || inputTime_inSecs < 0) {
+            this.displayFrame(this.currentFrame);
             return;
         }
     
         this.currentFrame = inputTime_inSecs / this.simConfig.deltaT;
-        displayFrame(this.currentFrame);
+        this.displayFrame(this.currentFrame);
     }
     
     handleTimeEntry(event) {

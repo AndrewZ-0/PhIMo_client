@@ -58,12 +58,14 @@ const errorMessageDiv = document.getElementById("create-object-error-message");
 
 
 export class CreateObjectOverlay extends OverlayEditMenu {
-    constructor(ge, projectData, settingsData, markUnsavedChanges, validateObjectBasedInputs) {
+    constructor(ge, projectData, settingsData, objectHeaders, objectLookup, markUnsavedChanges, validateObjectBasedInputs) {
         super();
 
         this.ge = ge;
         this.projectData = projectData;
         this.settingsData = settingsData;
+        this.objectHeaders = objectHeaders;
+        this.objectLookup = objectLookup;
         this.markUnsavedChanges = markUnsavedChanges.bind(this);
         this.validateObjectBasedInputs = validateObjectBasedInputs.bind(this);
 
@@ -155,6 +157,9 @@ export class CreateObjectOverlay extends OverlayEditMenu {
                 position, velocity,
                 radius, mass, charge, dragCoef, colour
             };
+
+            this.objectHeaders.push(name);
+            this.objectLookup[name] = newObject;
         }
         else if (objectType === "1") {
             const position = [

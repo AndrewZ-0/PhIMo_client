@@ -62,7 +62,7 @@ button:active {
     display: flex;
     flex-direction: row;
     align-items: center;
-    z-index: 20;
+    z-index: 10;
 }
 
 .titleLabel {

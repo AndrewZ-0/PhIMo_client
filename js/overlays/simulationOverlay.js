@@ -209,10 +209,12 @@ export class SimulationOverlay extends OverlayEditMenu {
         simulationList.replaceChildren();
     
         for (const simulation of response.data) {
-            const option = document.createElement("option");
-            option.value = simulation;
-            option.textContent = simulation;
-            simulationList.appendChild(option);
+            if (simulation[0] !== this.currentComputingSimulationName) {
+                const option = document.createElement("option");
+                option.value = simulation;
+                option.textContent = simulation;
+                simulationList.appendChild(option);
+            }
         }
     
         this.updateSimulationButtons();
