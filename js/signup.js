@@ -59,6 +59,8 @@ async function handleSignup(event) {
         return; 
     }
 
+    console.log("hi")
+
     const signupResponse = await communicator.signup(username, password1, email);
     if (signupResponse.status === "OK") {
         await communicator.logout();

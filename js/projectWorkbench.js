@@ -10,6 +10,7 @@ import {
     camera, cameraMode, setCameraMode, 
     setDraggingSensitivity, setCameraMovementSpeed, setCameraRotationSpeed
 } from "../AGRE/src/core/camera.js";
+import {FPS} from "../AGRE/src/core/clock.js";
 import {toggleTab} from "./tabMenu.js";
 import {CreateObjectOverlay} from "./overlays/createObjectOverlay.js";
 import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
@@ -164,7 +165,7 @@ async function loadData() {
     findObjectOverlay.bindShowCallback(showFindObjectCallback);
     findObjectOverlay.bindHideCallback(hideFindObjectCallback);
 
-    simulationOverlay = new SimulationOverlay(projectData, saveProjectData, startPhimoLive, stopPhimoLive);
+    simulationOverlay = new SimulationOverlay(projectData, saveProjectData, startPhimoLive, stopPhimoLive, reconfigureBuffer);
     simulationOverlay.bindShowCallback(showPlaySimulationMenu);
     simulationOverlay.bindHideCallback(hidePlaySimulationMenu);
 
@@ -197,9 +198,9 @@ function startPhimoLive() {
 
     settingsData.speed = 1;
 
-    computeFrame(projectData, frames, null, true);
+    computeFrame(projectData, frames, 0, true);
 
-    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects, true, unsavedChanges);
+    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects, true);
 
     player.bindUpdateFrame((frameIndex, unsavedChanges) => {
         computeFrame(projectData, frames, frameIndex, unsavedChanges);
@@ -218,7 +219,20 @@ function stopPhimoLive() {
     document.getElementById("orientationViewport-surface").style.bottom = "0px";
     document.getElementById("simulationProgressBarContainer").classList.add("hidden");
 
+    player.pauseSimulation();
     player = null;
+}
+
+function reconfigureBuffer() {
+    if (player) {
+        if (frames.length > projectData.noOfFrames) {
+            frames.splice(0, frames.length - projectData.noOfFrames);
+
+            player.currentFrame = player.frames.length - 1;
+            player.cumlitiveStart = (frames.length - projectData.noOfFrames) / FPS;
+        }
+        player.displayFrame(player.currentFrame);
+    }
 }
 
 

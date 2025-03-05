@@ -41,13 +41,14 @@ const errorMessageDiv = document.getElementById("simulationMenu-error-message");
 
 
 export class SimulationOverlay extends OverlayEditMenu {
-    constructor(projectData, saveProjectData, startPhimoLiveCallback, stopPhimoLiveCallback) {
+    constructor(projectData, saveProjectData, startPhimoLiveCallback, stopPhimoLiveCallback, reconfigureBuffer) {
         super();
 
         this.projectData = projectData;
         this.saveProjectData = saveProjectData.bind(this);
         this.startPhimoLiveCallback = startPhimoLiveCallback.bind(this);
         this.stopPhimoLiveCallback = stopPhimoLiveCallback.bind(this);
+        this.reconfigureBuffer = reconfigureBuffer.bind(this);
 
         this.phimoLive_running = false;
 
@@ -445,6 +446,7 @@ export class SimulationOverlay extends OverlayEditMenu {
         noOfFrames_live_input.addEventListener("input", () => {
             if (this.validateLiveSimConfigEntries()) {
                 this.projectData.noOfFrames = parseInt(noOfFrames_live_input.value);
+                this.reconfigureBuffer();
             }
         });
         stepsPerFrame_live_input.addEventListener("input", () => {

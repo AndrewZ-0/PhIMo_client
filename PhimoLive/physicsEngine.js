@@ -1,4 +1,4 @@
-import {clock} from "../AGRE/src/core/clock.js";
+import {FPS} from "../AGRE/src/core/clock.js";
 import {SolverLinker} from "./solverLinker.js";
 import {Particle, Plane} from "./utils/bespokeConstructs.js";
 
@@ -8,11 +8,15 @@ let planes = [];
 const linker = new SolverLinker();
 
 export function computeFrame(configs, frames, frameIndex = null, unsavedChanges = false) {
+    //console.log(frameIndex, frames.length, unsavedChanges)
+
+    /*
     if (frameIndex !== null && frameIndex < frames.length && !unsavedChanges) {
         return;
     }
+    */
 
-    const deltaT = clock.deltaT;
+    configs.deltaT = 1 / FPS;
     const stepsPerFrame = configs.stepsPerFrame;
     const noOfFrames = configs.noOfFrames;
 
@@ -58,7 +62,7 @@ export function computeFrame(configs, frames, frameIndex = null, unsavedChanges 
         }
     }
 
-    const dt = deltaT / stepsPerFrame;
+    const dt = configs.deltaT / stepsPerFrame;
 
     linker.optimise(particles, planes);
 
@@ -81,14 +85,19 @@ export function computeFrame(configs, frames, frameIndex = null, unsavedChanges 
             frames[frames.length - 1].push([...particle.s, ...particle.v]);
         }
 
+        console.log("hi", frames.length)
+
         if (frames.length > noOfFrames) {
             frames.shift();
         }
     }
     else if (unsavedChanges) {
-        frames[frameIndex].length = 0;
+        const correctedIndex = Math.min(frameIndex + 1, frames.length - 1);
+        frames[correctedIndex].length = 0;
         for (const particle of particles) {
-            frames[frameIndex].push([...particle.s, ...particle.v]);
+            frames[correctedIndex].push([...particle.s, ...particle.v]);
         }
     }
+
+    unsavedChanges = false;
 }

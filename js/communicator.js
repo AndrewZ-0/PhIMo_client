@@ -1,7 +1,12 @@
 class Communicator {
     constructor() {
         this.scheme = "https://"
-        this.serverDomainName = "phimo.ddns.net:1234";
+        this.serverDomainName = "phimo.ddns.net:1234"; //default
+
+        const serverDomainName = this.getServerDomainNameFromUrl();
+        if (serverDomainName !== null) {
+            this.serverDomainName = serverDomainName;
+        }
 
         //changed the way the communicator handles certificates. Communicator now stores certificate locally.
         //communicator relys on session storage to maintain cert across pages
@@ -9,11 +14,6 @@ class Communicator {
     }
 
     async loginFromSessionStorage() {
-        const serverDomainName = this.getServerDomainNameFromUrl();
-        if (serverDomainName !== null) {
-            this.serverDomainName = serverDomainName;
-        }
-
         const certificate = sessionStorage.getItem("certificate");
 
         if (certificate) {
@@ -34,11 +34,6 @@ class Communicator {
     }
 
     async loginFromCookies() {
-        const serverDomainName = this.getServerDomainNameFromUrl();
-        if (serverDomainName !== null) {
-            this.serverDomainName = serverDomainName;
-        }
-
         const response = await this.getCertificateFromCookies();
     
         if (response.status !== "OK") {
@@ -67,11 +62,6 @@ class Communicator {
     }
 
     async loginFromCredentials(username, password, keepSignedIn) {
-        const serverDomainName = this.getServerDomainNameFromUrl();
-        if (serverDomainName !== null) {
-            this.serverDomainName = serverDomainName;
-        }
-
         const response = await this.submitData("login", {username, password, keepSignedIn});
 
         if (response.status === "OK") {

@@ -1,6 +1,6 @@
 import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {bindCameraCallbacks, unbindCameraCallbacks, unbindAllKeyControls} from "../AGRE/src/core/listeners.js";
-import {FPS} from "../AGRE/src/core/clock.js";
+import {FPS, clock} from "../AGRE/src/core/clock.js";
 import {bindAllControls} from "../AGRE/src/core/listeners.js";
 
 
@@ -31,6 +31,7 @@ export class Player {
 
         this.speedFactor = 1;
         this.cumlitiveTime = 0;
+        this.cumlitiveStart = 0;
 
         this.lastTime;
 
@@ -92,22 +93,19 @@ export class Player {
 
             const lastFrame = this.currentFrame;
     
-            this.currentFrame = Math.floor(this.cumlitiveTime / this.simConfig.deltaT);
+            this.currentFrame = Math.floor((this.cumlitiveTime - this.cumlitiveStart) / this.simConfig.deltaT);
 
             if (this.updateFrameCallback) {
-                for (let i = lastFrame; i < Math.min(this.currentFrame, this.settingsData.noOfFrames); i++) {
+                for (let i = lastFrame; i < this.currentFrame; i++) {
                     this.updateFrameCallback(i, this.unsavedChanges);
                 }
-                this.updateFrameCallback(this.currentFrame, this.unsavedChanges);
             }
     
-            if (this.currentFrame >= this.frames.length) {
+            if (this.currentFrame >= this.frames.length - 1) {
                 this.currentFrame = this.frames.length - 1;
     
                 if (!this.live) {
                     this.displayFrame(this.currentFrame);
-    
-                    this.currentFrame = this.frames.length;
 
                     this.pauseSimulation();
                     return;
@@ -128,9 +126,10 @@ export class Player {
 
     startSimulation() {
         if (this.isPaused) {
-            if (this.currentFrame == this.frames.length) {
+            if (!this.live && this.currentFrame == this.frames.length - 1) {
                 this.currentFrame = 0;
                 this.cumlitiveTime = 0;
+                this.cumlitiveStart = 0;
             }
 
             this.isPaused = false;
