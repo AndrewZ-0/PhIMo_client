@@ -85,8 +85,6 @@ export function computeFrame(configs, frames, frameIndex = null, unsavedChanges 
             frames[frames.length - 1].push([...particle.s, ...particle.v]);
         }
 
-        console.log("hi", frames.length)
-
         if (frames.length > noOfFrames) {
             frames.shift();
         }

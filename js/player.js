@@ -96,7 +96,7 @@ export class Player {
             this.currentFrame = Math.floor((this.cumlitiveTime - this.cumlitiveStart) / this.simConfig.deltaT);
 
             if (this.updateFrameCallback) {
-                for (let i = lastFrame; i < this.currentFrame; i++) {
+                for (let i = lastFrame; i <= Math.min(this.currentFrame, this.simConfig.noOfFrames); i++) {
                     this.updateFrameCallback(i, this.unsavedChanges);
                 }
             }
