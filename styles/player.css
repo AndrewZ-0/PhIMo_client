@@ -60,3 +60,19 @@
     font-size: 14px;
     color: #fff;
 }
+
+#speedButton {
+    position: absolute;
+    right: 16px;
+    top: 10px;
+    width: 22px;
+    height: 22px;
+    margin: 0px;
+    background: transparent;
+}
+#speedButton:hover {
+    outline: none;
+}
+#speedButton_img:hover {
+    filter: invert(15%);
+}

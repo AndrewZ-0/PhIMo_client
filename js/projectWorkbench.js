@@ -16,6 +16,7 @@ import {CreateObjectOverlay} from "./overlays/createObjectOverlay.js";
 import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
 import {SimulationOverlay} from "./overlays/simulationOverlay.js";
 import {CameraOverlay} from "./overlays/cameraOverlay.js";
+import {SpeedEditOverlay} from "./overlays/speedOverlay.js";
 
 import {GravityEditOverlay} from "./overlays/gravityOverlay.js";
 import {ElectricForceEditOverlay} from "./overlays/eForceOverlay.js";
@@ -62,6 +63,7 @@ let cameraOverlay;
 let createObjectOverlay;
 let findObjectOverlay;
 let simulationOverlay;
+let speedOverlay;
 
 let gravityOverlay;
 let eForceOverlay;
@@ -200,7 +202,7 @@ function startPhimoLive() {
 
     computeFrame(projectData, frames, 0, true);
 
-    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects, true);
+    player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, settingsData.speed, findObjectOverlay.updateFinderListObjects, true);
 
     player.bindUpdateFrame((frameIndex, unsavedChanges) => {
         computeFrame(projectData, frames, frameIndex, unsavedChanges);
@@ -213,6 +215,10 @@ function startPhimoLive() {
             }
         }
     });
+
+    speedOverlay = new SpeedEditOverlay(settingsData, player, markUnsavedChanges);
+    speedOverlay.bindShowCallback(showSpeedMenuCallback);
+    speedOverlay.bindHideCallback(hideSpeedMenuCallback);
 }
 
 function stopPhimoLive() {
@@ -221,6 +227,7 @@ function stopPhimoLive() {
 
     player.pauseSimulation();
     player = null;
+    speedOverlay = null;
 }
 
 function reconfigureBuffer() {
@@ -475,6 +482,18 @@ function showDragMenuOverlay() {
 function hideDragMenuOverlay() {
     bindAllControls(ge.canvas);
 
+    document.addEventListener("keydown", workspaceKeyEvents);
+}
+
+
+
+function showSpeedMenuCallback() {
+    unbindAllKeyControls();
+    document.removeEventListener("keydown", workspaceKeyEvents);
+}
+
+function hideSpeedMenuCallback() {
+    bindAllControls(ge.canvas);
     document.addEventListener("keydown", workspaceKeyEvents);
 }
 

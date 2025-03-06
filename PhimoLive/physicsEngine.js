@@ -90,7 +90,7 @@ export function computeFrame(configs, frames, frameIndex = null, unsavedChanges 
         }
     }
     else if (unsavedChanges) {
-        const correctedIndex = Math.min(frameIndex + 1, frames.length - 1);
+        const correctedIndex = Math.min(frameIndex, frames.length - 1);
         frames[correctedIndex].length = 0;
         for (const particle of particles) {
             frames[correctedIndex].push([...particle.s, ...particle.v]);

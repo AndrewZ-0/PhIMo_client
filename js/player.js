@@ -16,7 +16,7 @@ const totalTimeEntry = document.getElementById("total-time");
 const screenRefreshInterval = 1 / FPS;
 
 export class Player {
-    constructor(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, updateFinderListObjects, live = false) {
+    constructor(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, speedFactor, updateFinderListObjects, live = false) {
         this.objectHeaders = objectHeaders;
         this.frames = frames;
         this.objectLookup = objectLookup;
@@ -29,7 +29,7 @@ export class Player {
         this.isPaused = true;
         this.isScrubbing = false;
 
-        this.speedFactor = 1;
+        this.speedFactor = speedFactor;
         this.cumlitiveTime = 0;
         this.cumlitiveStart = 0;
 
@@ -85,7 +85,7 @@ export class Player {
         }
     
         const currentTime = performance.now();
-        const true_deltaTime = (currentTime - this.lastTime) / 1000 * this.settingsData.speed;
+        const true_deltaTime = (currentTime - this.lastTime) / 1000 * this.speedFactor;
         this.lastTime = currentTime;
     
         if (! this.isScrubbing) {
@@ -196,6 +196,19 @@ export class Player {
     
         this.currentFrame = Math.floor(progress * (this.frames.length - 1));
         this.cumlitiveTime = this.currentFrame * this.simConfig.deltaT;
+
+        if (this.updateFrameCallback) {
+            let i = 0
+            for (const obj of Object.values(this.simConfig.objects)) {
+                if (obj.dtype === 0) {
+                    const framObj = this.frames[this.currentFrame][i];
+                    obj.position = [framObj[0], framObj[1], framObj[2]];
+                    obj.velocity = [framObj[3], framObj[4], framObj[5]];
+                    i++;
+                }
+            }
+        }
+
         this.displayFrame(this.currentFrame, true);
     }
 
@@ -251,6 +264,10 @@ export class Player {
         }
     
         return minutes + ":" + formattedSeconds;
+    }
+
+    setSpeedFactor(speedFactor) {
+        this.speedFactor = speedFactor;
     }
 
     bindEvents() {

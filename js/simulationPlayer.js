@@ -145,7 +145,6 @@ async function loadData() {
     const initialCameraPose = settingsData.camera.pose;
 
     ge = new GraphicsEngine(objects);
-    ge.start();
 
     for (const obj of masterRenderer.objects) {
         objectLookup[obj.name] = obj;
@@ -171,11 +170,11 @@ async function loadData() {
     findObjectOverlay.bindShowCallback(showFindObjectCallback);
     findObjectOverlay.bindHideCallback(hideFindObjectCallback);
 
-    speedOverlay = new SpeedEditOverlay(settingsData, markUnsavedChanges);
+    player = new Player(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, settingsData.speed, findObjectOverlay.updateFinderListObjects);
+
+    speedOverlay = new SpeedEditOverlay(settingsData, player, markUnsavedChanges);
     speedOverlay.bindShowCallback(showSpeedMenuCallback);
     speedOverlay.bindHideCallback(hideSpeedMenuCallback);
-
-    player = new Player(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, findObjectOverlay.updateFinderListObjects);
 
     if (simConfig.models.gravity.compute) {
         document.getElementById("openGravityMenu-button").classList.remove("hidden");

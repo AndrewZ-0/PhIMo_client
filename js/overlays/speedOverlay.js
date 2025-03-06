@@ -10,10 +10,11 @@ const speed_element = document.getElementById("speedInput");
 const errorMessageDiv = document.getElementById("speedMenu-error-message");
 
 export class SpeedEditOverlay extends OverlayEditMenu {
-    constructor(settingsData, markUnsavedChanges) {
+    constructor(settingsData, player, markUnsavedChanges) {
         super();
 
         this.settingsData = settingsData;
+        this.player = player;
         this.markUnsavedChanges = markUnsavedChanges.bind(this);
 
         this.bindPermanantEvents();
@@ -56,6 +57,8 @@ export class SpeedEditOverlay extends OverlayEditMenu {
         const speed = parseFloat(speed_element.value);
     
         this.settingsData.speed = speed;
+        this.player.setSpeedFactor(speed);
+
         this.markUnsavedChanges("low");
     }
 
