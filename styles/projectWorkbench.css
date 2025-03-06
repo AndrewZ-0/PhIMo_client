@@ -206,16 +206,19 @@
 
 #computeProgressText {
     font-size: 12px;
+    line-height: 12px;
 }
 
 #compute-approximateWaitTime {
     font-size: 12px;
+    line-height: 12px;
 }
 
 /*also courtesy of stack overflow*/
 #computingInProgress-label {
     display: inline-block;
     font-size: 12px;
+    line-height: 12px;
     font-family: monospace;
     clip-path: inset(0 3ch 0 0);
     animation: loadingDots 2s steps(4, jump-none) infinite;

@@ -483,11 +483,13 @@ function hideDragMenuOverlay() {
 let unsavedChanges = false;
 function markUnsavedChanges(priority) {
     if (!unsavedChanges) {
+        const saveProjectButton = document.getElementById("saveProjectButton");
         const badge = document.querySelector("#saveProjectButton .badge");
         badge.classList.remove("hidden", "lowPriority", "highPriority");
 
         if (priority === "high") {
             badge.classList.add("highPriority");
+            saveProjectButton.title = "Save Project Data to Server (You currently have unsaved high priority changes: such as object data)";
 
             if (player) {
                 player.unsavedChanges = true;
@@ -495,15 +497,18 @@ function markUnsavedChanges(priority) {
         }
         else if (priority === "low") {
             badge.classList.add("lowPriority");
+            saveProjectButton.title = "Save Project Data to Server (You currently have unsaved low priority changes: such as camera position)";
         }
 
         unsavedChanges = priority;
     }
     else if (priority === "high") {
+        const saveProjectButton = document.getElementById("saveProjectButton");
         const badge = document.querySelector("#saveProjectButton .badge");
         badge.classList.remove("hidden", "lowPriority", "highPriority");
 
         badge.classList.add("highPriority");
+        saveProjectButton.title = "Save Project Data to Server (You currently have unsaved high priority changes: such as object data)";
         unsavedChanges = priority;
 
         if (player) {
@@ -511,12 +516,16 @@ function markUnsavedChanges(priority) {
         }
     }
 }
+
 function clearUnsavedChanges() {
     if (unsavedChanges !== false) {
+        const saveProjectButton = document.getElementById("saveProjectButton");
         const badge = document.querySelector("#saveProjectButton .badge");
         badge.classList.remove("lowPriority", "highPriority");
         badge.classList.add("hidden");
         unsavedChanges = false;
+
+        saveProjectButton.title = "Save Project Data to Server (You currently have unsaved no unsaved changes)";
 
         if (player) {
             player.unsavedChanges = false;

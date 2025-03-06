@@ -300,32 +300,53 @@ document.getElementById("saveSimSettingsButton").addEventListener("pointerdown",
 let unsavedChanges = false;
 function markUnsavedChanges(priority) {
     if (!unsavedChanges) {
+        const saveSimSettingsButton = document.getElementById("saveSimSettingsButton");
         const badge = document.querySelector("#saveSimSettingsButton .badge");
         badge.classList.remove("hidden", "lowPriority", "highPriority");
 
         if (priority === "high") {
             badge.classList.add("highPriority");
+            saveSimSettingsButton.title = "Save Simulation Data to Server (You currently have unsaved high priority changes)";
+
+            if (player) {
+                player.unsavedChanges = true;
+            }
         }
         else if (priority === "low") {
             badge.classList.add("lowPriority");
+            saveSimSettingsButton.title = "Save Simulation Data to Server (You currently have unsaved low priority changes: such as camera position)";
         }
 
         unsavedChanges = priority;
     }
     else if (priority === "high") {
+        const saveSimSettingsButton = document.getElementById("saveSimSettingsButton");
         const badge = document.querySelector("#saveSimSettingsButton .badge");
         badge.classList.remove("hidden", "lowPriority", "highPriority");
 
         badge.classList.add("highPriority");
+        saveSimSettingsButton.title = "Save Simulation Data to Server (You currently have unsaved high priority changes: such as object data)";
         unsavedChanges = priority;
+
+        if (player) {
+            player.unsavedChanges = true;
+        }
     }
 }
+
 function clearUnsavedChanges() {
     if (unsavedChanges !== false) {
+        const saveSimSettingsButton = document.getElementById("saveSimSettingsButton");
         const badge = document.querySelector("#saveSimSettingsButton .badge");
         badge.classList.remove("lowPriority", "highPriority");
         badge.classList.add("hidden");
         unsavedChanges = false;
+
+        saveSimSettingsButton.title = "Save Project Data to Server (You currently have unsaved no unsaved changes)";
+
+        if (player) {
+            player.unsavedChanges = false;
+        }
     }
 }
 

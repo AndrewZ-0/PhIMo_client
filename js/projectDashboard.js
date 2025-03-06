@@ -277,6 +277,7 @@ async function loadProjectCards() {
         const projectCard = document.createElement("div");
         projectCard.className = "project-card";
         projectCard.tabIndex = 0;
+        projectCard.title = `"${projectName}" Project Card: click to select, click again to open, escape key to deselect, arrow keys to navigate.`;
         projectCard.addEventListener("pointerdown", handleSelectProjectCard);
 
         const imgResponse = await communicator.getProjectScreenshot(projectName);
