@@ -23,57 +23,39 @@
                 <form onsubmit = "return false;">
 
                     <div class = "input-group">
-                        <label for = "email">Email</label>
+                        <label for = "email" title = "Enter Email">Email</label>
                         <input type = "text" id = "email" name = "email" placeholder = "Enter your email">
                     </div>
 
                     <div class = "input-group">
-                        <label for = "username">Username</label>
+                        <label for = "username" title = "Enter Username">Username</label>
                         <input type = "text" id = "username" name = "username" placeholder = "Enter your username">
                     </div>
               
                     <div class = "input-group">
-                        <label for = "password1">Password</label>
+                        <label for = "password1" title = "Enter Password">Password</label>
                         <input type = "password" id = "password1" name = "password" placeholder = "Enter your password">
                     </div>
 
                     <div style = "margin-bottom: 35px;" class = "input-group">
-                        <label for = "password2">Retype Password</label>
+                        <label for = "password2" title = "Re-enter Password">Retype Password</label>
                         <input type = "password" id = "password2" name = "password" placeholder = "Enter your password again">
                     </div>
               
                     <div class = "checkbox-group">
-                        <input type = "checkbox" id = "show-password" onclick = "togglePasswordVisibility()">
-                        <label for = "show-password">Show passwords</label>
+                        <input type = "checkbox" id = "show-password">
+                        <label for = "show-password" title = "Show/Hide Password">Show passwords</label>
                     </div>
+
+                    <div id = "error-message" class = "error-message" style = "margin-bottom: 5px;"></div> 
               
-                    <button>Signup</button>
+                    <button title = "Signup">Signup</button>
                 </form>
 
-                <div id = "error-message" style = "color: red;"></div> 
-
                 <div class = "form-footer">
-                <p>Already have an account? <a id = "toLoginLink">Login</a></p>
+                <p>Already have an account? <a id = "toLoginLink" title = "Goto Login">Login</a></p>
                 </div>
             </div>
         </div>
-
-        <script>
-            function togglePasswordVisibility() {
-                const passwordField1 = document.getElementById("password1");
-                const passwordField2 = document.getElementById("password2");
-                const showPasswordCheckbox = document.getElementById("show-password");
-                if (showPasswordCheckbox.checked) {
-                    passwordField1.type = "text";
-                    passwordField2.type = "text";
-                } 
-                else {
-                    passwordField1.type = "password";
-                    passwordField2.type = "password";
-                }
-            }
-        </script>
-
 	</body>
-
 </html>

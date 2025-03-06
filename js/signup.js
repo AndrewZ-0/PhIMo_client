@@ -13,6 +13,23 @@ function toLogin() {
 }
 document.getElementById("toLoginLink").addEventListener("pointerdown", toLogin);
 
+
+function togglePasswordVisibility() {
+    const passwordField1 = document.getElementById("password1");
+    const passwordField2 = document.getElementById("password2");
+    const showPasswordCheckbox = document.getElementById("show-password");
+    if (showPasswordCheckbox.checked) {
+        passwordField1.type = "text";
+        passwordField2.type = "text";
+    } 
+    else {
+        passwordField1.type = "password";
+        passwordField2.type = "password";
+    }
+}
+document.getElementById("show-password").onclick = togglePasswordVisibility;
+
+
 async function handleSignup(event) {
     event.preventDefault();
 

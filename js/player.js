@@ -1,6 +1,6 @@
 import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {bindCameraCallbacks, unbindCameraCallbacks, unbindAllKeyControls} from "../AGRE/src/core/listeners.js";
-import {FPS, clock} from "../AGRE/src/core/clock.js";
+import {FPS} from "../AGRE/src/core/clock.js";
 import {bindAllControls} from "../AGRE/src/core/listeners.js";
 
 
