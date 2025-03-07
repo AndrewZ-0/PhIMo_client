@@ -94,11 +94,12 @@ class Communicator {
     }
 
     async submitData(typeOfFetch, data, addCertificate = false) {
+        /*
         const connected = await this.connect();
 
         if (!connected) {
             return {status: "ERR", message: "Failed to connect to server"};
-        }
+        }*/
 
         let headers = {
             "Content-Type": "application/json"
@@ -119,11 +120,13 @@ class Communicator {
     }
 
     async fetchData(typeOfFetch, data, addCertificate = false) {
+        /*
         const connected = await this.connect();
 
         if (!connected) {
             return {status: "ERR", message: "Failed to connect to server"};
         }
+        */
 
         let headers = {
             "Content-Type": "application/json",
@@ -221,11 +224,12 @@ class Communicator {
 
     //can't use a standardised fetch request since data is not a json
     async getProjectScreenshot(projectName) {
+        /*
         const connected = await this.connect();
 
         if (!connected) {
             return {status: "ERR", message: "Failed to connect to server"};
-        }
+        }*/
 
         const headers = {
             "Content-Type": "application/json",
@@ -280,11 +284,12 @@ class Communicator {
     }
 
     async streamSimulationFramesFile(projectName, simulationName) {
+        /*
         const connected = await this.connect();
 
         if (!connected) {
             return {status: "ERR", message: "Failed to connect to server"};
-        }
+        }*/
 
         const headers = {
             "Content-Type": "application/json",

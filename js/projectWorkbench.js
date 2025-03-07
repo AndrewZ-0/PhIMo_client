@@ -1033,7 +1033,7 @@ async function setupWorkbench() {
         return;
     }
 
-    await loadData();
+    loadData();
     configureModelDataToggles();
 
     document.getElementById("toolsTab").addEventListener("pointerup", () => toggleTab("tools"));
