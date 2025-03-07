@@ -3,7 +3,7 @@ import {masterRenderer} from "../AGRE/src/core/renderer.js";
 import {Sphere, Plane} from "../AGRE/src/objects/objects.js";
 import {communicator} from "./communicator.js";
 import {calculateScaledFidelity} from "../AGRE/src/utils/renderProperties.js";
-import {bindAllControls, unbindAllKeyControls, quickReleaseKeys} from "../AGRE/src/core/listeners.js";
+import {bindAllControls, unbindAllKeyControls} from "../AGRE/src/core/listeners.js";
 import {toggleTab} from "./tabMenu.js";
 import {FindObjectOverlay} from "./overlays/findObjectOverlay.js";
 import {CameraOverlay} from "./overlays/cameraOverlay.js";
@@ -163,126 +163,62 @@ async function loadData() {
 
 
     cameraOverlay = new CameraOverlay(ge, settingsData, markUnsavedChanges);
-    cameraOverlay.bindShowCallback(showCameraConfigMenuOverlay);
-    cameraOverlay.bindHideCallback(hideCameraConfigMenuOverlay);
+    cameraOverlay.bindShowCallback(unbindWorkspace);
+    cameraOverlay.bindHideCallback(bindWorkspace);
 
     findObjectOverlay = new FindObjectOverlay(objectHeaders, objectLookup);
-    findObjectOverlay.bindShowCallback(showFindObjectCallback);
-    findObjectOverlay.bindHideCallback(hideFindObjectCallback);
+    findObjectOverlay.bindShowCallback(unbindWorkspace);
+    findObjectOverlay.bindHideCallback(bindWorkspace);
 
     player = new Player(ge, simConfig, settingsData, objectHeaders, frames, objectLookup, settingsData.speed, findObjectOverlay.updateFinderListObjects);
 
     speedOverlay = new SpeedEditOverlay(settingsData, player, markUnsavedChanges);
-    speedOverlay.bindShowCallback(showSpeedMenuCallback);
-    speedOverlay.bindHideCallback(hideSpeedMenuCallback);
+    speedOverlay.bindShowCallback(unbindWorkspace);
+    speedOverlay.bindHideCallback(bindWorkspace);
 
     if (simConfig.models.gravity.compute) {
         document.getElementById("openGravityMenu-button").classList.remove("hidden");
         gravityOverlay = new GravityViewOverlay(simConfig);
-        gravityOverlay.bindShowCallback(showGravityMenuOverlay);
-        gravityOverlay.bindHideCallback(hideGravityMenuOverlay);
+        gravityOverlay.bindShowCallback(unbindWorkspace);
+        gravityOverlay.bindHideCallback(bindWorkspace);
     }
     if (simConfig.models.eForce.compute) {
         document.getElementById("openEForceMenu-button").classList.remove("hidden");
         eForceOverlay = new ElectricForceViewOverlay(simConfig);
-        eForceOverlay.bindShowCallback(showEForceMenuOverlay);
-        eForceOverlay.bindHideCallback(hideEForceMenuOverlay);
+        eForceOverlay.bindShowCallback(unbindWorkspace);
+        eForceOverlay.bindHideCallback(bindWorkspace);
     }
     if (simConfig.models.mForce.compute) {
         document.getElementById("openMForceMenu-button").classList.remove("hidden");
         mForceOverlay = new MagneticForceViewOverlay(simConfig);
-        mForceOverlay.bindShowCallback(showMForceMenuOverlay);
-        mForceOverlay.bindHideCallback(hideMForceMenuOverlay);
+        mForceOverlay.bindShowCallback(unbindWorkspace);
+        mForceOverlay.bindHideCallback(bindWorkspace);
     }
     if (simConfig.models.collisions.compute) {
         document.getElementById("openCollisionsMenu-button").classList.remove("hidden");
         collisionsOverlay = new CollisionsViewOverlay(simConfig);
-        collisionsOverlay.bindShowCallback(showCollisionsMenuOverlay);
-        collisionsOverlay.bindHideCallback(hideCollisionsMenuOverlay);
+        collisionsOverlay.bindShowCallback(unbindWorkspace);
+        collisionsOverlay.bindHideCallback(bindWorkspace);
     }
     if (simConfig.models.drag.compute) {
         document.getElementById("openDragMenu-button").classList.remove("hidden");
         dragOverlay = new DragViewOverlay(simConfig);
-        dragOverlay.bindShowCallback(showDragMenuOverlay);
-        dragOverlay.bindHideCallback(hideDragMenuOverlay);
+        dragOverlay.bindShowCallback(unbindWorkspace);
+        dragOverlay.bindHideCallback(bindWorkspace);
     }
 
     ge.start();
 }
 
-function showGravityMenuOverlay() {
+function unbindWorkspace() {
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 }
-
-function hideGravityMenuOverlay() {
-    bindAllControls(ge.canvas);
-
+function bindWorkspace() {
     document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-
-function showEForceMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideEForceMenuOverlay() {
     bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
-
-
-function showMForceMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideMForceMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-
-function showCollisionsMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideCollisionsMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-
-function showDragMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideDragMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-function showSpeedMenuCallback() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideSpeedMenuCallback() {
-    bindAllControls(ge.canvas);
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
 
 async function saveSimulationSettings() {
     const projectName = communicator.getProjNameFromUrl();
@@ -412,33 +348,6 @@ function workspaceKeyEvents(event) {
     else if (event.key === "Backspace") {
         deleteObject();
     }
-}
-
-
-function showFindObjectCallback() {
-    quickReleaseKeys();
-
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideFindObjectCallback() {
-    document.addEventListener("keydown", workspaceKeyEvents);
-    bindAllControls(ge.canvas);
-}
-
-
-function showCameraConfigMenuOverlay() {
-    quickReleaseKeys();
-
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideCameraConfigMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
 }
 
 

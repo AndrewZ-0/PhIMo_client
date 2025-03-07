@@ -164,32 +164,32 @@ async function loadData() {
     createObjectOverlay.configureObjectEntries();
 
     findObjectOverlay = new FindObjectOverlay(objectHeaders, objectLookup);
-    findObjectOverlay.bindShowCallback(showFindObjectCallback);
-    findObjectOverlay.bindHideCallback(hideFindObjectCallback);
+    findObjectOverlay.bindShowCallback(unbindWorkspace);
+    findObjectOverlay.bindHideCallback(bindWorkspace);
 
     simulationOverlay = new SimulationOverlay(projectData, saveProjectData, startPhimoLive, stopPhimoLive, reconfigureBuffer);
-    simulationOverlay.bindShowCallback(showPlaySimulationMenu);
-    simulationOverlay.bindHideCallback(hidePlaySimulationMenu);
+    simulationOverlay.bindShowCallback(unbindWorkspace);
+    simulationOverlay.bindHideCallback(bindWorkspace);
 
     gravityOverlay = new GravityEditOverlay(projectData, markUnsavedChanges);
-    gravityOverlay.bindShowCallback(showGravityMenuOverlay);
-    gravityOverlay.bindHideCallback(hideGravityMenuOverlay);
+    gravityOverlay.bindShowCallback(unbindWorkspace);
+    gravityOverlay.bindHideCallback(bindWorkspace);
 
     eForceOverlay = new ElectricForceEditOverlay(projectData, markUnsavedChanges);
-    eForceOverlay.bindShowCallback(showEForceMenuOverlay);
-    eForceOverlay.bindHideCallback(hideEForceMenuOverlay);
+    eForceOverlay.bindShowCallback(unbindWorkspace);
+    eForceOverlay.bindHideCallback(bindWorkspace);
 
     mForceOverlay = new MagneticForceEditOverlay(projectData, markUnsavedChanges);
-    mForceOverlay.bindShowCallback(showMForceMenuOverlay);
-    mForceOverlay.bindHideCallback(hideMForceMenuOverlay);
+    mForceOverlay.bindShowCallback(unbindWorkspace);
+    mForceOverlay.bindHideCallback(bindWorkspace);
 
     collisionsOverlay = new CollisionsEditOverlay(projectData, markUnsavedChanges);
-    collisionsOverlay.bindShowCallback(showCollisionsMenuOverlay);
-    collisionsOverlay.bindHideCallback(hideCollisionsMenuOverlay);
+    collisionsOverlay.bindShowCallback(unbindWorkspace);
+    collisionsOverlay.bindHideCallback(bindWorkspace);
 
     dragOverlay = new DragEditOverlay(projectData, markUnsavedChanges);
-    dragOverlay.bindShowCallback(showDragMenuOverlay);
-    dragOverlay.bindHideCallback(hideDragMenuOverlay);
+    dragOverlay.bindShowCallback(unbindWorkspace);
+    dragOverlay.bindHideCallback(bindWorkspace);
 
     ge.start();
 }
@@ -411,92 +411,14 @@ function workspaceKeyEvents(event) {
     }
 }
 
-function showFindObjectCallback() {
+function unbindWorkspace() {
     unbindAllKeyControls();
     document.removeEventListener("keydown", workspaceKeyEvents);
 }
-
-function hideFindObjectCallback() {
+function bindWorkspace() {
     document.addEventListener("keydown", workspaceKeyEvents);
     bindAllControls(ge.canvas);
 }
-
-
-function showGravityMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideGravityMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-
-function showEForceMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideEForceMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-
-function showMForceMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideMForceMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-
-function showCollisionsMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideCollisionsMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-
-function showDragMenuOverlay() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideDragMenuOverlay() {
-    bindAllControls(ge.canvas);
-
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
-
-
-function showSpeedMenuCallback() {
-    unbindAllKeyControls();
-    document.removeEventListener("keydown", workspaceKeyEvents);
-}
-
-function hideSpeedMenuCallback() {
-    bindAllControls(ge.canvas);
-    document.addEventListener("keydown", workspaceKeyEvents);
-}
-
 
 
 let unsavedChanges = false;
@@ -961,15 +883,6 @@ document.getElementById("deleteObject-button").addEventListener("pointerdown", d
 document.addEventListener("keydown", workspaceKeyEvents);
 
 document.getElementById("saveProjectButton").addEventListener("pointerdown", saveProjectData);
-
-
-function showPlaySimulationMenu(event) {
-    unbindAllKeyControls();
-}
-
-function hidePlaySimulationMenu(event) {
-    bindAllControls(ge.canvas);
-}
 
 
 function handleLeavePage(event) {
