@@ -217,8 +217,8 @@ function startPhimoLive() {
     });
 
     speedOverlay = new SpeedEditOverlay(settingsData, player, markUnsavedChanges);
-    speedOverlay.bindShowCallback(showSpeedMenuCallback);
-    speedOverlay.bindHideCallback(hideSpeedMenuCallback);
+    speedOverlay.bindShowCallback(unbindWorkspace);
+    speedOverlay.bindHideCallback(bindWorkspace);
 }
 
 function stopPhimoLive() {
