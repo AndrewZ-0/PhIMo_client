@@ -111,7 +111,6 @@ async function loadData() {
         return;
     }
 
-
     const response = parseFramesString(frameFileStreamResponse.frames);
     objectHeaders = response.headers;
     frames = response.frames;
