@@ -407,7 +407,7 @@ export class SimulationOverlay extends OverlayEditMenu {
         computeNewSimulation_button.classList.add("hidden");
         simulationConfigs_group.classList.add("hidden");
         
-        this.progressUpdateInterval = 150;
+        this.progressUpdateInterval = 50;
         this.lastProgress = 0;
         this.start_t = Date.now();
         this.currentProgressTimeout = setTimeout(this.updateComputingProgress, this.progressUpdateInterval);
