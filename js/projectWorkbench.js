@@ -18,6 +18,7 @@ import {SimulationOverlay} from "./overlays/simulationOverlay.js";
 import {CameraOverlay} from "./overlays/cameraOverlay.js";
 import {SpeedEditOverlay} from "./overlays/speedOverlay.js";
 
+import {SolversEditOverlay} from "./overlays/solversOverlay.js";
 import {GravityEditOverlay} from "./overlays/gravityOverlay.js";
 import {ElectricForceEditOverlay} from "./overlays/eForceOverlay.js";
 import {MagneticForceEditOverlay} from "./overlays/mForceOverlay.js";
@@ -32,6 +33,10 @@ let projectData = {
     deltaT: null, 
     noOfFrames: null, 
     models: {
+        solvers: {
+            algorithm: 0, 
+            intergrator: 0
+        }, 
         gravity: {compute: true, G: 6.6743015e-11, g: {x: 0, y: -9.81, z: 0}}, 
         eForce: {compute: true, E0: 8.854187817e-12, E: {x: 0, y: 0, z: 0}}, 
         mForce: {compute: true, M0: 1.2566370612720e-6, B: {x: 0, y: 0, z: 0}}, 
@@ -65,6 +70,7 @@ let findObjectOverlay;
 let simulationOverlay;
 let speedOverlay;
 
+let solversOverlay;
 let gravityOverlay;
 let eForceOverlay;
 let mForceOverlay;
@@ -125,6 +131,8 @@ async function loadData() {
         }
     }
 
+    configureModelDataToggles();
+
     objectHeaders.length = 0;
     for (const [objName, obj] of Object.entries(projectData.objects)) {
         if (obj.dtype === 0) {
@@ -170,6 +178,10 @@ async function loadData() {
     simulationOverlay = new SimulationOverlay(projectData, saveProjectData, startPhimoLive, stopPhimoLive, reconfigureBuffer);
     simulationOverlay.bindShowCallback(unbindWorkspace);
     simulationOverlay.bindHideCallback(bindWorkspace);
+
+    solversOverlay = new SolversEditOverlay(projectData, markUnsavedChanges);
+    solversOverlay.bindShowCallback(unbindWorkspace);
+    solversOverlay.bindHideCallback(bindWorkspace);
 
     gravityOverlay = new GravityEditOverlay(projectData, markUnsavedChanges);
     gravityOverlay.bindShowCallback(unbindWorkspace);
@@ -827,20 +839,26 @@ for (const element of document.getElementsByClassName("edit-input")) {
     element.addEventListener("input", updateObjectData);
 }
 
+const gravityToggle = document.getElementById("gravity-toggle");
+const eForceToggle = document.getElementById("eForce-toggle");
+const mForceToggle = document.getElementById("mForce-toggle");
+const collisionsToggle = document.getElementById("collisions-toggle");
+const dragToggle = document.getElementById("drag-toggle");
+
 function configureModelDataToggles() {
-    document.getElementById("gravity-toggle").checked = projectData.models.gravity.compute;
-    document.getElementById("eForce-toggle").checked = projectData.models.eForce.compute;
-    document.getElementById("mForce-toggle").checked = projectData.models.mForce.compute;
-    document.getElementById("collisions-toggle").checked = projectData.models.collisions.compute;
-    document.getElementById("drag-toggle").checked = projectData.models.drag.compute;
+    gravityToggle.checked = projectData.models.gravity.compute;
+    eForceToggle.checked = projectData.models.eForce.compute;
+    mForceToggle.checked = projectData.models.mForce.compute;
+    collisionsToggle.checked = projectData.models.collisions.compute;
+    dragToggle.checked = projectData.models.drag.compute;
 }
 
 function updateModelData(event) {
-    projectData.models.gravity.compute = document.getElementById("gravity-toggle").checked;
-    projectData.models.eForce.compute = document.getElementById("eForce-toggle").checked;
-    projectData.models.mForce.compute = document.getElementById("mForce-toggle").checked;
-    projectData.models.collisions.compute = document.getElementById("collisions-toggle").checked;
-    projectData.models.drag.compute = document.getElementById("drag-toggle").checked;
+    projectData.models.gravity.compute = gravityToggle.checked;
+    projectData.models.eForce.compute = eForceToggle.checked;
+    projectData.models.mForce.compute = mForceToggle.checked;
+    projectData.models.collisions.compute = collisionsToggle.checked;
+    projectData.models.drag.compute = dragToggle.checked;
 
     markUnsavedChanges("high");
 }
@@ -947,7 +965,6 @@ async function setupWorkbench() {
     }
 
     loadData();
-    configureModelDataToggles();
 
     document.getElementById("toolsTab").addEventListener("pointerup", () => toggleTab("tools"));
     document.getElementById("modelsTab").addEventListener("pointerup", () => toggleTab("models"));

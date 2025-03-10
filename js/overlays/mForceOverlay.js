@@ -13,6 +13,7 @@ const magneticFieldStrength_elements = {
     z: document.getElementById("global-magneticFieldStrength-z")
 };
 
+
 export class MagneticForceEditOverlay extends OverlayEditMenu {
     constructor(projectData, markUnsavedChanges) {
         super();
@@ -57,7 +58,7 @@ export class MagneticForceEditOverlay extends OverlayEditMenu {
         const M0 = parseFloat(vacuumPermeability_element.value);
     
         if (isNaN(M0)) {
-            errorMessageDiv.textContent = "Vacuum Permeability must be a float";
+            this.errorMessageDiv.textContent = "Vacuum Permeability must be a float";
             return false;
         }
 

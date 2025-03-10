@@ -122,7 +122,7 @@
         </div>
 
         <div id = "modelsMenu" class = "tab-content hidden">
-            <button id = "algorithmsMenu-button">Algorithms</button>
+            <button id = "openSolversMenu-button">Solvers</button>
 
             <button id = "openGravityMenu-button" class = "hidden" title = "Open Gravity Overlay Menu">Gravity</button>
             <button id = "openEForceMenu-button" class = "hidden" title = "Open Electric Force Overlay Menu">Electric Force</button>
@@ -288,6 +288,33 @@
                         <div id = "cameraConfigMenu-error-message" class = "error-message" style = "margin-top: 10px;"></div>
 
                         <button id = "cameraConfig-configure-button" type = "button" title = "Set Camera Congigurations">Configure</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "solversMenu-overlay" class = "overlayMenu hidden">
+            <button id = "hide-solversMenu-overlay-button" class = "hide-overlayMenu-button">ㄨ</button>
+            <div class = "overlay-content" style = "width: 30%; min-width: 350px; max-width: 500px;">
+                <h2 title = "Physics Engine Solver Configurations">Solvers</h2>
+                <div class = "form-container">
+                    <form onsubmit = "return false;">
+                        <div class = "permanant-input-group" id = "algorithm-input-group" style = "margin-top: 0px; align-items: center;">
+                            <label for = "algorithm-input" style = "height: 20px; width: 95px; text-align: left; line-height: 20px;" title = "Solver Algorithm">Algorithm</label>
+                            <select name = "algorithm-input" id = "algorithm-input" style = "width: 60%;" disabled>
+                                <option value = "0">Brute Force</option>
+                            </select>
+                        </div>
+
+                        <div class = "permanant-input-group" id = "intergrator-input-group" style = "margin-top: 20px; align-items: center;">
+                            <label for = "intergrator-input" style = "height: 20px; width: 95px; text-align: left; line-height: 15px;" title = "Solver Intergrator">Intergrator</label>
+                            <select name = "intergrator-input" id = "intergrator-input" style = "width: 60%;" disabled>
+                                <option value = "0">Leapfrog</option>
+                                <option value = "1">Runge Kutta 4</option>
+                            </select>
+                        </div>
+
+                        <button id = "configureSolvers-button" type = "button" title = "Set Solver Configurations" style = "margin-top: 25px;">Configure</button>
                     </form>
                 </div>
             </div>

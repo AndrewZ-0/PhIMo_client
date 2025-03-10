@@ -11,6 +11,7 @@ import {SpeedEditOverlay} from "./overlays/speedOverlay.js";
 import {cameraMode} from "../AGRE/src/core/camera.js";
 import {camera, setDraggingSensitivity, setCameraMovementSpeed, setCameraMode} from "../AGRE/src/core/camera.js";
 
+import {SolversViewOverlay} from "./overlays/solversOverlay.js";
 import {GravityViewOverlay} from "./overlays/gravityOverlay.js";
 import {ElectricForceViewOverlay} from "./overlays/eForceOverlay.js";
 import {MagneticForceViewOverlay} from "./overlays/mForceOverlay.js";
@@ -47,6 +48,7 @@ let cameraOverlay;
 let findObjectOverlay;
 let speedOverlay;
 
+let solversOverlay;
 let gravityOverlay;
 let eForceOverlay;
 let mForceOverlay;
@@ -174,6 +176,11 @@ async function loadData() {
     speedOverlay = new SpeedEditOverlay(settingsData, player, markUnsavedChanges);
     speedOverlay.bindShowCallback(unbindWorkspace);
     speedOverlay.bindHideCallback(bindWorkspace);
+
+    document.getElementById("openSolversMenu-button").classList.remove("hidden");
+    solversOverlay = new SolversViewOverlay(simConfig);
+    solversOverlay.bindShowCallback(unbindWorkspace);
+    solversOverlay.bindHideCallback(bindWorkspace);
 
     if (simConfig.models.gravity.compute) {
         document.getElementById("openGravityMenu-button").classList.remove("hidden");
