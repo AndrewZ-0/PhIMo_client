@@ -214,7 +214,9 @@ function startPhimoLive() {
 
     frames = [[]];
     for (const obj of Object.values(projectData.objects)) {
-        frames[0].push([...obj.position, ...obj.velocity]);
+        if (obj.dtype === 0) {
+            frames[0].push([...obj.position, ...obj.velocity]);
+        }
     }
     initialiseEngine(projectData);
 
