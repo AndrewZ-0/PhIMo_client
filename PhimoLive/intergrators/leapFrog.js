@@ -1,5 +1,5 @@
 
-export function leapFrog_updateParticles(computeForces, applyCollisions, particles, planes, dt) {
+export function leapfrog_updateParticles(computeForces, applyCollisions, particles, planes, dt) {
     const halfDt = dt / 2;
 
     for (const p of particles) {

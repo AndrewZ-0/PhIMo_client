@@ -207,6 +207,8 @@ export class Player {
                     i++;
                 }
             }
+
+            this.updateFrameCallback(this.currentFrame, true);
         }
 
         this.displayFrame(this.currentFrame, true);
@@ -238,13 +240,13 @@ export class Player {
             this.displayFrame(this.currentFrame);
             return;
         }
-    
-        if (isNaN(inputTime_inSecs) || inputTime_inSecs > (this.frames.length - 1) * this.simConfig.deltaT || inputTime_inSecs < 0) {
+
+        if (isNaN(inputTime_inSecs) || inputTime_inSecs > (this.frames.length - 1) * this.simConfig.deltaT || inputTime_inSecs < 0 || inputTime_inSecs - inputTime_inSecs.toFixed(2) !== 0) {
             this.displayFrame(this.currentFrame);
             return;
         }
     
-        this.currentFrame = inputTime_inSecs / this.simConfig.deltaT;
+        this.currentFrame = Math.round(inputTime_inSecs / this.simConfig.deltaT);
         this.displayFrame(this.currentFrame);
     }
     

@@ -26,7 +26,7 @@ import {CollisionsEditOverlay} from "./overlays/collisionsOverlay.js";
 import {DragEditOverlay} from "./overlays/dragOverlay.js";
 
 import {Player} from "./player.js";
-import {computeFrame} from "../PhimoLive/physicsEngine.js";
+import {computeFrame, initialiseEngine} from "../PhimoLive/physicsEngine.js";
 
 let ge;
 let projectData = {
@@ -212,7 +212,11 @@ function startPhimoLive() {
 
     settingsData.speed = 1;
 
-    computeFrame(projectData, frames, 0, true);
+    frames = [[]];
+    for (const obj of Object.values(projectData.objects)) {
+        frames[0].push([...obj.position, ...obj.velocity]);
+    }
+    initialiseEngine(projectData);
 
     player = new Player(ge, projectData, settingsData, objectHeaders, frames, objectLookup, settingsData.speed, findObjectOverlay.updateFinderListObjects, true);
 

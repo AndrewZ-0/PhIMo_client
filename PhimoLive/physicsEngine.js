@@ -7,6 +7,61 @@ let planes = [];
 
 const linker = new SolverLinker();
 
+
+function runLinker(models) {
+    const collisions = models.collisions;
+    const gravity = models.gravity;
+    const eForce = models.eForce;
+    const mForce = models.mForce;
+    const drag = models.drag;
+
+    linker.clear();
+
+    const solvers = models.solvers;
+    if (parseInt(solvers.algorithm) === 0) {
+        linker.configureBruteForcer();
+    }
+    
+    switch (parseInt(solvers.intergrator)) {
+        case 0:
+            linker.configureLeapfrog();
+            break;
+        case 1:
+            linker.configureRungeKutta4();
+            break;
+        case 2: 
+            linker.configureEuler();
+            break;
+        default:
+            linker.configureLeapfrog();
+            break;
+    }
+
+    if (collisions.compute) {
+        linker.linkCollision(collisions.e);
+    }
+    if (gravity.compute) {
+        linker.linkGravity(gravity.G, [gravity.g.x, gravity.g.y, gravity.g.z]);
+    }
+    if (eForce.compute) {
+        linker.linkEForce(eForce.E0, [eForce.E.x, eForce.E.y, eForce.E.z]);
+    }
+    if (mForce.compute) {
+        linker.linkMForce(mForce.M0, [mForce.B.x, mForce.B.y, mForce.B.z]);
+    }
+    if (drag.compute) {
+        linker.linkDrag(drag.rho);
+    }
+}
+
+
+export function initialiseEngine(configs) {
+    const models = configs.models;
+
+    runLinker(models);
+}
+
+
 export function computeFrame(configs, frames, frameIndex = null, unsavedChanges = false) {
     //console.log(frameIndex, frames.length, unsavedChanges)
 
@@ -28,29 +83,7 @@ export function computeFrame(configs, frames, frameIndex = null, unsavedChanges 
     if (unsavedChanges) {
         const models = configs.models;
 
-        const collisions = models.collisions;
-        const gravity = models.gravity;
-        const eForce = models.eForce;
-        const mForce = models.mForce;
-        const drag = models.drag;
-
-        linker.clear();
-
-        if (collisions.compute) {
-            linker.linkCollision(collisions.e);
-        }
-        if (gravity.compute) {
-            linker.linkGravity(gravity.G, [gravity.g.x, gravity.g.y, gravity.g.z]);
-        }
-        if (eForce.compute) {
-            linker.linkEForce(eForce.E0, [eForce.E.x, eForce.E.y, eForce.E.z]);
-        }
-        if (mForce.compute) {
-            linker.linkMForce(mForce.M0, [mForce.B.x, mForce.B.y, mForce.B.z]);
-        }
-        if (drag.compute) {
-            linker.linkDrag(drag.rho);
-        }
+        runLinker(models);
     }
 
     for (const obj of Object.values(objects)) {

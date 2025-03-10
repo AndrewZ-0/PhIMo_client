@@ -1,6 +1,8 @@
 import {Constants} from "./constants.js";
 import {bruteForceComputePOPForces, bruteForceComputePlaneForces} from "./algorithms/bruteForcer.js";
-import {leapFrog_updateParticles} from "./intergrators/leapFrog.js";
+import {leapfrog_updateParticles} from "./intergrators/leapfrog.js";
+import {rungeKutta4_updateParticles} from "./intergrators/rungeKutta4.js";
+import {euler_updateParticles} from "./intergrators/euler.js";
 import * as physics from "./physics.js";
 
 function noOpComputePOPForces(applyPOPForces, particles) {}
@@ -10,6 +12,8 @@ export class SolverLinker {
     constructor() {
         this.computePOPForces = noOpComputePOPForces;
         this.computePlaneForces = noOpComputePlaneForces;
+
+        this.particleUpdate_intergrator = null;
 
         this.activePOPCollisionSolvers = [];
         this.activePlaneCollisionSolvers = [];
@@ -21,7 +25,7 @@ export class SolverLinker {
     }
 
     updateParticles(particles, planes, dt) {
-        leapFrog_updateParticles(
+        this.particleUpdate_intergrator(
             (particles, planes) => {
                 this.computeForces(particles, planes)
             },
@@ -30,6 +34,21 @@ export class SolverLinker {
             },
             particles, planes, dt
         );
+    }
+
+    configureBruteForcer() {
+        this.computePOPForces = bruteForceComputePOPForces;
+        this.computePlaneForces = bruteForceComputePlaneForces;
+    }
+
+    configureLeapfrog() {
+        this.particleUpdate_intergrator = leapfrog_updateParticles;
+    }
+    configureRungeKutta4() {
+        this.particleUpdate_intergrator = rungeKutta4_updateParticles;
+    }
+    configureEuler() {
+        this.particleUpdate_intergrator = euler_updateParticles;
     }
 
     linkCollision(e) {
