@@ -28,7 +28,7 @@ export class SolverLinker {
         this.particleUpdate_intergrator(
             (particles, planes) => {
                 this.computeForces(particles, planes)
-            },
+            }, 
             (particles, planes) => {
                 this.applyCollisions(particles, planes)
             },

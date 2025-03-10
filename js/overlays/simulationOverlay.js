@@ -451,7 +451,7 @@ export class SimulationOverlay extends OverlayEditMenu {
         });
         stepsPerFrame_live_input.addEventListener("input", () => {
             if (this.validateLiveSimConfigEntries()) {
-                this.projectData.noOfFrames = parseInt(stepsPerFrame_live_input.value);
+                this.projectData.stepsPerFrame = parseInt(stepsPerFrame_live_input.value);
             }
         });
 

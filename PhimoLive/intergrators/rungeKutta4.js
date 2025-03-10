@@ -1,5 +1,10 @@
+import {Particle} from "../utils/bespokeConstructs.js";
+
 export function rungeKutta4_updateParticles(computeForces, applyCollisions, particles, planes, dt) {
     const len = particles.length;
+
+    const halfDt = dt / 2;
+    const sixthDt = dt / 6;
 
     const k1 = new Array(len);
     const k2 = new Array(len);
@@ -7,64 +12,96 @@ export function rungeKutta4_updateParticles(computeForces, applyCollisions, part
     const k4 = new Array(len);
 
     for (let i = 0; i < len; i++) {
-        k1[i] = {s: [0, 0, 0], v: [0, 0, 0], a: [...particles[i].a]};
-        k2[i] = {s: [0, 0, 0], v: [0, 0, 0], a: [...particles[i].a]};
-        k3[i] = {s: [0, 0, 0], v: [0, 0, 0], a: [...particles[i].a]};
-        k4[i] = {s: [0, 0, 0], v: [0, 0, 0], a: [...particles[i].a]};
+        const p = particles[i];
+        k1[i] = new Particle(p.mass, [...p.s], [...p.v], p.radius, p.charge, p.dragCoef);
+        k2[i] = new Particle(p.mass, [...p.s], [...p.v], p.radius, p.charge, p.dragCoef);
+        k3[i] = new Particle(p.mass, [...p.s], [...p.v], p.radius, p.charge, p.dragCoef);
+        k4[i] = new Particle(p.mass, [...p.s], [...p.v], p.radius, p.charge, p.dragCoef);
     }
 
     computeForces(k1, planes);
     for (let i = 0; i < len; i++) {
-        for (let j = 0; j < 3; j++) {
-            k1[i].s[j] = particles[i].v[j];
-            k1[i].v[j] = particles[i].a[j];
-        }
+        const p = particles[i];
+        const k1p = k1[i];
+        k1p.s[0] = p.v[0];
+        k1p.s[1] = p.v[1];
+        k1p.s[2] = p.v[2];
+        k1p.v[0] = p.a[0];
+        k1p.v[1] = p.a[1];
+        k1p.v[2] = p.a[2];
     }
 
     for (let i = 0; i < len; i++) {
-        for (let j = 0; j < 3; j++) {
-            k2[i].s[j] = particles[i].s[j] + k1[i].s[j] * (dt / 2);
-            k2[i].v[j] = particles[i].v[j] + k1[i].v[j] * (dt / 2);
-        }
+        const p = particles[i];
+        const k1p = k1[i];
+        const k2p = k2[i];
+        k2p.s[0] = p.s[0] + k1p.s[0] * halfDt;
+        k2p.s[1] = p.s[1] + k1p.s[1] * halfDt;
+        k2p.s[2] = p.s[2] + k1p.s[2] * halfDt;
+        k2p.v[0] = p.v[0] + k1p.v[0] * halfDt;
+        k2p.v[1] = p.v[1] + k1p.v[1] * halfDt;
+        k2p.v[2] = p.v[2] + k1p.v[2] * halfDt;
     }
     computeForces(k2, planes);
     for (let i = 0; i < len; i++) {
-        for (let j = 0; j < 3; j++) {
-            k2[i].v[j] = k2[i].a[j];
-        }
+        const k2p = k2[i];
+        k2p.v[0] = k2p.a[0];
+        k2p.v[1] = k2p.a[1];
+        k2p.v[2] = k2p.a[2];
     }
 
     for (let i = 0; i < len; i++) {
-        for (let j = 0; j < 3; j++) {
-            k3[i].s[j] = particles[i].s[j] + k2[i].s[j] * (dt / 2);
-            k3[i].v[j] = particles[i].v[j] + k2[i].v[j] * (dt / 2);
-        }
+        const p = particles[i];
+        const k2p = k2[i];
+        const k3p = k3[i];
+        k3p.s[0] = p.s[0] + k2p.s[0] * halfDt;
+        k3p.s[1] = p.s[1] + k2p.s[1] * halfDt;
+        k3p.s[2] = p.s[2] + k2p.s[2] * halfDt;
+        k3p.v[0] = p.v[0] + k2p.v[0] * halfDt;
+        k3p.v[1] = p.v[1] + k2p.v[1] * halfDt;
+        k3p.v[2] = p.v[2] + k2p.v[2] * halfDt;
     }
     computeForces(k3, planes);
     for (let i = 0; i < len; i++) {
-        for (let j = 0; j < 3; j++) {
-            k3[i].v[j] = k3[i].a[j];
-        }
+        const k3p = k3[i];
+        k3p.v[0] = k3p.a[0];
+        k3p.v[1] = k3p.a[1];
+        k3p.v[2] = k3p.v[2];
     }
 
     for (let i = 0; i < len; i++) {
-        for (let j = 0; j < 3; j++) {
-            k4[i].s[j] = particles[i].s[j] + k3[i].s[j] * dt;
-            k4[i].v[j] = particles[i].v[j] + k3[i].v[j] * dt;
-        }
+        const p = particles[i];
+        const k3p = k3[i];
+        const k4p = k4[i];
+        k4p.s[0] = p.s[0] + k3p.s[0] * dt;
+        k4p.s[1] = p.s[1] + k3p.s[1] * dt;
+        k4p.s[2] = p.s[2] + k3p.s[2] * dt;
+        k4p.v[0] = p.v[0] + k3p.v[0] * dt;
+        k4p.v[1] = p.v[1] + k3p.v[1] * dt;
+        k4p.v[2] = p.v[2] + k3p.v[2] * dt;
     }
     computeForces(k4, planes);
     for (let i = 0; i < len; i++) {
-        for (let j = 0; j < 3; j++) {
-            k4[i].v[j] = k4[i].a[j];
-        }
+        const k4p = k4[i];
+        k4p.v[0] = k4p.a[0];
+        k4p.v[1] = k4p.a[1];
+        k4p.v[2] = k4p.a[2];
     }
 
     for (let i = 0; i < len; i++) {
-        for (let j = 0; j < 3; j++) {
-            particles[i].s[j] += (dt / 6) * (k1[i].s[j] + 2 * k2[i].s[j] + 2 * k3[i].s[j] + k4[i].s[j]);
-            particles[i].v[j] += (dt / 6) * (k1[i].v[j] + 2 * k2[i].v[j] + 2 * k3[i].v[j] + k4[i].v[j]);
-        }
+        const p = particles[i];
+        const k1p = k1[i];
+        const k2p = k2[i];
+        const k3p = k3[i];
+        const k4p = k4[i];
+        
+        p.s[0] += (k1p.s[0] + 2 * k2p.s[0] + 2 * k3p.s[0] + k4p.s[0]) * sixthDt;
+        p.s[1] += (k1p.s[1] + 2 * k2p.s[1] + 2 * k3p.s[1] + k4p.s[1]) * sixthDt;
+        p.s[2] += (k1p.s[2] + 2 * k2p.s[2] + 2 * k3p.s[2] + k4p.s[2]) * sixthDt;
+
+        p.v[0] += (k1p.v[0] + 2 * k2p.v[0] + 2 * k3p.v[0] + k4p.v[0]) * sixthDt;
+        p.v[1] += (k1p.v[1] + 2 * k2p.v[1] + 2 * k3p.v[1] + k4p.v[1]) * sixthDt;
+        p.v[2] += (k1p.v[2] + 2 * k2p.v[2] + 2 * k3p.v[2] + k4p.v[2]) * sixthDt;
     }
 
     applyCollisions(particles, planes);

@@ -1,7 +1,6 @@
 
 export function euler_updateParticles(computeForces, applyCollisions, particles, planes, dt) {
     computeForces(particles, planes);
-    applyCollisions(particles, planes);
 
     for (const p of particles) {
         p.v[0] += p.a[0] * dt;
@@ -12,4 +11,6 @@ export function euler_updateParticles(computeForces, applyCollisions, particles,
         p.s[1] += p.v[1] * dt;
         p.s[2] += p.v[2] * dt;
     }
+
+    applyCollisions(particles, planes);
 }

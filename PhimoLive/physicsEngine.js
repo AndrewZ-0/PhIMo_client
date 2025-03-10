@@ -63,14 +63,6 @@ export function initialiseEngine(configs) {
 
 
 export function computeFrame(configs, frames, frameIndex = null, unsavedChanges = false) {
-    //console.log(frameIndex, frames.length, unsavedChanges)
-
-    /*
-    if (frameIndex !== null && frameIndex < frames.length && !unsavedChanges) {
-        return;
-    }
-    */
-
     configs.deltaT = 1 / FPS;
     const stepsPerFrame = configs.stepsPerFrame;
     const noOfFrames = configs.noOfFrames;
