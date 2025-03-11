@@ -9,7 +9,7 @@ export function bruteForceComputePOPForces(applyPOPForces, particles) {
             const r_squared = dot(d, d);
             const r = r_squared ** 0.5;
 
-            if (r < 1e-100) {
+            if (r < 1e-3) {
                 continue;
             }
 
@@ -28,7 +28,9 @@ export function bruteForceComputePlaneForces(applyPlaneForces, particles, planes
             const localPos = sub(p.s, planes[j]);
 
             const r = dot(localPos, planes[j].normal);
-            if (r < 0) continue;
+            if (r < 0) {
+                continue;
+            }
 
             const xProj = dot(localPos, planes[j].xUnit);
             const yProj = dot(localPos, planes[j].yUnit);

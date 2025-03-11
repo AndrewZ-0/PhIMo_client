@@ -27,10 +27,10 @@ export class SolverLinker {
     updateParticles(particles, planes, dt) {
         this.particleUpdate_intergrator(
             (particles, planes) => {
-                this.computeForces(particles, planes)
+                this.computeForces(particles, planes);
             }, 
             (particles, planes) => {
-                this.applyCollisions(particles, planes)
+                this.applyCollisions(particles, planes);
             },
             particles, planes, dt
         );
