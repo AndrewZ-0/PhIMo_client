@@ -5,8 +5,6 @@ import {
     updateMousePosOverlays, removeMousePosOverlays, 
     updateSelectedOverlay, updateSelectionMovementOverlay
 } from "./overlays.js";
-import { GraphicsEngine } from "../app.js";
-
 
 let moveObjects = false;
 export function set_moveObjectsStatus(status) {
@@ -155,17 +153,8 @@ function nextMouseOffset(event) {
     return {x: xoffset, y: yoffset};
 }
 
-//legacy code
-/*
-function quickUpdateMouseEvents() {
-    if (selectionMovementAxis !== null) {
-        masterRenderer.moveSelectedObjectAlong(selectionMovementAxis, lastX, lastY);
-    }
-}*/
-
 function handleMouseMove(event) {
     if (selectionMovementAxis !== null) {
-        //const offset = nextMouseOffset(event);
         masterRenderer.moveSelectedObjectAlong(selectionMovementAxis, event.clientX, event.clientY);
 
         const movedObject = masterRenderer.objects[masterRenderer.currentSelection];

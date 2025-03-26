@@ -964,7 +964,6 @@ function hideCameraConfigMenuOverlay() {
 async function setupWorkbench() {
     const response = await communicator.loginFromSessionStorage();
     if (response.status === "ERR") {
-        //console.error("Automatic login failed");
         const serverQuery = communicator.getServerQuery();
         location.href = "login.html" + serverQuery;
         return;

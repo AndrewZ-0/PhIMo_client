@@ -1,5 +1,5 @@
 import {updateShaderOverlays} from "./overlays.js";
-import {initBuffers} from "./buffers.js"; //, setAttrPointers, setLightingAttrPointers
+import {initBuffers} from "./buffers.js";
 import {initUniforms, initLightingUniforms} from "./renderTransforms.js";
 import {BasicShader, SkeletonShader, PointsShader, LightingShader} from "./shaders.js";
 import * as linearAlgebra from "../utils/linearAlgebra.js";
@@ -7,6 +7,7 @@ import * as spaceTransforms from "../utils/spaceTransforms.js";
 import {axisViewport} from "./axisViewPort.js";
 import {camera} from "./camera.js";
 
+//renderer base class
 class Renderer {
     constructor() {
         this.standardUniformLocs = null;
@@ -22,6 +23,7 @@ class Renderer {
         this.updateFlag = false;
     }
 
+    //set up renderer (including the shader program)
     initialise(gl, canvas, objects) {
         this.gl = gl;
         this.canvas = canvas;
@@ -32,6 +34,7 @@ class Renderer {
         this.updateFlag = true;
     }
 
+    //reinitialise objects and buffers to update the render 
     quickInitialise(objects) {
         this.objects = objects;
 
@@ -56,7 +59,6 @@ class Renderer {
         }
 
         this.buffers = initBuffers(this.gl, this.objects);
-        //this.configureBuffer();
 
         //use shader program
         this.gl.useProgram(this.program);
@@ -65,11 +67,7 @@ class Renderer {
         this.setMatricies();
     }
 
-    /*
-    configureBuffer() {
-        setAttrPointers(this.gl, this.buffers, this.positionAttrLoc, this.colourAttrLoc);
-    }*/
-
+    //a series of setters for uniform matricies
     setWorldUniformMatrix4fv() {
         this.gl.uniformMatrix4fv(this.standardUniformLocs.world, false, this.matricies.world);
     }
@@ -80,7 +78,7 @@ class Renderer {
         this.gl.uniformMatrix4fv(this.standardUniformLocs.proj, false, this.matricies.proj);
     }
 
-    setAllUniformMatrixies() {
+    setAllUniformMatricies() {
         this.setWorldUniformMatrix4fv();
         this.setViewUniformMatrix4fv();
         this.setProjUniformMatrix4fv();
@@ -94,11 +92,13 @@ class Renderer {
         };
     
         linearAlgebra.identityMat4(this.matricies.world);
+        //initial setup of look at matrix with arbitrary values (since renderers don't necissarily have a camera)
         linearAlgebra.lookAt(this.matricies.view, {x: 0, y: 0, z: -8}, linearAlgebra.globalOrigin, linearAlgebra.globalUp);
     
         this.matricies.proj = camera.getProjMat(this.canvas);
     }
 
+    //set shader uniforms when initialising shader environment
     setUniforms() {
         this.standardUniformLocs = initUniforms(this.gl, this.program);
     }
@@ -117,7 +117,6 @@ class Renderer {
     }
 
     shaderDrawElements(indicesLength, mode) {
-        //this.setAllUniformMatrixies();
         this.setWorldUniformMatrix4fv();
         this.setViewUniformMatrix4fv();
         this.shader.shaderDrawElements(indicesLength, mode);
@@ -144,6 +143,7 @@ class Renderer {
         linearAlgebra.setMat4rotation(this.matricies.world, object);
     }
 
+    //reinitialise world matrix to prepare to render next object
     frameObjectCleanUp() {
         linearAlgebra.identityMat4(this.matricies.world);
     }
@@ -168,7 +168,7 @@ class Renderer {
     }
 }
 
-
+//more rendering options and contol. Attaches different types of shaders and has a camera
 class AdvancedRenderer extends Renderer {
     constructor() {
         super();
@@ -202,14 +202,16 @@ class AdvancedRenderer extends Renderer {
     attachShader() {
         super.attachShader();
 
+        //if current shader requires normals to be included in attributes (e.g for lighting shaders)
         if (this.shader.normalsFlag) {
             this.normalAttrLoc = this.gl.getAttribLocation(this.program, "vertNormal");
         }
         else {
-            this.normalAttrLoc = null; //reset
+            this.normalAttrLoc = null; //reset (no normals)
         }
     }
 
+    //method to completely permanantly an attached shader program (this method is very powerful and should not be used casually)
     nukeShader() {
         this.gl.detachShader(this.program, this.shader.vertexShader);
         this.gl.deleteShader(this.shader.vertexShader);
@@ -220,34 +222,26 @@ class AdvancedRenderer extends Renderer {
         this.program.fShader = null;
     }
 
-    /*
-    configureBuffer() {
-        if (this.shader.normalsFlag) {
-            setLightingAttrPointers(this.gl, this.buffers, this.positionAttrLoc, this.normalAttrLoc, this.colourAttrLoc);
-        }
-        else {
-            setAttrPointers(this.gl, this.buffers, this.positionAttrLoc, this.colourAttrLoc);
-        }
-    }*/
-
     setUniforms() {
         this.standardUniformLocs = initUniforms(this.gl, this.program);
 
-        if (this.shader.normalsFlag) {
+        if (this.shader.normalsFlag) { //if normals included in uniforms
             this.lightingUniforms = initLightingUniforms(this.gl, this.program);
         }
     }
 
     setViewPositionUniform(viewPos) {
+        //view position only needs to be updated for the uniforms when using ligting shaders 
         if (this.shader.normalsFlag) {
             this.gl.uniform3fv(this.lightingUniforms.viewPos, viewPos);
         }
     }
 
-    
+    //set the shininess globally for all obejcts of the lighting shader
     setShininessUniform(shininess) {
         this.gl.uniform1f(this.lightingUniforms.shininess, shininess);
     }
+
 
     setColourOverrideUniform(state) {
         this.gl.uniform1i(this.standardUniformLocs.colourOverride, state);
@@ -295,7 +289,7 @@ class AdvancedRenderer extends Renderer {
 
         updateShaderOverlays();
 
-        this.setAllUniformMatrixies();
+        this.setAllUniformMatricies();
 
         this.updateFlag = true;
     }
@@ -370,7 +364,6 @@ class AdvancedRenderer extends Renderer {
         } 
 
         this.buffers = initBuffers(this.gl, this.objects);
-        //this.configureBuffer();
     }
 
     moveSelectedObjectAlong(axis, pointerX, pointerY) {
@@ -418,9 +411,6 @@ class AdvancedRenderer extends Renderer {
     
             object[axis] = p_doublePrime[axis];
 
-            //console.log(OP_prime);
-            //console.log((OA.x * a.z - OA.z * a.x) / (norm_OP_prime.x * a.z - norm_OP_prime.z * a.x), (OA.x * a.z - OA.y * a.x) / (norm_OP_prime.x * a.y - norm_OP_prime.y * a.x), (OA.y * a.z - OA.z * a.y) / (norm_OP_prime.y * a.z - norm_OP_prime.z * a.y));
-
             this.updateFlag = true;
             this.render();
         }
@@ -429,17 +419,21 @@ class AdvancedRenderer extends Renderer {
     renderSelected() {
         this.frameObjectSetUp(this.objects[this.currentSelection], this.buffers[this.currentSelection]);
 
+        //set transparency fresnal shader mode override for indicating that object is selected
         this.setColourOverrideUniform(1);
         this.gl.depthMask(false);
 
+        //get shader to draw fragments with fresnal shading
         this.shaderDrawElements(this.buffers[this.currentSelection].indexCount, this.gl.TRIANGLES);
 
         this.gl.depthMask(true);
         
         this.gl.disable(this.gl.DEPTH_TEST);
+        //get shader to draw solid connecting lines 
         this.shaderDrawElements(this.buffers[this.currentSelection].indexCount, this.gl.LINES);
 
         this.gl.enable(this.gl.DEPTH_TEST);
+        //set fresnal override to false for all other objects which are not sleceted
         this.setColourOverrideUniform(0);
 
         this.frameObjectCleanUp();

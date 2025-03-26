@@ -39,7 +39,7 @@ class AxisViewport {
 
         axisRenderer.initialise(this.gl, this.canvas, new SkeletonShader(this.gl), allAxis);
 
-        axisRenderer.setAllUniformMatrixies();
+        axisRenderer.setAllUniformMatricies();
 
         this.resizeCanvas();
         window.addEventListener("resize", () => this.resizeCanvas());
@@ -72,7 +72,7 @@ class AxisViewport {
 
                 allAxis.push(this.activeAxis);
                 requestQuickInitialise = true;
-                //axisRenderer.setAllUniformMatrixies();
+                //axisRenderer.setAllUniformMatricies();
             }
 
         }
@@ -82,7 +82,7 @@ class AxisViewport {
                 this.activeAxis = null;
 
                 requestQuickInitialise = true;
-                //axisRenderer.setAllUniformMatrixies();
+                //axisRenderer.setAllUniformMatricies();
             }
         }
 

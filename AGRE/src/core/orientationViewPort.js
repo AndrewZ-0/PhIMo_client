@@ -35,7 +35,7 @@ class OrientationMenu {
         orientationRenderer.matricies.proj = linearAlgebra.ortho(-1.2, 1.2, -1.2, 1.2, -1.2, 1.2); 
 
 
-        orientationRenderer.setAllUniformMatrixies();
+        orientationRenderer.setAllUniformMatricies();
     }
 
     updateView() {

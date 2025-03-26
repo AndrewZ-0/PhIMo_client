@@ -42,40 +42,49 @@ export class GraphicsEngine {
         updateSensitivityOverlays();
         camera.updateAllOverlays();
 
-        masterRenderer.setAllUniformMatrixies();
+        masterRenderer.setAllUniformMatricies();
 
         //listener bindings
         bindAllControls(this.canvas);
         bindVisabilityChange(this.onVisibilityChange);
 
-        this.resizeCanvas();
-        window.addEventListener("resize", () => this.resizeCanvas());
+        this.resizeCanvas(); //resize initially to current screen size
+        window.addEventListener("resize", this.resizeCanvas);
     }
 
     mainloop = () => {
+        //update master camera system (update view matrix based on user inputs ince last animation frame)
         camera.updateCamera(masterRenderer.matricies.view);
+        //update master renderer (render cycle for the main viewport)
         masterRenderer.render();
 
+        //run updates for axis renderer
         axisViewport.updateView();
         axisRenderer.render();
 
+        //run updates for orientation renderer
         orientationMenu.updateView();
         orientationRenderer.render();
 
+        //update clock (keeping track of fps)
         clock.updateDeltaT();
         updateFpsOverlay();
 
+        //no changes since last frame (resetting update flag to the master renderer)
         camera.changedSinceLastFrame = false;
 
+        //wait until next animation frame is requested to run the mainloop again
         this.currentAnimationFrame = requestAnimationFrame(this.mainloop);
     };
 
     start = () => {
         //condition here as a quick fix for initial hidden document "inifinity fps issue"
         if (!document.hidden) {
+            //forcefully update camera to update view matrix 
             camera.forceUpdateCamera(masterRenderer.matricies.view);
             camera.changedSinceLastFrame = false;
 
+            //start mainloop (with update flag for master renderer set to true: always update for the next frame)
             masterRenderer.updateFlag = true;
             this.currentAnimationFrame = requestAnimationFrame(this.mainloop);
         }
@@ -83,12 +92,16 @@ export class GraphicsEngine {
 
     onVisibilityChange = () => {
         if (document.hidden) {
+            //to avoid issues arising from keydown event set to true in listeners when changing page visability (such as exiting clicking off browser tab) causing event to be continually triggered
             quickReleaseKeys();
+            //cancel any animation frames already requested
             cancelAnimationFrame(this.currentAnimationFrame);
         } 
         else {
+            //first cancel animation frame
             cancelAnimationFrame(this.currentAnimationFrame);
 
+            //then restart camera and then start the mainloop
             camera.forceUpdateCamera(masterRenderer.matricies.view);
             camera.changedSinceLastFrame = false;
 
@@ -97,54 +110,47 @@ export class GraphicsEngine {
         }
     }
 
+    //stop current animation frame and force everything to update before starting a new animation frame
     quickAnimationStart() {
         cancelAnimationFrame(this.currentAnimationFrame);
 
         this.forceAnimationFrame();
     }
 
+    //force the camera and all renderers to update and then requestion animation frame for mainloop
     forceAnimationFrame() {
         camera.forceUpdateCamera(masterRenderer.matricies.view);
         masterRenderer.render();
 
         axisViewport.updateView();
         axisRenderer.render();
-        //camera.forceUpdateCamera(axisRenderer.matricies.view);
 
         orientationMenu.updateView();
         orientationRenderer.render();
 
-        //this.updateFlag = true;
-        //camera.forceUpdateCamera(orientationRenderer.matricies.view);
         this.currentAnimationFrame = requestAnimationFrame(this.mainloop);
     }
 
     resizeCanvas() {
+        //set the display width to the current canvas (the html element) width
         const displayWidth = this.canvas.clientWidth;
         const displayHeight = this.canvas.clientHeight;
 
+        //if width or height has changed, update viewport
         if (this.canvas.width !== displayWidth || this.canvas.height !== displayHeight) {
             this.canvas.width = displayWidth;
             this.canvas.height = displayHeight;
 
+            //set viewport width and height
             this.gl.viewport(0, 0, this.gl.drawingBufferWidth, this.gl.drawingBufferHeight);
 
             masterRenderer.setMatricies();
             masterRenderer.setProjUniformMatrix4fv(); 
 
+            //force render to update after resizing
             masterRenderer.updateFlag = true;
         }
     }
-
-
-    /*
-    cleanup() { //call lose context from axis view port and orientaion view port
-        cancelAnimationFrame(this.currentAnimationFrame);
-
-        this.gl.getExtension("WEBGL_lose_context").loseContext();
-        axisViewport.cleanup();
-        orientationMenu.cleanup();
-    }*/
 }
 
 

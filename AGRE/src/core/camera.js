@@ -64,20 +64,23 @@ class CartesianQuaternionCamera extends Camera {
         this.updateDirectionVects();
     }
 
+    //update global direction vectors of the camera based on the orientation of the camera
     updateDirectionVects() {
         linearAlgebra.transformQuat(this.front, linearAlgebra.globalFront, this.orientation);
         linearAlgebra.transformQuat(this.right, linearAlgebra.globalRight, this.orientation);
         linearAlgebra.transformQuat(this.up, linearAlgebra.globalUp, this.orientation);
     }
 
+    //update all frame-synced movement updates such as key presses
     handleMovements() {
         if (keys.w || keys.s || keys.d || keys.a || keys.space || keys.shift || keys.left || keys.right || keys.up || keys.down || keys.period || keys.comma) {
+            //incrment the camera coords based on how much the camera should have moved along each direction vector since the last frame update
             linearAlgebra.scaleTranslateVec3(this.coords, this.front, cameraMovementSpeed * clock.deltaT * (keys.w - keys.s));
             linearAlgebra.scaleTranslateVec3(this.coords, this.right, cameraMovementSpeed * clock.deltaT * (keys.d - keys.a));
             linearAlgebra.scaleTranslateVec3(this.coords, this.up, cameraMovementSpeed * clock.deltaT * (keys.space - keys.shift));
             updateCartesianCameraCoordsOverlays();
 
-
+            //update orientation (input from keys)
             linearAlgebra.applyQuat(
                 this.orientation, linearAlgebra.getAxisAngle(
                     this.right, cameraRotationSpeed * clock.deltaT * (keys.up - keys.down) * carteisanOrientKeyMultiplier
@@ -97,6 +100,7 @@ class CartesianQuaternionCamera extends Camera {
             this.updateDirectionVects();
             updateCameraEulerAnglesOverlays();
 
+            //set flag for renderer to update viewport render
             this.changedSinceLastFrame = true;
         }
     }
@@ -122,6 +126,7 @@ class CartesianQuaternionCamera extends Camera {
         updateCameraEulerAnglesOverlays();
     }
 
+    //standard frame synced method for updating the view matrix based on 
     updateCamera(viewMatrix) {
         this.changedSinceLastFrame ||= mouseDragging;
 
@@ -130,6 +135,7 @@ class CartesianQuaternionCamera extends Camera {
         this.getViewMatrix(viewMatrix);
     }
 
+    //update camera + force renderer to update and update camera data overlays
     forceUpdateCamera(viewMatrix) {
         this.updateDirectionVects();
     
@@ -140,14 +146,17 @@ class CartesianQuaternionCamera extends Camera {
         this.updateAllOverlays();
     }
 
+    //standard getter view matrix of camera (for master renderer)
     getViewMatrix(viewMatrix) {
         linearAlgebra.lookAt(viewMatrix, this.coords, this.front, this.up);
     }
 
+    //orientation viewport view matrix of camera (for orientation viewport renderer)
     getOrientationViewMatrix(viewMatrix) {
         linearAlgebra.lookAt(viewMatrix, linearAlgebra.globalOrigin, camera.front, camera.up);
     }
 
+    //set camera pose (coords and orientation)
     setPose(pose) {
         this.coords = {
             x: pose.coords.x, 
@@ -189,6 +198,7 @@ class CartesianPolarCamera extends Camera {
         this.setDirectionVects();
     }
 
+    //get dir vects from orientation
     setDirectionVects() {
         const basisVecs = linearAlgebra.getBasisHorizontalCoords(this.orientation);
         this.front = basisVecs.front;
@@ -196,6 +206,7 @@ class CartesianPolarCamera extends Camera {
         this.up = basisVecs.up;
     }
 
+    //update all frame-synced movement updates such as key presses
     handleMovements() {
         if (keys.w || keys.s || keys.d || keys.a || keys.space || keys.shift || keys.left || keys.right || keys.up || keys.down) {
             linearAlgebra.scaleTranslateVec3(
@@ -237,6 +248,9 @@ class CartesianPolarCamera extends Camera {
         updatePolarCartesianCameraOrientationOverlays();
     }
 
+    //to ensure alt and azi angles can wrap/clamp to the correct range
+    //azimuth => {0, 2pi}
+    //altitude => {-pi, pi}
     readjustAngles() {
         this.orientation.azi = linearAlgebra.wrapPositive(this.orientation.azi, linearAlgebra.twoPi);
         this.orientation.alt = linearAlgebra.clamp(this.orientation.alt, -linearAlgebra.halfPi, linearAlgebra.halfPi);
@@ -253,6 +267,7 @@ class CartesianPolarCamera extends Camera {
         updatePolarCartesianCameraOrientationOverlays();
     }
 
+    //standard frame synced method for updating the view matrix based on 
     updateCamera(viewMatrix) {
         this.changedSinceLastFrame ||= mouseDragging;
 
@@ -261,6 +276,7 @@ class CartesianPolarCamera extends Camera {
         this.getViewMatrix(viewMatrix);
     }
 
+    //update camera + force renderer to update and update camera data overlays
     forceUpdateCamera(viewMatrix) {
         this.setDirectionVects();
     
@@ -271,14 +287,17 @@ class CartesianPolarCamera extends Camera {
         this.updateAllOverlays();
     }
 
+    //standard getter view matrix of camera (for master renderer)
     getViewMatrix(viewMatrix) {
         linearAlgebra.lookAt(viewMatrix, this.coords, this.front, this.up);
     }
 
+    //orientation viewport view matrix of camera (for orientation viewport renderer)
     getOrientationViewMatrix(viewMatrix) {
         linearAlgebra.lookAt(viewMatrix, linearAlgebra.globalOrigin, camera.front, camera.up);
     }
 
+    //set camera pose (coords and orientation)
     setPose(pose) {
         this.coords = {
             x: pose.coords.x, 
@@ -320,6 +339,9 @@ class PolarCamera extends Camera {
         this.readjustPosition();
     }
 
+    //to ensure alt and azi angles can wrap/clamp to the correct range
+    //azimuth => {0, 2pi}
+    //altitude => {-pi, pi}
     readjustAngles() {
         this.azi = linearAlgebra.wrapPositive(this.azi, linearAlgebra.twoPi);
         this.alt = linearAlgebra.clamp(this.alt, -linearAlgebra.halfPi, linearAlgebra.halfPi);
@@ -329,6 +351,7 @@ class PolarCamera extends Camera {
         updatePolarCameraPoseOverlays();
     }
 
+    //register changes to the pose since last update call
     readjustPosition() {
         this.readjustAngles();
 
@@ -340,17 +363,20 @@ class PolarCamera extends Camera {
         });
     }
 
+    //update the position of the camera (pose) including updating the front vector for the view matrix + update overlay
     updatePosition() {
         this.readjustPosition();
 
         this.updateAllOverlays();
     }
 
+    //handle frame-synced key press movements (WASD, shift & space)
     handleMovements() {
         const deltaR = cameraMovementSpeed * clock.deltaT * (keys.s - keys.w) * this.r * 0.1;
         const deltaAzi = cameraRotationSpeed * clock.deltaT / 2 * (keys.d - keys.a);
         const deltaAlt = cameraRotationSpeed * clock.deltaT / 4 * (keys.space - keys.shift);
 
+        //if any component of the pose has changed since last update (frame)
         if (deltaR || deltaAzi || deltaAlt) {
             this.r += deltaR;
             this.azi += deltaAzi;
@@ -359,10 +385,12 @@ class PolarCamera extends Camera {
             this.readjustAngles();
             this.updatePosition();
 
+            //tell renderer to update
             this.changedSinceLastFrame = true;
         }
     }
 
+    //event-driven updates to the camera (pointer drag): triggered from listeners
     onPointerDrag(offset) {
         this.alt -= offset.y * draggingSensitivity * polarDraggingMultiplier;
         this.azi += offset.x * draggingSensitivity * polarDraggingMultiplier;
@@ -370,9 +398,11 @@ class PolarCamera extends Camera {
         this.readjustAngles();
         this.updatePosition();
 
+        //set renderer flag to true (to force update during next render cycle)
         this.changedSinceLastFrame = true;
     }
 
+    //standard frame synced method for updating the view matrix based on 
     updateCamera(viewMatrix) {
         this.changedSinceLastFrame ||= mouseDragging;
 
@@ -381,6 +411,7 @@ class PolarCamera extends Camera {
         this.getViewMatrix(viewMatrix);
     }
 
+    //update camera + force renderer to update and update camera data overlays
     forceUpdateCamera(viewMatrix) {
         this.updatePosition();
     
@@ -389,14 +420,17 @@ class PolarCamera extends Camera {
         this.changedSinceLastFrame = true;
     }
 
+    //standard getter view matrix of camera (for master renderer)
     getViewMatrix(viewMatrix) {
         linearAlgebra.lookAt(viewMatrix, this.coords, this.front, this.up);
     }
 
+    //orientation viewport view matrix of camera (for orientation viewport renderer)
     getOrientationViewMatrix(viewMatrix) {
         linearAlgebra.lookAt(viewMatrix, this.localOrigin, this.front, this.up);
     }
 
+    //set camera pose (coords and orientation)
     setPose(pose) {
         this.r = pose.r;
         this.azi = pose.azi;
@@ -408,6 +442,7 @@ class PolarCamera extends Camera {
     }
 }
 
+//toggle current camera function: always switched in sequence (triggered from keypress of "c" and called from listener)
 export function toggleCameraMode() {
     //pretty sure the old camera gets garbage collected... 
     //but if there is a memory leak, now you probably know why :)
@@ -426,11 +461,13 @@ export function toggleCameraMode() {
             return;
     }
 
+    //reconfig overlays so that they display pose data about the new current camera system
     updateCameraModeOverlay();
     emptyAllCameraOverlays();
 }
 
-
+//setter for current camera system
+//more overhead than toggling the camera mode but can set any camera system from 
 export function setCameraMode(mode) {
     if (mode === cameraMode) {
         return;
@@ -500,7 +537,7 @@ export function setCameraMode(mode) {
     }
 }
 
-
+//getters and setters for camera sensitivities (dragging sensitivity, movement speed and rotation speed)
 export function setDraggingSensitivity(newSensitivity) {
     draggingSensitivity = newSensitivity;
 }
@@ -511,6 +548,7 @@ export function setCameraRotationSpeed(newRotSpeed) {
     cameraRotationSpeed = newRotSpeed;
 }
 
+//getters and setters for projection matrix perameters
 export function setCameraNear(newNear) {
     near = newNear;
 }
@@ -521,5 +559,5 @@ export function setCameraFov(newFov) {
     fov = newFov;
 }
 
-
+//default camera
 export let camera = new PolarCamera(10, 0, 0);

@@ -15,7 +15,7 @@ export function initUniforms(gl, program) {
 const lightPosition = [0, 10, 0]; 
 const lightColour = [1, 1, 1];
 const lightAmbient = [0.1, 0.1, 0.1];
-const lightStrength = 1000;
+const lightStrength = 80;
 
 export function initLightingUniforms(gl, program) {
     const lightPositionUniformLoc = gl.getUniformLocation(program, "lightPos");

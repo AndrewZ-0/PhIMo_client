@@ -135,9 +135,7 @@ export class SolverLinker {
         }
 
         this.computePOPForces(
-            (particles, i, j, invSquare, d) => {
-                this.applyPOPForces(particles, i, j, invSquare, d);
-            }, 
+            this.applyPOPForces.bind(this), 
             particles
         );
 

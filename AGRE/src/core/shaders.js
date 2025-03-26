@@ -77,13 +77,5 @@ export class LightingShader extends Shader {
 
     shaderDrawElements(indicesLength, mode) {
         this.gl.drawElements(mode, indicesLength, this.gl.UNSIGNED_SHORT, 0);
-        //const error = this.gl.getError();
-
-        /*
-        if (error !== this.gl.NO_ERROR) {
-            console.error(error);
-            //console.log(indicesLength);
-            //console.log(this.gl.getBufferParameter(this.gl.ARRAY_BUFFER, this.gl.BUFFER_SIZE));
-        }*/
     }
 }

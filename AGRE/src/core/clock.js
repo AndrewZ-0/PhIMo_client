@@ -2,14 +2,13 @@ export const FPS = 60; //annoyingly, webgl does not support changing fps so I'm 
 
 class Clock {
     constructor() {
-        this.deltaT = 1 / FPS;
-        this.last_t = window.performance.now();
-        this.current_fps;
+        this.deltaT = 1 / FPS; //time taken for last frame to finish
+        this.last_t = window.performance.now(); //time since last frame
+        this.current_fps; //estimated current fps based on deltaT
     }
 
     updateFps() {
         this.current_fps = 1 / this.deltaT;
-        //console.log(this.last_t);
     }
 
     updateDeltaT() {
