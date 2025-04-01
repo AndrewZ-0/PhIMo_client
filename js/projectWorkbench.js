@@ -896,10 +896,11 @@ async function saveProjectData() {
     const screenshot = offScreenCanvas.toDataURL("image/png");
 
     const response = await communicator.updateProjectData(projectName, projectData, settingsData, screenshot);
-
     if (response.status === "OK") {
         clearUnsavedChanges();
     }
+
+    communicator.updateAccessProjectTime(projectName);
 }
 
 
@@ -913,7 +914,7 @@ function handleLeavePage(event) {
     if (unsavedChanges === "high") {
         return "You have unsaved changes. If you leave now, your changes will be lost. Are you sure you want to leave?";
     } 
-    else if (simulationOverlay.currentActiveWorkerId !== null) {
+    else if (simulationOverlay && simulationOverlay.currentActiveWorkerId !== null) {
         return "You have a simulating being computed. If you leave now, the current active worker will be orphaned. Are you sure you want to leave?";
     }
 }
@@ -970,6 +971,9 @@ async function setupWorkbench() {
     }
 
     loadData();
+
+    const projectName = communicator.getProjNameFromUrl();
+    communicator.updateAccessProjectTime(projectName);
 
     document.getElementById("toolsTab").addEventListener("pointerup", () => toggleTab("tools"));
     document.getElementById("modelsTab").addEventListener("pointerup", () => toggleTab("models"));

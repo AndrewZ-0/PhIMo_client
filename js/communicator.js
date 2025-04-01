@@ -13,6 +13,7 @@ class Communicator {
         this.certificate = null; 
     }
 
+    //checks if certificate is in session storage and logs in to server using said certificate
     async loginFromSessionStorage() {
         const certificate = sessionStorage.getItem("certificate");
 
@@ -33,6 +34,7 @@ class Communicator {
         }
     }
 
+    //ask server to check cookies of this connection. If a cookie is found, use said cookie to log in
     async loginFromCookies() {
         const response = await this.getCertificateFromCookies();
     
@@ -61,6 +63,7 @@ class Communicator {
         }
     }
 
+    //login using accound credentials. (from login screen)
     async loginFromCredentials(username, password, keepSignedIn) {
         const response = await this.submitData("login", {username, password, keepSignedIn});
 
@@ -75,11 +78,11 @@ class Communicator {
         return response;
     }
 
+    //server ping to check if fetches can reach server/ server responses could be recieved
     async connect() {
         try {
             const response = await fetch(`${this.scheme + this.serverDomainName}/connect`);
             if (response.ok) {
-                //console.log("Connected to server");
                 return true;
             } 
             else {
@@ -93,14 +96,8 @@ class Communicator {
         }
     }
 
+    //http POST method wrapper 
     async submitData(typeOfFetch, data, addCertificate = false) {
-        /*
-        const connected = await this.connect();
-
-        if (!connected) {
-            return {status: "ERR", message: "Failed to connect to server"};
-        }*/
-
         let headers = {
             "Content-Type": "application/json"
         };
@@ -119,15 +116,8 @@ class Communicator {
         return await response.json();
     }
 
+    //http GET method wrapper
     async fetchData(typeOfFetch, data, addCertificate = false) {
-        /*
-        const connected = await this.connect();
-
-        if (!connected) {
-            return {status: "ERR", message: "Failed to connect to server"};
-        }
-        */
-
         let headers = {
             "Content-Type": "application/json",
             ...data
@@ -224,13 +214,6 @@ class Communicator {
 
     //can't use a standardised fetch request since data is not a json
     async getProjectScreenshot(projectName) {
-        /*
-        const connected = await this.connect();
-
-        if (!connected) {
-            return {status: "ERR", message: "Failed to connect to server"};
-        }*/
-
         const headers = {
             "Content-Type": "application/json",
             certificate: this.certificate, 
@@ -284,13 +267,6 @@ class Communicator {
     }
 
     async streamSimulationFramesFile(projectName, simulationName) {
-        /*
-        const connected = await this.connect();
-
-        if (!connected) {
-            return {status: "ERR", message: "Failed to connect to server"};
-        }*/
-
         const headers = {
             "Content-Type": "application/json",
             certificate: this.certificate, 

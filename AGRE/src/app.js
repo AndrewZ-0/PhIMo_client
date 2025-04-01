@@ -49,7 +49,7 @@ export class GraphicsEngine {
         bindVisabilityChange(this.onVisibilityChange);
 
         this.resizeCanvas(); //resize initially to current screen size
-        window.addEventListener("resize", this.resizeCanvas);
+        window.addEventListener("resize", this.resizeCanvas.bind(this));
     }
 
     mainloop = () => {
