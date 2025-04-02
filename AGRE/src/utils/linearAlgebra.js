@@ -7,8 +7,6 @@ export const identityMatrix = createMat4();
 identityMat4(identityMatrix);
 
 
-//hmm, note to self: might need to move all the trig stuff out of this file. (cause its not linear algebra...)
-
 export const halfPi = Math.PI / 2;
 export const twoPi = Math.PI * 2;
 

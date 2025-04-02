@@ -1,8 +1,6 @@
 .form-container {
     display: flex;
     flex-direction: column;
-    /*min-width: 25%;*/
-    /*max-width: 600px;*/
     padding: 30px 5% 30px 5%;
     background-color: #eee;
 }

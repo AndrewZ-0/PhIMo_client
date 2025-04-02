@@ -29,7 +29,7 @@ void main() {
 
 
     if (colourOverride) {
-        //fresnel-based glow effect
+        //fresnal-based glow effect
         float fresnel = pow(dot(viewDir, fragNormal), 2.0);
 
         vec3 glowColour = (1.0 - fragColour) * glowStrength * fresnel;

@@ -8,23 +8,15 @@ html {
 body {
     display: flex;
     flex-direction: column;
-    
-    /*align-items: center;*/
-    /*min-height: 200px;*/
-    /*min-width: 200px;*/
-
     margin: 0;
     font-family: Arial;
     background-color: #f9f9f9;
-    /*outline: 1px solid #ff0000;*/
-
     width: 100%;
     height: 100%;
 }
 
 div {
     display: flex;
-    /*align-items: center;*/
 }
 
 label {
@@ -66,7 +58,6 @@ button:active {
 }
 
 .titleLabel {
-    /*outline: 1px solid #001eff;*/
     font-weight: 1000; 
     font-size: 100px; 
     color: #333;
@@ -96,7 +87,6 @@ button:active {
 }
 
 #mainScreen {
-    /*outline: 1px solid #001eff;*/
     width: 100%; 
     height: 100%;
     align-items: center;
