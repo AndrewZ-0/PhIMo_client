@@ -48,7 +48,7 @@ function getIntersection(object, rayOrigin, rayDir) {
 
         const lambda = linearAlgebra.dotVec3(h, n) / linearAlgebra.dotVec3(rayDir, n); 
 
-        //direction check
+        //direction check (if POI is in front of the camera)
         if (lambda <= 0) {
             return null;
         }
