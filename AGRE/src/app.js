@@ -53,7 +53,7 @@ export class GraphicsEngine {
     }
 
     mainloop = () => {
-        //update master camera system (update view matrix based on user inputs ince last animation frame)
+        //update master camera system (update view matrix based on user inputs since last animation frame)
         camera.updateCamera(masterRenderer.matricies.view);
         //update master renderer (render cycle for the main viewport)
         masterRenderer.render();
