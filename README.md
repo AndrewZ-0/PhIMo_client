@@ -1,6 +1,6 @@
 Client to the PhIMo project (used in conjunction with PhIMo Server)
 
-An educational WebGL based 3D ridged body physics simulator. 
+An educational WebGL based 3D ridged body physics simulator. [2024-25 AQA A-Level CS NEA]
 
 Contents:
 * AGRE: (Andrew's Graphics Rendering Engine) A WebGL rendering engine which includes:
@@ -13,3 +13,6 @@ Contents:
 * PhIMo Live: A JS-based version of PhIMo Cloud which runs solvers real time in browser
 * HTML pages for login, creating/loading/deleting projects, editing projects and running simulations (both live and cloud)
 * Precomputed simulations can be saved to PhIMo Server and retreived under the same user at a later date
+
+Accociated documentation: https://docs.google.com/document/d/1j0QF2ldDMXXGy4Eq_IKLlb9tw-CESxyAJFDS6UvC79I/edit?tab=t.0#heading=h.2oub4qxn803k
+
