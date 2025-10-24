@@ -1,4 +1,4 @@
-Client to the PhIMo project (used in conjunction with PhIMo Server)
+Client to the PhIMo project (used in conjunction with PhIMo Server https://github.com/AndrewZ-0/PhIMo_server)
 
 PhIMo: An NEA turned passion Project [2024-25 AQA A-Level CS NEA]
 
