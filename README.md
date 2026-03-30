@@ -16,7 +16,7 @@ Contents:
 * HTML pages for login, creating/loading/deleting projects, editing projects and running simulations (both live and cloud)
 * Precomputed simulations can be saved to PhIMo Server and retreived under the same user at a later date
 
-Accociated documentation: https://docs.google.com/document/d/1j0QF2ldDMXXGy4Eq_IKLlb9tw-CESxyAJFDS6UvC79I/edit?tab=t.0#heading=h.2oub4qxn803k
+Accociated documentation as of (23/10/25): https://docs.google.com/document/d/1j0QF2ldDMXXGy4Eq_IKLlb9tw-CESxyAJFDS6UvC79I/edit?tab=t.0#heading=h.2oub4qxn803k
 
 How to setup PhIMo for the first time:
 1. Make sure you have both PhIMo_Server and PhIMo_Cloud repositories cloned. I would recommend opening both up in seperate terminal contexts.
